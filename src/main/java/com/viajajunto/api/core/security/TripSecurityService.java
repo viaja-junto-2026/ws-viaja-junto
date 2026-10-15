@@ -3,7 +3,7 @@ package com.viajajunto.api.core.security;
 import com.viajajunto.api.core.exception.ResourceNotFoundException;
 import com.viajajunto.api.core.exception.UnauthorizedAccessException;
 import com.viajajunto.api.modules.trip.entity.PermissaoMembro;
-import com.viajajunto.api.modules.trip.entity.Viagem;
+import com.viajajunto.api.modules.trip.entity.ViagemEntity;
 import com.viajajunto.api.modules.trip.repository.MembroViagemRepository;
 import com.viajajunto.api.modules.trip.repository.ViagemRepository;
 import lombok.RequiredArgsConstructor;
@@ -16,8 +16,8 @@ public class TripSecurityService {
     private final ViagemRepository viagemRepository;
     private final MembroViagemRepository membroViagemRepository;
 
-    public Viagem validateUserCanViewTrip(Long viagemId, Long userId) {
-        Viagem viagem = viagemRepository.findById(viagemId)
+    public ViagemEntity validateUserCanViewTrip(Long viagemId, Long userId) {
+        ViagemEntity viagem = viagemRepository.findById(viagemId)
                 .orElseThrow(() -> new ResourceNotFoundException("Viagem não encontrada com o ID: " + viagemId));
 
         if (viagem.getCriador().getId().equals(userId)) {
@@ -32,8 +32,8 @@ public class TripSecurityService {
         return viagem;
     }
 
-    public Viagem validateUserCanEditTrip(Long viagemId, Long userId) {
-        Viagem viagem = viagemRepository.findById(viagemId)
+    public ViagemEntity validateUserCanEditTrip(Long viagemId, Long userId) {
+        ViagemEntity viagem = viagemRepository.findById(viagemId)
                 .orElseThrow(() -> new ResourceNotFoundException("Viagem não encontrada com o ID: " + viagemId));
 
         if (viagem.getCriador().getId().equals(userId)) {
@@ -46,8 +46,8 @@ public class TripSecurityService {
                 .orElseThrow(() -> new UnauthorizedAccessException("Você precisa de permissão de Editor ou Criador para alterar esta viagem."));
     }
 
-    public Viagem validateUserIsOwner(Long viagemId, Long userId) {
-        Viagem viagem = viagemRepository.findById(viagemId)
+    public ViagemEntity validateUserIsOwner(Long viagemId, Long userId) {
+        ViagemEntity viagem = viagemRepository.findById(viagemId)
                 .orElseThrow(() -> new ResourceNotFoundException("Viagem não encontrada com o ID: " + viagemId));
 
         if (!viagem.getCriador().getId().equals(userId)) {

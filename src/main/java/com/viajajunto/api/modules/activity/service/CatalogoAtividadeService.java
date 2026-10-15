@@ -2,7 +2,7 @@ package com.viajajunto.api.modules.activity.service;
 
 import com.viajajunto.api.core.exception.ResourceNotFoundException;
 import com.viajajunto.api.modules.activity.dto.CatalogoAtividadeDTO;
-import com.viajajunto.api.modules.activity.entity.CatalogoAtividade;
+import com.viajajunto.api.modules.activity.entity.CatalogoAtividadeEntity;
 import com.viajajunto.api.modules.activity.repository.CatalogoAtividadeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -30,7 +30,7 @@ public class CatalogoAtividadeService {
 
     @Transactional(readOnly = true)
     public CatalogoAtividadeDTO getAtividadeById(Long id) {
-        CatalogoAtividade atividade = catalogoAtividadeRepository.findById(id)
+        CatalogoAtividadeEntity atividade = catalogoAtividadeRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Atividade não encontrada no catálogo com ID: " + id));
         return mapToDTO(atividade);
     }
@@ -43,7 +43,7 @@ public class CatalogoAtividadeService {
                 .collect(Collectors.toList());
     }
 
-    public CatalogoAtividadeDTO mapToDTO(CatalogoAtividade entity) {
+    public CatalogoAtividadeDTO mapToDTO(CatalogoAtividadeEntity entity) {
         return CatalogoAtividadeDTO.builder()
                 .id(entity.getId())
                 .nome(entity.getNome())

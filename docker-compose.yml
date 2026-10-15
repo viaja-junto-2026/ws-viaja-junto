@@ -1,0 +1,51 @@
+services:
+  # MiniStack (Emulador AWS local completo com suporte a DynamoDB e outros serviços)
+  ministack:
+    image: ministackorg/ministack:latest
+    container_name: viaja-junto-ministack
+    hostname: ministack
+    restart: always
+    ports:
+      - "4566:4566"
+    networks:
+      - viaja-junto-network
+
+  # Aplicação Spring Boot
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: viaja-junto-app
+    restart: always
+    ports:
+      - "8080:8080"
+    environment:
+      - AWS_REGION=us-east-1
+      - AWS_DYNAMODB_ENDPOINT=http://ministack:4566
+      - AWS_ACCESS_KEY_ID=fakeAccessKey
+      - AWS_SECRET_ACCESS_KEY=fakeSecretKey
+    depends_on:
+      - ministack
+    networks:
+      - viaja-junto-network
+
+  # DynamoDB Admin GUI (Interface Web para visualizar tabelas e itens no browser)
+  dynamodb-admin:
+    image: aaronshaf/dynamodb-admin:latest
+    container_name: viaja-junto-dynamodb-admin
+    restart: always
+    ports:
+      - "8002:8001"
+    environment:
+      - DYNAMO_ENDPOINT=http://ministack:4566
+      - AWS_REGION=us-east-1
+      - AWS_ACCESS_KEY_ID=fakeAccessKey
+      - AWS_SECRET_ACCESS_KEY=fakeSecretKey
+    depends_on:
+      - ministack
+    networks:
+      - viaja-junto-network
+
+networks:
+  viaja-junto-network:
+    driver: bridge

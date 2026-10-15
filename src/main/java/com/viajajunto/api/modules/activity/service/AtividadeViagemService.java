@@ -5,12 +5,12 @@ import com.viajajunto.api.core.exception.ResourceNotFoundException;
 import com.viajajunto.api.core.security.TripSecurityService;
 import com.viajajunto.api.modules.activity.dto.AtividadeResponseDTO;
 import com.viajajunto.api.modules.activity.dto.CreateAtividadeDTO;
-import com.viajajunto.api.modules.activity.entity.AtividadeViagem;
-import com.viajajunto.api.modules.activity.entity.CatalogoAtividade;
+import com.viajajunto.api.modules.activity.entity.AtividadeViagemEntity;
+import com.viajajunto.api.modules.activity.entity.CatalogoAtividadeEntity;
 import com.viajajunto.api.modules.activity.entity.StatusAtividade;
 import com.viajajunto.api.modules.activity.repository.AtividadeViagemRepository;
 import com.viajajunto.api.modules.activity.repository.CatalogoAtividadeRepository;
-import com.viajajunto.api.modules.destination.entity.DestinoViagem;
+import com.viajajunto.api.modules.destination.entity.DestinoViagemEntity;
 import com.viajajunto.api.modules.destination.repository.DestinoViagemRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -33,19 +33,19 @@ public class AtividadeViagemService {
     public AtividadeResponseDTO addAtividade(Long viagemId, Long destinoId, CreateAtividadeDTO dto, Long userId) {
         tripSecurityService.validateUserCanEditTrip(viagemId, userId);
 
-        DestinoViagem destino = destinoViagemRepository.findById(destinoId)
+        DestinoViagemEntity destino = destinoViagemRepository.findById(destinoId)
                 .orElseThrow(() -> new ResourceNotFoundException("Destino não encontrado na viagem com ID: " + destinoId));
 
         if (!destino.getViagem().getId().equals(viagemId)) {
             throw new BusinessRuleException("O destino não pertence à viagem indicada.");
         }
 
-        CatalogoAtividade catalogo = null;
+        CatalogoAtividadeEntity catalogo = null;
         if (dto.getCatalogoAtividadeId() != null) {
             catalogo = catalogoAtividadeRepository.findById(dto.getCatalogoAtividadeId()).orElse(null);
         }
 
-        AtividadeViagem atividade = AtividadeViagem.builder()
+        AtividadeViagemEntity atividade = AtividadeViagemEntity.builder()
                 .destinoViagem(destino)
                 .catalogoAtividade(catalogo)
                 .nome(dto.getNome())
@@ -59,7 +59,7 @@ public class AtividadeViagemService {
                 .status(dto.getStatus() != null ? dto.getStatus() : StatusAtividade.PENDENTE)
                 .build();
 
-        AtividadeViagem saved = atividadeViagemRepository.save(atividade);
+        AtividadeViagemEntity saved = atividadeViagemRepository.save(atividade);
         return mapToDTO(saved);
     }
 
@@ -67,7 +67,7 @@ public class AtividadeViagemService {
     public List<AtividadeResponseDTO> listAtividadesByDestino(Long viagemId, Long destinoId, Long userId) {
         tripSecurityService.validateUserCanViewTrip(viagemId, userId);
 
-        DestinoViagem destino = destinoViagemRepository.findById(destinoId)
+        DestinoViagemEntity destino = destinoViagemRepository.findById(destinoId)
                 .orElseThrow(() -> new ResourceNotFoundException("Destino não encontrado na viagem com ID: " + destinoId));
 
         if (!destino.getViagem().getId().equals(viagemId)) {
@@ -84,7 +84,7 @@ public class AtividadeViagemService {
     public void removeAtividade(Long viagemId, Long destinoId, Long atividadeId, Long userId) {
         tripSecurityService.validateUserCanEditTrip(viagemId, userId);
 
-        AtividadeViagem atividade = atividadeViagemRepository.findById(atividadeId)
+        AtividadeViagemEntity atividade = atividadeViagemRepository.findById(atividadeId)
                 .orElseThrow(() -> new ResourceNotFoundException("Atividade não encontrada com ID: " + atividadeId));
 
         if (!atividade.getDestinoViagem().getId().equals(destinoId) ||
@@ -95,7 +95,7 @@ public class AtividadeViagemService {
         atividadeViagemRepository.delete(atividade);
     }
 
-    private AtividadeResponseDTO mapToDTO(AtividadeViagem entity) {
+    private AtividadeResponseDTO mapToDTO(AtividadeViagemEntity entity) {
         return AtividadeResponseDTO.builder()
                 .id(entity.getId())
                 .destinoViagemId(entity.getDestinoViagem().getId())

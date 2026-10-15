@@ -4,14 +4,14 @@ import com.viajajunto.api.core.exception.BusinessRuleException;
 import com.viajajunto.api.core.exception.ResourceNotFoundException;
 import com.viajajunto.api.core.security.TripSecurityService;
 import com.viajajunto.api.modules.auth.dto.UserDTO;
-import com.viajajunto.api.modules.auth.entity.User;
+import com.viajajunto.api.modules.auth.entity.UserEntity;
 import com.viajajunto.api.modules.auth.repository.UserRepository;
 import com.viajajunto.api.modules.trip.dto.AddMembroDTO;
 import com.viajajunto.api.modules.trip.dto.MembroResponseDTO;
 import com.viajajunto.api.modules.trip.dto.UpdatePermissaoDTO;
-import com.viajajunto.api.modules.trip.entity.MembroViagem;
+import com.viajajunto.api.modules.trip.entity.MembroViagemEntity;
 import com.viajajunto.api.modules.trip.entity.PermissaoMembro;
-import com.viajajunto.api.modules.trip.entity.Viagem;
+import com.viajajunto.api.modules.trip.entity.ViagemEntity;
 import com.viajajunto.api.modules.trip.repository.MembroViagemRepository;
 import com.viajajunto.api.modules.trip.repository.ViagemRepository;
 import lombok.RequiredArgsConstructor;
@@ -32,10 +32,10 @@ public class MembroViagemService {
 
     @Transactional
     public MembroResponseDTO joinViagemByCode(AddMembroDTO dto, Long userId) {
-        User user = userRepository.findById(userId)
+        UserEntity user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado."));
 
-        Viagem viagem = viagemRepository.findByCodigoConvite(dto.getCodigoConvite().trim().toUpperCase())
+        ViagemEntity viagem = viagemRepository.findByCodigoConvite(dto.getCodigoConvite().trim().toUpperCase())
                 .orElseThrow(() -> new BusinessRuleException("Código de convite inválido ou expirado."));
 
         if (viagem.getCriador().getId().equals(userId)) {
@@ -48,13 +48,13 @@ public class MembroViagemService {
 
         PermissaoMembro permissao = dto.getPermissao() != null ? dto.getPermissao() : PermissaoMembro.EDITOR;
 
-        MembroViagem membro = MembroViagem.builder()
+        MembroViagemEntity membro = MembroViagemEntity.builder()
                 .viagem(viagem)
                 .usuario(user)
                 .permissao(permissao)
                 .build();
 
-        MembroViagem saved = membroViagemRepository.save(membro);
+        MembroViagemEntity saved = membroViagemRepository.save(membro);
         return mapToDTO(saved);
     }
 
@@ -72,7 +72,7 @@ public class MembroViagemService {
         // Apenas o criador pode alterar permissões (RN04)
         tripSecurityService.validateUserIsOwner(viagemId, userId);
 
-        MembroViagem membro = membroViagemRepository.findById(membroId)
+        MembroViagemEntity membro = membroViagemRepository.findById(membroId)
                 .orElseThrow(() -> new ResourceNotFoundException("Membro não encontrado com ID: " + membroId));
 
         if (!membro.getViagem().getId().equals(viagemId)) {
@@ -80,7 +80,7 @@ public class MembroViagemService {
         }
 
         membro.setPermissao(dto.getPermissao());
-        MembroViagem updated = membroViagemRepository.save(membro);
+        MembroViagemEntity updated = membroViagemRepository.save(membro);
         return mapToDTO(updated);
     }
 
@@ -89,7 +89,7 @@ public class MembroViagemService {
         // Apenas o criador pode remover membros (RN04)
         tripSecurityService.validateUserIsOwner(viagemId, userId);
 
-        MembroViagem membro = membroViagemRepository.findById(membroId)
+        MembroViagemEntity membro = membroViagemRepository.findById(membroId)
                 .orElseThrow(() -> new ResourceNotFoundException("Membro não encontrado com ID: " + membroId));
 
         if (!membro.getViagem().getId().equals(viagemId)) {
@@ -99,7 +99,7 @@ public class MembroViagemService {
         membroViagemRepository.delete(membro);
     }
 
-    private MembroResponseDTO mapToDTO(MembroViagem membro) {
+    private MembroResponseDTO mapToDTO(MembroViagemEntity membro) {
         return MembroResponseDTO.builder()
                 .id(membro.getId())
                 .usuario(UserDTO.builder()

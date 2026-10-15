@@ -5,11 +5,11 @@ import com.viajajunto.api.core.exception.ResourceNotFoundException;
 import com.viajajunto.api.core.security.TripSecurityService;
 import com.viajajunto.api.modules.destination.dto.CreateDestinoViagemDTO;
 import com.viajajunto.api.modules.destination.dto.DestinoViagemResponseDTO;
-import com.viajajunto.api.modules.destination.entity.DestinoCatalogo;
-import com.viajajunto.api.modules.destination.entity.DestinoViagem;
+import com.viajajunto.api.modules.destination.entity.DestinoCatalogoEntity;
+import com.viajajunto.api.modules.destination.entity.DestinoViagemEntity;
 import com.viajajunto.api.modules.destination.repository.DestinoCatalogoRepository;
 import com.viajajunto.api.modules.destination.repository.DestinoViagemRepository;
-import com.viajajunto.api.modules.trip.entity.Viagem;
+import com.viajajunto.api.modules.trip.entity.ViagemEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,17 +27,17 @@ public class DestinoViagemService {
 
     @Transactional
     public DestinoViagemResponseDTO addDestinoToViagem(Long viagemId, CreateDestinoViagemDTO dto, Long userId) {
-        Viagem viagem = tripSecurityService.validateUserCanEditTrip(viagemId, userId);
+        ViagemEntity viagem = tripSecurityService.validateUserCanEditTrip(viagemId, userId);
 
-        DestinoCatalogo catalogo = null;
+        DestinoCatalogoEntity catalogo = null;
         if (dto.getDestinoCatalogoId() != null) {
             catalogo = destinoCatalogoRepository.findById(dto.getDestinoCatalogoId()).orElse(null);
         }
 
-        List<DestinoViagem> existing = destinoViagemRepository.findAllByViagemIdOrderByOrdemVisitaAsc(viagemId);
+        List<DestinoViagemEntity> existing = destinoViagemRepository.findAllByViagemIdOrderByOrdemVisitaAsc(viagemId);
         int nextOrder = dto.getOrdemVisita() != null ? dto.getOrdemVisita() : existing.size() + 1;
 
-        DestinoViagem destino = DestinoViagem.builder()
+        DestinoViagemEntity destino = DestinoViagemEntity.builder()
                 .viagem(viagem)
                 .destinoCatalogo(catalogo)
                 .nome(dto.getNome())
@@ -52,7 +52,7 @@ public class DestinoViagemService {
                 .ordemVisita(nextOrder)
                 .build();
 
-        DestinoViagem saved = destinoViagemRepository.save(destino);
+        DestinoViagemEntity saved = destinoViagemRepository.save(destino);
         return mapToDTO(saved);
     }
 
@@ -69,7 +69,7 @@ public class DestinoViagemService {
     public void removeDestino(Long viagemId, Long destinoId, Long userId) {
         tripSecurityService.validateUserCanEditTrip(viagemId, userId);
 
-        DestinoViagem destino = destinoViagemRepository.findById(destinoId)
+        DestinoViagemEntity destino = destinoViagemRepository.findById(destinoId)
                 .orElseThrow(() -> new ResourceNotFoundException("Destino não encontrado na viagem com ID: " + destinoId));
 
         if (!destino.getViagem().getId().equals(viagemId)) {
@@ -79,7 +79,7 @@ public class DestinoViagemService {
         destinoViagemRepository.delete(destino);
     }
 
-    private DestinoViagemResponseDTO mapToDTO(DestinoViagem entity) {
+    private DestinoViagemResponseDTO mapToDTO(DestinoViagemEntity entity) {
         return DestinoViagemResponseDTO.builder()
                 .id(entity.getId())
                 .viagemId(entity.getViagem().getId())

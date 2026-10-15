@@ -4,15 +4,15 @@ import com.viajajunto.api.core.exception.BusinessRuleException;
 import com.viajajunto.api.core.exception.ResourceNotFoundException;
 import com.viajajunto.api.core.security.TripSecurityService;
 import com.viajajunto.api.modules.auth.dto.UserDTO;
-import com.viajajunto.api.modules.auth.entity.User;
+import com.viajajunto.api.modules.auth.entity.UserEntity;
 import com.viajajunto.api.modules.auth.repository.UserRepository;
-import com.viajajunto.api.modules.budget.entity.Orcamento;
+import com.viajajunto.api.modules.budget.entity.OrcamentoEntity;
 import com.viajajunto.api.modules.budget.repository.OrcamentoRepository;
 import com.viajajunto.api.modules.trip.dto.*;
-import com.viajajunto.api.modules.trip.entity.MembroViagem;
+import com.viajajunto.api.modules.trip.entity.MembroViagemEntity;
 import com.viajajunto.api.modules.trip.entity.PermissaoMembro;
 import com.viajajunto.api.modules.trip.entity.StatusViagem;
-import com.viajajunto.api.modules.trip.entity.Viagem;
+import com.viajajunto.api.modules.trip.entity.ViagemEntity;
 import com.viajajunto.api.modules.trip.repository.MembroViagemRepository;
 import com.viajajunto.api.modules.trip.repository.ViagemRepository;
 import lombok.RequiredArgsConstructor;
@@ -40,7 +40,7 @@ public class ViagemService {
 
     @Transactional
     public ViagemResponseDTO createViagem(CreateViagemDTO dto, Long userId) {
-        User criador = userRepository.findById(userId)
+        UserEntity criador = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado."));
 
         if (dto.getDataInicio() != null && dto.getDataFim() != null && dto.getDataFim().isBefore(dto.getDataInicio())) {
@@ -49,7 +49,7 @@ public class ViagemService {
 
         String codigoConvite = generateUniqueInviteCode();
 
-        Viagem viagem = Viagem.builder()
+        ViagemEntity viagem = ViagemEntity.builder()
                 .nome(dto.getNome())
                 .descricao(dto.getDescricao())
                 .dataInicio(dto.getDataInicio())
@@ -59,11 +59,11 @@ public class ViagemService {
                 .criador(criador)
                 .build();
 
-        Viagem savedViagem = viagemRepository.save(viagem);
+        ViagemEntity savedViagem = viagemRepository.save(viagem);
 
         // Inicializa orçamento da viagem
         BigDecimal orcamentoInicial = dto.getOrcamentoTotal() != null ? dto.getOrcamentoTotal() : BigDecimal.ZERO;
-        Orcamento orcamento = Orcamento.builder()
+        OrcamentoEntity orcamento = OrcamentoEntity.builder()
                 .viagem(savedViagem)
                 .orcamentoTotal(orcamentoInicial)
                 .build();
@@ -74,12 +74,12 @@ public class ViagemService {
 
     @Transactional(readOnly = true)
     public List<ViagemResponseDTO> listUserTrips(Long userId) {
-        List<Viagem> viagens = viagemRepository.findAllByUserAccess(userId);
+        List<ViagemEntity> viagens = viagemRepository.findAllByUserAccess(userId);
         return viagens.stream()
                 .map(v -> {
                     PermissaoMembro role = determineUserRole(v, userId);
                     BigDecimal orcamentoTotal = orcamentoRepository.findByViagemId(v.getId())
-                            .map(Orcamento::getOrcamentoTotal)
+                            .map(OrcamentoEntity::getOrcamentoTotal)
                             .orElse(BigDecimal.ZERO);
                     return mapToResponse(v, role, orcamentoTotal);
                 })
@@ -88,10 +88,10 @@ public class ViagemService {
 
     @Transactional(readOnly = true)
     public ViagemResponseDTO getViagemById(Long viagemId, Long userId) {
-        Viagem viagem = tripSecurityService.validateUserCanViewTrip(viagemId, userId);
+        ViagemEntity viagem = tripSecurityService.validateUserCanViewTrip(viagemId, userId);
         PermissaoMembro role = determineUserRole(viagem, userId);
         BigDecimal orcamentoTotal = orcamentoRepository.findByViagemId(viagem.getId())
-                .map(Orcamento::getOrcamentoTotal)
+                .map(OrcamentoEntity::getOrcamentoTotal)
                 .orElse(BigDecimal.ZERO);
 
         return mapToResponse(viagem, role, orcamentoTotal);
@@ -99,7 +99,7 @@ public class ViagemService {
 
     @Transactional
     public ViagemResponseDTO updateViagem(Long viagemId, UpdateViagemDTO dto, Long userId) {
-        Viagem viagem = tripSecurityService.validateUserCanEditTrip(viagemId, userId);
+        ViagemEntity viagem = tripSecurityService.validateUserCanEditTrip(viagemId, userId);
 
         if (dto.getDataInicio() != null && dto.getDataFim() != null && dto.getDataFim().isBefore(dto.getDataInicio())) {
             throw new BusinessRuleException("A data final da viagem não pode ser anterior à data de início.");
@@ -121,10 +121,10 @@ public class ViagemService {
             viagem.setStatus(dto.getStatus());
         }
 
-        Viagem updated = viagemRepository.save(viagem);
+        ViagemEntity updated = viagemRepository.save(viagem);
         PermissaoMembro role = determineUserRole(updated, userId);
         BigDecimal orcamentoTotal = orcamentoRepository.findByViagemId(updated.getId())
-                .map(Orcamento::getOrcamentoTotal)
+                .map(OrcamentoEntity::getOrcamentoTotal)
                 .orElse(BigDecimal.ZERO);
 
         return mapToResponse(updated, role, orcamentoTotal);
@@ -132,22 +132,22 @@ public class ViagemService {
 
     @Transactional
     public void deleteViagem(Long viagemId, Long userId) {
-        Viagem viagem = tripSecurityService.validateUserIsOwner(viagemId, userId);
+        ViagemEntity viagem = tripSecurityService.validateUserIsOwner(viagemId, userId);
         orcamentoRepository.deleteByViagemId(viagemId);
         viagemRepository.delete(viagem);
     }
 
-    private PermissaoMembro determineUserRole(Viagem viagem, Long userId) {
+    private PermissaoMembro determineUserRole(ViagemEntity viagem, Long userId) {
         if (viagem.getCriador().getId().equals(userId)) {
             return PermissaoMembro.CRIADOR;
         }
         return membroViagemRepository.findByViagemIdAndUsuarioId(viagem.getId(), userId)
-                .map(MembroViagem::getPermissao)
+                .map(MembroViagemEntity::getPermissao)
                 .orElse(PermissaoMembro.VISUALIZADOR);
     }
 
-    private ViagemResponseDTO mapToResponse(Viagem viagem, PermissaoMembro role, BigDecimal orcamentoTotal) {
-        List<MembroViagem> membros = membroViagemRepository.findAllByViagemId(viagem.getId());
+    private ViagemResponseDTO mapToResponse(ViagemEntity viagem, PermissaoMembro role, BigDecimal orcamentoTotal) {
+        List<MembroViagemEntity> membros = membroViagemRepository.findAllByViagemId(viagem.getId());
         List<MembroResponseDTO> membrosDTO = membros.stream()
                 .map(m -> MembroResponseDTO.builder()
                         .id(m.getId())

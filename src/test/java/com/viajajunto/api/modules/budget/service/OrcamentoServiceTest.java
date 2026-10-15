@@ -1,10 +1,10 @@
 package com.viajajunto.api.modules.budget.service;
 
 import com.viajajunto.api.core.security.TripSecurityService;
-import com.viajajunto.api.modules.activity.entity.AtividadeViagem;
+import com.viajajunto.api.modules.activity.entity.AtividadeViagemEntity;
 import com.viajajunto.api.modules.activity.repository.AtividadeViagemRepository;
 import com.viajajunto.api.modules.budget.dto.OrcamentoResponseDTO;
-import com.viajajunto.api.modules.budget.entity.Orcamento;
+import com.viajajunto.api.modules.budget.entity.OrcamentoEntity;
 import com.viajajunto.api.modules.budget.repository.OrcamentoRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -36,24 +36,24 @@ class OrcamentoServiceTest {
     @InjectMocks
     private OrcamentoService orcamentoService;
 
-    private Orcamento sampleOrcamento;
-    private List<AtividadeViagem> sampleAtividades;
+    private OrcamentoEntity sampleOrcamento;
+    private List<AtividadeViagemEntity> sampleAtividades;
 
     @BeforeEach
     void setUp() {
-        sampleOrcamento = Orcamento.builder()
+        sampleOrcamento = OrcamentoEntity.builder()
                 .id(1L)
                 .orcamentoTotal(BigDecimal.valueOf(1000.00))
                 .build();
 
         sampleAtividades = List.of(
-                AtividadeViagem.builder()
+                AtividadeViagemEntity.builder()
                         .id(1L)
                         .nome("Jantar Típico")
                         .tipo("Gastronomia")
                         .custoPrevisto(BigDecimal.valueOf(200.00))
                         .build(),
-                AtividadeViagem.builder()
+                AtividadeViagemEntity.builder()
                         .id(2L)
                         .nome("Museu do Vaticano")
                         .tipo("Passeio")

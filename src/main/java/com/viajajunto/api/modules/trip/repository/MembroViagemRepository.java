@@ -1,6 +1,6 @@
 package com.viajajunto.api.modules.trip.repository;
 
-import com.viajajunto.api.modules.trip.entity.MembroViagem;
+import com.viajajunto.api.modules.trip.entity.MembroViagemEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -8,11 +8,11 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface MembroViagemRepository extends JpaRepository<MembroViagem, Long> {
+public interface MembroViagemRepository extends JpaRepository<MembroViagemEntity, Long> {
 
-    Optional<MembroViagem> findByViagemIdAndUsuarioId(Long viagemId, Long usuarioId);
+    Optional<MembroViagemEntity> findByViagemIdAndUsuarioId(Long viagemId, Long usuarioId);
 
-    List<MembroViagem> findAllByViagemId(Long viagemId);
+    List<MembroViagemEntity> findAllByViagemId(Long viagemId);
 
     boolean existsByViagemIdAndUsuarioId(Long viagemId, Long usuarioId);
 

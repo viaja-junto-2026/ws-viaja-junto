@@ -10,6 +10,8 @@ spring:
     console:
       enabled: true
       path: /h2-console
+      settings:
+        web-allow-others: true
   jpa:
     database-platform: org.hibernate.dialect.H2Dialect
     hibernate:
@@ -27,4 +29,13 @@ app:
     google:
       places-api-key: ${GOOGLE_PLACES_API_KEY:mock-key}
       places-base-url: https://maps.googleapis.com/maps/api/place
+
+aws:
+  region: ${AWS_REGION:us-east-1}
+  dynamodb:
+    endpoint: ${AWS_DYNAMODB_ENDPOINT:http://localhost:4566}
+    access-key-id: ${AWS_ACCESS_KEY_ID:fakeAccessKey}
+    secret-access-key: ${AWS_SECRET_ACCESS_KEY:fakeSecretKey}
+    table-name: Avaliacoes
+
 

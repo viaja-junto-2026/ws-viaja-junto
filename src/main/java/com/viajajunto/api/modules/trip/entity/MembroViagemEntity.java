@@ -1,6 +1,6 @@
 package com.viajajunto.api.modules.trip.entity;
 
-import com.viajajunto.api.modules.auth.entity.User;
+import com.viajajunto.api.modules.auth.entity.UserEntity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class MembroViagem {
+public class MembroViagemEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,11 +23,11 @@ public class MembroViagem {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "viagem_id", nullable = false)
-    private Viagem viagem;
+    private ViagemEntity viagem;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "usuario_id", nullable = false)
-    private User usuario;
+    private UserEntity usuario;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

@@ -6,7 +6,7 @@ import com.viajajunto.api.core.security.UserPrincipal;
 import com.viajajunto.api.modules.auth.dto.AuthResponseDTO;
 import com.viajajunto.api.modules.auth.dto.LoginRequestDTO;
 import com.viajajunto.api.modules.auth.dto.RegisterDTO;
-import com.viajajunto.api.modules.auth.entity.User;
+import com.viajajunto.api.modules.auth.entity.UserEntity;
 import com.viajajunto.api.modules.auth.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -44,11 +44,11 @@ class AuthServiceTest {
     @InjectMocks
     private AuthService authService;
 
-    private User sampleUser;
+    private UserEntity sampleUser;
 
     @BeforeEach
     void setUp() {
-        sampleUser = User.builder()
+        sampleUser = UserEntity.builder()
                 .id(1L)
                 .nome("Gabriel Domingues")
                 .email("gabriel@example.com")
@@ -67,7 +67,7 @@ class AuthServiceTest {
 
         when(userRepository.existsByEmail(dto.getEmail())).thenReturn(false);
         when(passwordEncoder.encode(dto.getSenha())).thenReturn("encoded_pwd");
-        when(userRepository.save(any(User.class))).thenReturn(sampleUser);
+        when(userRepository.save(any(UserEntity.class))).thenReturn(sampleUser);
         when(jwtService.generateToken(any(UserPrincipal.class), eq(1L), eq("Gabriel Domingues"))).thenReturn("mocked_jwt_token");
 
         AuthResponseDTO response = authService.register(dto);
@@ -75,7 +75,7 @@ class AuthServiceTest {
         assertNotNull(response);
         assertEquals("mocked_jwt_token", response.getToken());
         assertEquals("gabriel@example.com", response.getEmail());
-        verify(userRepository, times(1)).save(any(User.class));
+        verify(userRepository, times(1)).save(any(UserEntity.class));
     }
 
     @Test
@@ -90,7 +90,7 @@ class AuthServiceTest {
         when(userRepository.existsByEmail(dto.getEmail())).thenReturn(true);
 
         assertThrows(BusinessRuleException.class, () -> authService.register(dto));
-        verify(userRepository, never()).save(any(User.class));
+        verify(userRepository, never()).save(any(UserEntity.class));
     }
 
     @Test

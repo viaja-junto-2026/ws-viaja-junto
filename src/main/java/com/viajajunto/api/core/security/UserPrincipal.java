@@ -1,6 +1,6 @@
 package com.viajajunto.api.core.security;
 
-import com.viajajunto.api.modules.auth.entity.User;
+import com.viajajunto.api.modules.auth.entity.UserEntity;
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -18,7 +18,7 @@ public class UserPrincipal implements UserDetails {
     private final String senha;
     private final Collection<? extends GrantedAuthority> authorities;
 
-    public UserPrincipal(User user) {
+    public UserPrincipal(UserEntity user) {
         this.id = user.getId();
         this.nome = user.getNome();
         this.email = user.getEmail();

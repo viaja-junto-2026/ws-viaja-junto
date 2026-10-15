@@ -1,6 +1,6 @@
 package com.viajajunto.api.modules.budget.entity;
 
-import com.viajajunto.api.modules.trip.entity.Viagem;
+import com.viajajunto.api.modules.trip.entity.ViagemEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -12,7 +12,7 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Orcamento {
+public class OrcamentoEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -20,7 +20,7 @@ public class Orcamento {
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "viagem_id", nullable = false, unique = true)
-    private Viagem viagem;
+    private ViagemEntity viagem;
 
     @Column(nullable = false, precision = 12, scale = 2)
     @Builder.Default

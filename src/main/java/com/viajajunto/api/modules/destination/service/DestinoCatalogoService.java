@@ -3,7 +3,7 @@ package com.viajajunto.api.modules.destination.service;
 import com.viajajunto.api.core.exception.ResourceNotFoundException;
 import com.viajajunto.api.modules.destination.dto.DestinoCatalogoDTO;
 import com.viajajunto.api.modules.destination.dto.VisitedCountryDTO;
-import com.viajajunto.api.modules.destination.entity.DestinoCatalogo;
+import com.viajajunto.api.modules.destination.entity.DestinoCatalogoEntity;
 import com.viajajunto.api.modules.destination.repository.DestinoCatalogoRepository;
 import com.viajajunto.api.modules.destination.repository.DestinoViagemRepository;
 import lombok.RequiredArgsConstructor;
@@ -30,7 +30,7 @@ public class DestinoCatalogoService {
 
     @Transactional(readOnly = true)
     public DestinoCatalogoDTO getDestinoById(Long id) {
-        DestinoCatalogo destino = destinoCatalogoRepository.findById(id)
+        DestinoCatalogoEntity destino = destinoCatalogoRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Destino não encontrado no catálogo com ID: " + id));
         return mapToDTO(destino);
     }
@@ -52,7 +52,7 @@ public class DestinoCatalogoService {
                 .build();
     }
 
-    public DestinoCatalogoDTO mapToDTO(DestinoCatalogo entity) {
+    public DestinoCatalogoDTO mapToDTO(DestinoCatalogoEntity entity) {
         return DestinoCatalogoDTO.builder()
                 .id(entity.getId())
                 .nome(entity.getNome())

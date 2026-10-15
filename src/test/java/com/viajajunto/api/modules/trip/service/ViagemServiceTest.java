@@ -2,15 +2,15 @@ package com.viajajunto.api.modules.trip.service;
 
 import com.viajajunto.api.core.exception.BusinessRuleException;
 import com.viajajunto.api.core.security.TripSecurityService;
-import com.viajajunto.api.modules.auth.entity.User;
+import com.viajajunto.api.modules.auth.entity.UserEntity;
 import com.viajajunto.api.modules.auth.repository.UserRepository;
-import com.viajajunto.api.modules.budget.entity.Orcamento;
+import com.viajajunto.api.modules.budget.entity.OrcamentoEntity;
 import com.viajajunto.api.modules.budget.repository.OrcamentoRepository;
 import com.viajajunto.api.modules.trip.dto.CreateViagemDTO;
 import com.viajajunto.api.modules.trip.dto.ViagemResponseDTO;
 import com.viajajunto.api.modules.trip.entity.PermissaoMembro;
 import com.viajajunto.api.modules.trip.entity.StatusViagem;
-import com.viajajunto.api.modules.trip.entity.Viagem;
+import com.viajajunto.api.modules.trip.entity.ViagemEntity;
 import com.viajajunto.api.modules.trip.repository.MembroViagemRepository;
 import com.viajajunto.api.modules.trip.repository.ViagemRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -51,18 +51,18 @@ class ViagemServiceTest {
     @InjectMocks
     private ViagemService viagemService;
 
-    private User sampleUser;
-    private Viagem sampleViagem;
+    private UserEntity sampleUser;
+    private ViagemEntity sampleViagem;
 
     @BeforeEach
     void setUp() {
-        sampleUser = User.builder()
+        sampleUser = UserEntity.builder()
                 .id(1L)
                 .nome("Gabriel Domingues")
                 .email("gabriel@example.com")
                 .build();
 
-        sampleViagem = Viagem.builder()
+        sampleViagem = ViagemEntity.builder()
                 .id(10L)
                 .nome("Férias em Roma")
                 .descricao("Viagem cultural")
@@ -87,8 +87,8 @@ class ViagemServiceTest {
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(sampleUser));
         when(viagemRepository.findByCodigoConvite(anyString())).thenReturn(Optional.empty());
-        when(viagemRepository.save(any(Viagem.class))).thenReturn(sampleViagem);
-        when(orcamentoRepository.save(any(Orcamento.class))).thenReturn(new Orcamento());
+        when(viagemRepository.save(any(ViagemEntity.class))).thenReturn(sampleViagem);
+        when(orcamentoRepository.save(any(OrcamentoEntity.class))).thenReturn(new OrcamentoEntity());
         when(membroViagemRepository.findAllByViagemId(10L)).thenReturn(Collections.emptyList());
 
         ViagemResponseDTO response = viagemService.createViagem(dto, 1L);
@@ -97,8 +97,8 @@ class ViagemServiceTest {
         assertEquals("Férias em Roma", response.getNome());
         assertEquals(PermissaoMembro.CRIADOR, response.getPermissaoUsuarioAutenticado());
         assertEquals(BigDecimal.valueOf(5000), response.getOrcamentoTotal());
-        verify(viagemRepository, times(1)).save(any(Viagem.class));
-        verify(orcamentoRepository, times(1)).save(any(Orcamento.class));
+        verify(viagemRepository, times(1)).save(any(ViagemEntity.class));
+        verify(orcamentoRepository, times(1)).save(any(OrcamentoEntity.class));
     }
 
     @Test
@@ -113,6 +113,6 @@ class ViagemServiceTest {
         when(userRepository.findById(1L)).thenReturn(Optional.of(sampleUser));
 
         assertThrows(BusinessRuleException.class, () -> viagemService.createViagem(dto, 1L));
-        verify(viagemRepository, never()).save(any(Viagem.class));
+        verify(viagemRepository, never()).save(any(ViagemEntity.class));
     }
 }

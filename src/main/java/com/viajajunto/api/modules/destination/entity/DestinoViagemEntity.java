@@ -1,6 +1,6 @@
 package com.viajajunto.api.modules.destination.entity;
 
-import com.viajajunto.api.modules.trip.entity.Viagem;
+import com.viajajunto.api.modules.trip.entity.ViagemEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -13,7 +13,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class DestinoViagem {
+public class DestinoViagemEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -21,11 +21,11 @@ public class DestinoViagem {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "viagem_id", nullable = false)
-    private Viagem viagem;
+    private ViagemEntity viagem;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "destino_catalogo_id")
-    private DestinoCatalogo destinoCatalogo;
+    private DestinoCatalogoEntity destinoCatalogo;
 
     @Column(nullable = false)
     private String nome;

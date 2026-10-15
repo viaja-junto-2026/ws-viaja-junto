@@ -9,7 +9,7 @@ import com.viajajunto.api.modules.auth.dto.ForgotPasswordDTO;
 import com.viajajunto.api.modules.auth.dto.LoginRequestDTO;
 import com.viajajunto.api.modules.auth.dto.RegisterDTO;
 import com.viajajunto.api.modules.auth.dto.UserDTO;
-import com.viajajunto.api.modules.auth.entity.User;
+import com.viajajunto.api.modules.auth.entity.UserEntity;
 import com.viajajunto.api.modules.auth.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -34,13 +34,13 @@ public class AuthService {
             throw new BusinessRuleException("O e-mail informado já está em uso.");
         }
 
-        User user = User.builder()
+        UserEntity user = UserEntity.builder()
                 .nome(dto.getNome())
                 .email(dto.getEmail().toLowerCase().trim())
                 .senha(passwordEncoder.encode(dto.getSenha()))
                 .build();
 
-        User savedUser = userRepository.save(user);
+        UserEntity savedUser = userRepository.save(user);
         UserPrincipal principal = new UserPrincipal(savedUser);
         String token = jwtService.generateToken(principal, savedUser.getId(), savedUser.getNome());
 
@@ -60,7 +60,7 @@ public class AuthService {
         );
 
         UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
-        User user = userRepository.findByEmail(dto.getEmail().toLowerCase().trim())
+        UserEntity user = userRepository.findByEmail(dto.getEmail().toLowerCase().trim())
                 .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado."));
 
         String token = jwtService.generateToken(principal, user.getId(), user.getNome());
@@ -76,7 +76,7 @@ public class AuthService {
     }
 
     public UserDTO getProfile(String email) {
-        User user = userRepository.findByEmail(email)
+        UserEntity user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado."));
 
         return UserDTO.builder()

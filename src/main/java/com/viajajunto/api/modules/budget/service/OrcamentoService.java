@@ -1,14 +1,14 @@
 package com.viajajunto.api.modules.budget.service;
 
 import com.viajajunto.api.core.security.TripSecurityService;
-import com.viajajunto.api.modules.activity.entity.AtividadeViagem;
+import com.viajajunto.api.modules.activity.entity.AtividadeViagemEntity;
 import com.viajajunto.api.modules.activity.repository.AtividadeViagemRepository;
 import com.viajajunto.api.modules.budget.dto.CategoriaGastoDTO;
 import com.viajajunto.api.modules.budget.dto.OrcamentoResponseDTO;
 import com.viajajunto.api.modules.budget.dto.UpdateOrcamentoDTO;
-import com.viajajunto.api.modules.budget.entity.Orcamento;
+import com.viajajunto.api.modules.budget.entity.OrcamentoEntity;
 import com.viajajunto.api.modules.budget.repository.OrcamentoRepository;
-import com.viajajunto.api.modules.trip.entity.Viagem;
+import com.viajajunto.api.modules.trip.entity.ViagemEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,12 +31,12 @@ public class OrcamentoService {
     public OrcamentoResponseDTO getResumoOrcamento(Long viagemId, Long userId) {
         tripSecurityService.validateUserCanViewTrip(viagemId, userId);
 
-        Orcamento orcamento = orcamentoRepository.findByViagemId(viagemId)
-                .orElseGet(() -> Orcamento.builder()
+        OrcamentoEntity orcamento = orcamentoRepository.findByViagemId(viagemId)
+                .orElseGet(() -> OrcamentoEntity.builder()
                         .orcamentoTotal(BigDecimal.ZERO)
                         .build());
 
-        List<AtividadeViagem> atividades = atividadeViagemRepository.findAllByViagemId(viagemId);
+        List<AtividadeViagemEntity> atividades = atividadeViagemRepository.findAllByViagemId(viagemId);
 
         BigDecimal totalPlanejado = atividades.stream()
                 .map(a -> a.getCustoPrevisto() != null ? a.getCustoPrevisto() : BigDecimal.ZERO)
@@ -93,10 +93,10 @@ public class OrcamentoService {
 
     @Transactional
     public OrcamentoResponseDTO updateOrcamentoTotal(Long viagemId, UpdateOrcamentoDTO dto, Long userId) {
-        Viagem viagem = tripSecurityService.validateUserCanEditTrip(viagemId, userId);
+        ViagemEntity viagem = tripSecurityService.validateUserCanEditTrip(viagemId, userId);
 
-        Orcamento orcamento = orcamentoRepository.findByViagemId(viagemId)
-                .orElseGet(() -> Orcamento.builder()
+        OrcamentoEntity orcamento = orcamentoRepository.findByViagemId(viagemId)
+                .orElseGet(() -> OrcamentoEntity.builder()
                         .viagem(viagem)
                         .build());
 

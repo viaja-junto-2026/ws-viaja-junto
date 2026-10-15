@@ -1,15 +1,17 @@
-package com.viajajunto.api.modules.destination.entity;
+package com.viajajunto.api.modules.activity.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.math.BigDecimal;
+
 @Entity
-@Table(name = "destinos_catalogo")
+@Table(name = "catalogo_atividades")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class DestinoCatalogo {
+public class CatalogoAtividadeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -18,21 +20,20 @@ public class DestinoCatalogo {
     @Column(nullable = false)
     private String nome;
 
-    @Column(nullable = false)
-    private String pais;
+    private String tipo; // Passeio, Gastronomia, Hospedagem, Transporte, Cultura
 
-    private String codigoPaisIso; // Ex: BRA, USA, FRA (para o jsVectormap do RF11)
+    private String localizacao;
 
     private String cidade;
 
-    private String estado;
+    private String pais;
 
     @Column(length = 2000)
     private String descricao;
 
-    private String categoria; // praia, cidade, natureza, cultural
-
     private String fotoUrl;
+
+    private BigDecimal precoMedio;
 
     @Builder.Default
     private Double avaliacaoMedia = 0.0;

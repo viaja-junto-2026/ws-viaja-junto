@@ -1,6 +1,6 @@
 package com.viajajunto.api.modules.trip.entity;
 
-import com.viajajunto.api.modules.auth.entity.User;
+import com.viajajunto.api.modules.auth.entity.UserEntity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -17,7 +17,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Viagem {
+public class ViagemEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -43,11 +43,11 @@ public class Viagem {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "criador_id", nullable = false)
-    private User criador;
+    private UserEntity criador;
 
     @OneToMany(mappedBy = "viagem", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
-    private List<MembroViagem> membros = new ArrayList<>();
+    private List<MembroViagemEntity> membros = new ArrayList<>();
 
     @CreationTimestamp
     @Column(updatable = false)
