@@ -1,0 +1,512 @@
+{
+  "docs/viajajunto-openapi.json": {
+    "mtime": 1793226562.5391893,
+    "seen": 1793227442.621819,
+    "ast_hash": "bd54bb5af2f7525662dca4aa999719af",
+    "semantic_hash": "bd54bb5af2f7525662dca4aa999719af"
+  },
+  "mvnw": {
+    "mtime": 1790888622.2798088,
+    "seen": 1793227442.6218288,
+    "ast_hash": "ab50dd89da7da2346b28003352eeeeeb",
+    "semantic_hash": "ab50dd89da7da2346b28003352eeeeeb"
+  },
+  "pom.xml": {
+    "mtime": 1793226376.5052795,
+    "seen": 1793227442.6218336,
+    "ast_hash": "af424cfbc281e17a272c93778d0be8e6",
+    "semantic_hash": "af424cfbc281e17a272c93778d0be8e6"
+  },
+  "src/main/java/com/viajajunto/api/ViajaJuntoApiApplication.java": {
+    "mtime": 1793226376.5082822,
+    "seen": 1793227442.6218357,
+    "ast_hash": "cb721bcceaa833609250e976d8ffa755",
+    "semantic_hash": "cb721bcceaa833609250e976d8ffa755"
+  },
+  "src/main/java/com/viajajunto/api/core/config/BeansConfig.java": {
+    "mtime": 1790888622.2950103,
+    "seen": 1793227442.6218379,
+    "ast_hash": "4d4d8b71e59d49ee4a210c1d9b89f647",
+    "semantic_hash": "4d4d8b71e59d49ee4a210c1d9b89f647"
+  },
+  "src/main/java/com/viajajunto/api/core/config/CorsConfig.java": {
+    "mtime": 1790888622.2970004,
+    "seen": 1793227442.6218398,
+    "ast_hash": "95c3fabc206e0e6f5d563fa80a804ed6",
+    "semantic_hash": "95c3fabc206e0e6f5d563fa80a804ed6"
+  },
+  "src/main/java/com/viajajunto/api/core/config/DynamoDbConfig.java": {
+    "mtime": 1793226376.5102808,
+    "seen": 1793227442.6218421,
+    "ast_hash": "2163a87225d111f4eaf9e8df471228e1",
+    "semantic_hash": "2163a87225d111f4eaf9e8df471228e1"
+  },
+  "src/main/java/com/viajajunto/api/core/config/SecurityConfig.java": {
+    "mtime": 1790888622.2992458,
+    "seen": 1793227442.6218443,
+    "ast_hash": "b62441b757e7f70223fdb051fb428141",
+    "semantic_hash": "b62441b757e7f70223fdb051fb428141"
+  },
+  "src/main/java/com/viajajunto/api/core/exception/BusinessRuleException.java": {
+    "mtime": 1790888622.3038318,
+    "seen": 1793227442.621846,
+    "ast_hash": "ebee7efd0b9bf6bad714107d23f60ba5",
+    "semantic_hash": "ebee7efd0b9bf6bad714107d23f60ba5"
+  },
+  "src/main/java/com/viajajunto/api/core/exception/ErrorResponseDTO.java": {
+    "mtime": 1790888622.3059833,
+    "seen": 1793227442.6218479,
+    "ast_hash": "9a8104a7d93485cc7a4545e05d834948",
+    "semantic_hash": "9a8104a7d93485cc7a4545e05d834948"
+  },
+  "src/main/java/com/viajajunto/api/core/exception/GlobalExceptionHandler.java": {
+    "mtime": 1790888622.308221,
+    "seen": 1793227442.6218495,
+    "ast_hash": "ad6b33d9864a47d49cd73667b35eb7bb",
+    "semantic_hash": "ad6b33d9864a47d49cd73667b35eb7bb"
+  },
+  "src/main/java/com/viajajunto/api/core/exception/ResourceNotFoundException.java": {
+    "mtime": 1790888622.3102212,
+    "seen": 1793227442.621852,
+    "ast_hash": "84143d9c27072a0506fbc82cac0cd646",
+    "semantic_hash": "84143d9c27072a0506fbc82cac0cd646"
+  },
+  "src/main/java/com/viajajunto/api/core/exception/UnauthorizedAccessException.java": {
+    "mtime": 1790888622.311221,
+    "seen": 1793227442.621854,
+    "ast_hash": "bc930d1a69aa1b3c5643098887ca32c3",
+    "semantic_hash": "bc930d1a69aa1b3c5643098887ca32c3"
+  },
+  "src/main/java/com/viajajunto/api/core/security/JwtAuthFilter.java": {
+    "mtime": 1790888622.3133957,
+    "seen": 1793227442.6218557,
+    "ast_hash": "5ccf33ef32fa047fd1f208b670fe648f",
+    "semantic_hash": "5ccf33ef32fa047fd1f208b670fe648f"
+  },
+  "src/main/java/com/viajajunto/api/core/security/JwtService.java": {
+    "mtime": 1790888622.3154054,
+    "seen": 1793227442.621858,
+    "ast_hash": "dd4f83c162650fb12c234cbe9c6846c2",
+    "semantic_hash": "dd4f83c162650fb12c234cbe9c6846c2"
+  },
+  "src/main/java/com/viajajunto/api/core/security/TripSecurityService.java": {
+    "mtime": 1793226376.5130503,
+    "seen": 1793227442.62186,
+    "ast_hash": "c168cfe96732b65c1eb28a6693c5713f",
+    "semantic_hash": "c168cfe96732b65c1eb28a6693c5713f"
+  },
+  "src/main/java/com/viajajunto/api/core/security/UserPrincipal.java": {
+    "mtime": 1793226376.5140526,
+    "seen": 1793227442.6218624,
+    "ast_hash": "5f32efd8c88a204007169a8aa49627a0",
+    "semantic_hash": "5f32efd8c88a204007169a8aa49627a0"
+  },
+  "src/main/java/com/viajajunto/api/integrations/google/GooglePlacesClient.java": {
+    "mtime": 1790888622.3301253,
+    "seen": 1793227442.6218646,
+    "ast_hash": "73beca0188a51deaddd8cbb982042a8f",
+    "semantic_hash": "73beca0188a51deaddd8cbb982042a8f"
+  },
+  "src/main/java/com/viajajunto/api/integrations/google/PlacesResponseDTO.java": {
+    "mtime": 1790888622.3325167,
+    "seen": 1793227442.6218665,
+    "ast_hash": "c5d11dc8c568a3933f920a9f981a0650",
+    "semantic_hash": "c5d11dc8c568a3933f920a9f981a0650"
+  },
+  "src/main/java/com/viajajunto/api/modules/activity/controller/AtividadeViagemController.java": {
+    "mtime": 1790888622.3365128,
+    "seen": 1793227442.6218686,
+    "ast_hash": "fac233e34f1811fb0fe1ddb3a821d2cd",
+    "semantic_hash": "fac233e34f1811fb0fe1ddb3a821d2cd"
+  },
+  "src/main/java/com/viajajunto/api/modules/activity/controller/CatalogoAtividadeController.java": {
+    "mtime": 1790888622.3375118,
+    "seen": 1793227442.6218703,
+    "ast_hash": "529f3967ed135838952fcfa821e55dbf",
+    "semantic_hash": "529f3967ed135838952fcfa821e55dbf"
+  },
+  "src/main/java/com/viajajunto/api/modules/activity/dto/AtividadeResponseDTO.java": {
+    "mtime": 1790888622.3395123,
+    "seen": 1793227442.6218724,
+    "ast_hash": "1d92c479a72994707689dc8c97e6a02a",
+    "semantic_hash": "1d92c479a72994707689dc8c97e6a02a"
+  },
+  "src/main/java/com/viajajunto/api/modules/activity/dto/CatalogoAtividadeDTO.java": {
+    "mtime": 1790888622.3405106,
+    "seen": 1793227442.621875,
+    "ast_hash": "86dd559226333a842b58ae2b5aaed25c",
+    "semantic_hash": "86dd559226333a842b58ae2b5aaed25c"
+  },
+  "src/main/java/com/viajajunto/api/modules/activity/dto/CreateAtividadeDTO.java": {
+    "mtime": 1790888622.3426423,
+    "seen": 1793227442.6218767,
+    "ast_hash": "d2d9115d5d584b66991d6521d842ef6d",
+    "semantic_hash": "d2d9115d5d584b66991d6521d842ef6d"
+  },
+  "src/main/java/com/viajajunto/api/modules/activity/entity/AtividadeViagemEntity.java": {
+    "mtime": 1793226376.515499,
+    "seen": 1793227442.6218789,
+    "ast_hash": "8c8c699999d95520752f2b2ecfa67a69",
+    "semantic_hash": "8c8c699999d95520752f2b2ecfa67a69"
+  },
+  "src/main/java/com/viajajunto/api/modules/activity/entity/CatalogoAtividadeEntity.java": {
+    "mtime": 1793226376.5164988,
+    "seen": 1793227442.6218805,
+    "ast_hash": "0c4c701ee17f765c929044c3477e5034",
+    "semantic_hash": "0c4c701ee17f765c929044c3477e5034"
+  },
+  "src/main/java/com/viajajunto/api/modules/activity/entity/StatusAtividade.java": {
+    "mtime": 1790888622.3466415,
+    "seen": 1793227442.6218827,
+    "ast_hash": "571e45537d627184a9af54ff597f9a59",
+    "semantic_hash": "571e45537d627184a9af54ff597f9a59"
+  },
+  "src/main/java/com/viajajunto/api/modules/activity/repository/AtividadeViagemRepository.java": {
+    "mtime": 1793226376.5185113,
+    "seen": 1793227442.6218846,
+    "ast_hash": "ff315bdd3eec84d977f5623f833eaacf",
+    "semantic_hash": "ff315bdd3eec84d977f5623f833eaacf"
+  },
+  "src/main/java/com/viajajunto/api/modules/activity/repository/CatalogoAtividadeRepository.java": {
+    "mtime": 1793226376.5210183,
+    "seen": 1793227442.6218865,
+    "ast_hash": "1b1bbc19a2a6615a2e5fcb7702f9e3e0",
+    "semantic_hash": "1b1bbc19a2a6615a2e5fcb7702f9e3e0"
+  },
+  "src/main/java/com/viajajunto/api/modules/activity/service/AtividadeViagemService.java": {
+    "mtime": 1793226376.523018,
+    "seen": 1793227442.6218882,
+    "ast_hash": "938d83072d47edb3ba8faacbc674d739",
+    "semantic_hash": "938d83072d47edb3ba8faacbc674d739"
+  },
+  "src/main/java/com/viajajunto/api/modules/activity/service/CatalogoAtividadeService.java": {
+    "mtime": 1793226376.5260167,
+    "seen": 1793227442.62189,
+    "ast_hash": "44aa7e4b2cdd3f6797de2eb2a9b08ea7",
+    "semantic_hash": "44aa7e4b2cdd3f6797de2eb2a9b08ea7"
+  },
+  "src/main/java/com/viajajunto/api/modules/auth/controller/AuthController.java": {
+    "mtime": 1790888622.3538227,
+    "seen": 1793227442.6218917,
+    "ast_hash": "c821eacbe71388ab26a2b321f2ce0abc",
+    "semantic_hash": "c821eacbe71388ab26a2b321f2ce0abc"
+  },
+  "src/main/java/com/viajajunto/api/modules/auth/dto/AuthResponseDTO.java": {
+    "mtime": 1790888622.35599,
+    "seen": 1793227442.6218936,
+    "ast_hash": "9e2c6b38dcd3e60c0c3fec216e441567",
+    "semantic_hash": "9e2c6b38dcd3e60c0c3fec216e441567"
+  },
+  "src/main/java/com/viajajunto/api/modules/auth/dto/ForgotPasswordDTO.java": {
+    "mtime": 1790888622.35699,
+    "seen": 1793227442.6218953,
+    "ast_hash": "3a8564fb8c09f54ea8e6e2ac728398c1",
+    "semantic_hash": "3a8564fb8c09f54ea8e6e2ac728398c1"
+  },
+  "src/main/java/com/viajajunto/api/modules/auth/dto/LoginRequestDTO.java": {
+    "mtime": 1790888622.35799,
+    "seen": 1793227442.6218972,
+    "ast_hash": "133ae119d1b841a59ca8fa757e7fde08",
+    "semantic_hash": "133ae119d1b841a59ca8fa757e7fde08"
+  },
+  "src/main/java/com/viajajunto/api/modules/auth/dto/RegisterDTO.java": {
+    "mtime": 1790888622.35799,
+    "seen": 1793227442.6218994,
+    "ast_hash": "26c15cedda8fbcba10bc8894b8bd5706",
+    "semantic_hash": "26c15cedda8fbcba10bc8894b8bd5706"
+  },
+  "src/main/java/com/viajajunto/api/modules/auth/dto/UserDTO.java": {
+    "mtime": 1790888622.3589902,
+    "seen": 1793227442.621901,
+    "ast_hash": "0301e6f6dddea8abedda732bbf26e2e9",
+    "semantic_hash": "0301e6f6dddea8abedda732bbf26e2e9"
+  },
+  "src/main/java/com/viajajunto/api/modules/auth/entity/UserEntity.java": {
+    "mtime": 1793226376.5290434,
+    "seen": 1793227442.621903,
+    "ast_hash": "54a375bd5f85b754017658224a08bacd",
+    "semantic_hash": "54a375bd5f85b754017658224a08bacd"
+  },
+  "src/main/java/com/viajajunto/api/modules/auth/repository/UserRepository.java": {
+    "mtime": 1793226376.5300756,
+    "seen": 1793227442.6219046,
+    "ast_hash": "117812e9583ef40cf14ecadf72f5ef14",
+    "semantic_hash": "117812e9583ef40cf14ecadf72f5ef14"
+  },
+  "src/main/java/com/viajajunto/api/modules/auth/service/AuthService.java": {
+    "mtime": 1793226376.5325954,
+    "seen": 1793227442.6219065,
+    "ast_hash": "43f09b4dc3212d8162cb00c6ae5607c9",
+    "semantic_hash": "43f09b4dc3212d8162cb00c6ae5607c9"
+  },
+  "src/main/java/com/viajajunto/api/modules/budget/controller/OrcamentoController.java": {
+    "mtime": 1790888622.3647342,
+    "seen": 1793227442.6219082,
+    "ast_hash": "929e35c637b4b8b61e207062f74bf8cc",
+    "semantic_hash": "929e35c637b4b8b61e207062f74bf8cc"
+  },
+  "src/main/java/com/viajajunto/api/modules/budget/dto/CategoriaGastoDTO.java": {
+    "mtime": 1790888622.3657346,
+    "seen": 1793227442.62191,
+    "ast_hash": "bed86538a0e1d79e6f2cdef02698aa7d",
+    "semantic_hash": "bed86538a0e1d79e6f2cdef02698aa7d"
+  },
+  "src/main/java/com/viajajunto/api/modules/budget/dto/OrcamentoResponseDTO.java": {
+    "mtime": 1790888622.3667338,
+    "seen": 1793227442.6219118,
+    "ast_hash": "906331b2827f2f54b3570a38ab331642",
+    "semantic_hash": "906331b2827f2f54b3570a38ab331642"
+  },
+  "src/main/java/com/viajajunto/api/modules/budget/dto/UpdateOrcamentoDTO.java": {
+    "mtime": 1790888622.3667338,
+    "seen": 1793227442.6219149,
+    "ast_hash": "99c52c8b270b79a94177d0eabf40f70d",
+    "semantic_hash": "99c52c8b270b79a94177d0eabf40f70d"
+  },
+  "src/main/java/com/viajajunto/api/modules/budget/entity/OrcamentoEntity.java": {
+    "mtime": 1793226376.5338604,
+    "seen": 1793227442.6219168,
+    "ast_hash": "b3e62af755178460648653d7db39b849",
+    "semantic_hash": "b3e62af755178460648653d7db39b849"
+  },
+  "src/main/java/com/viajajunto/api/modules/budget/repository/OrcamentoRepository.java": {
+    "mtime": 1793226376.5351899,
+    "seen": 1793227442.6219187,
+    "ast_hash": "48ce45744678961b66829871b6283144",
+    "semantic_hash": "48ce45744678961b66829871b6283144"
+  },
+  "src/main/java/com/viajajunto/api/modules/budget/service/OrcamentoService.java": {
+    "mtime": 1793226376.5376036,
+    "seen": 1793227442.6219206,
+    "ast_hash": "4cbd82df0fe6a0c50ce79cc04a81fe48",
+    "semantic_hash": "4cbd82df0fe6a0c50ce79cc04a81fe48"
+  },
+  "src/main/java/com/viajajunto/api/modules/destination/controller/DestinoCatalogoController.java": {
+    "mtime": 1790888622.3721974,
+    "seen": 1793227442.6219223,
+    "ast_hash": "2d74176e0fa524f44653e91ceaf6b2a9",
+    "semantic_hash": "2d74176e0fa524f44653e91ceaf6b2a9"
+  },
+  "src/main/java/com/viajajunto/api/modules/destination/controller/DestinoViagemController.java": {
+    "mtime": 1790888622.3733652,
+    "seen": 1793227442.6219242,
+    "ast_hash": "d7c0c8c34c6a60cfdfd5b49fe43b03f6",
+    "semantic_hash": "d7c0c8c34c6a60cfdfd5b49fe43b03f6"
+  },
+  "src/main/java/com/viajajunto/api/modules/destination/dto/CreateDestinoViagemDTO.java": {
+    "mtime": 1790888622.3756208,
+    "seen": 1793227442.6219258,
+    "ast_hash": "aa2cf7ebc414abeb336cab06a4aa4139",
+    "semantic_hash": "aa2cf7ebc414abeb336cab06a4aa4139"
+  },
+  "src/main/java/com/viajajunto/api/modules/destination/dto/DestinoCatalogoDTO.java": {
+    "mtime": 1790888622.3756208,
+    "seen": 1793227442.6219277,
+    "ast_hash": "8ac024f2ed45d72c4681401bf9d60763",
+    "semantic_hash": "8ac024f2ed45d72c4681401bf9d60763"
+  },
+  "src/main/java/com/viajajunto/api/modules/destination/dto/DestinoViagemResponseDTO.java": {
+    "mtime": 1790888622.376611,
+    "seen": 1793227442.6219296,
+    "ast_hash": "ab266e1159367dc9ba2a1607464abe54",
+    "semantic_hash": "ab266e1159367dc9ba2a1607464abe54"
+  },
+  "src/main/java/com/viajajunto/api/modules/destination/dto/VisitedCountryDTO.java": {
+    "mtime": 1790888622.3780982,
+    "seen": 1793227442.6219316,
+    "ast_hash": "43f4c85b30668f97d06b1372d16bddde",
+    "semantic_hash": "43f4c85b30668f97d06b1372d16bddde"
+  },
+  "src/main/java/com/viajajunto/api/modules/destination/entity/DestinoCatalogoEntity.java": {
+    "mtime": 1793226376.539601,
+    "seen": 1793227442.6219332,
+    "ast_hash": "9e74f651b2125f59d10b4eea3b92e568",
+    "semantic_hash": "9e74f651b2125f59d10b4eea3b92e568"
+  },
+  "src/main/java/com/viajajunto/api/modules/destination/entity/DestinoViagemEntity.java": {
+    "mtime": 1793226376.5406022,
+    "seen": 1793227442.6219351,
+    "ast_hash": "966d239365fb56eb3ae0961d1787e58c",
+    "semantic_hash": "966d239365fb56eb3ae0961d1787e58c"
+  },
+  "src/main/java/com/viajajunto/api/modules/destination/repository/DestinoCatalogoRepository.java": {
+    "mtime": 1793226376.5475879,
+    "seen": 1793227442.6219368,
+    "ast_hash": "61218f654c0653b4ee7d52ac44b2b2dd",
+    "semantic_hash": "61218f654c0653b4ee7d52ac44b2b2dd"
+  },
+  "src/main/java/com/viajajunto/api/modules/destination/repository/DestinoViagemRepository.java": {
+    "mtime": 1793226376.5485892,
+    "seen": 1793227442.6219387,
+    "ast_hash": "42db4856e6895f31e2cd4be52a4a3b40",
+    "semantic_hash": "42db4856e6895f31e2cd4be52a4a3b40"
+  },
+  "src/main/java/com/viajajunto/api/modules/destination/service/DestinoCatalogoService.java": {
+    "mtime": 1793226376.550588,
+    "seen": 1793227442.6219404,
+    "ast_hash": "0ddf73063b2067a07c2005cf928465d6",
+    "semantic_hash": "0ddf73063b2067a07c2005cf928465d6"
+  },
+  "src/main/java/com/viajajunto/api/modules/destination/service/DestinoViagemService.java": {
+    "mtime": 1793226376.5528822,
+    "seen": 1793227442.6219428,
+    "ast_hash": "e81cdbe73e700603213d89bbe7e2db2a",
+    "semantic_hash": "e81cdbe73e700603213d89bbe7e2db2a"
+  },
+  "src/main/java/com/viajajunto/api/modules/review/controller/AvaliacaoController.java": {
+    "mtime": 1790888622.3866303,
+    "seen": 1793227442.621945,
+    "ast_hash": "68e9ca7106087fc6ef2edca17fea0a54",
+    "semantic_hash": "68e9ca7106087fc6ef2edca17fea0a54"
+  },
+  "src/main/java/com/viajajunto/api/modules/review/dto/AvaliacaoResponseDTO.java": {
+    "mtime": 1793226376.5540922,
+    "seen": 1793227442.6219466,
+    "ast_hash": "650b4a7973f06305089b4d9f48359de8",
+    "semantic_hash": "650b4a7973f06305089b4d9f48359de8"
+  },
+  "src/main/java/com/viajajunto/api/modules/review/dto/CreateAvaliacaoDTO.java": {
+    "mtime": 1790888622.387799,
+    "seen": 1793227442.621949,
+    "ast_hash": "bb6b47dc23a2c70903e6275c4dec5f39",
+    "semantic_hash": "bb6b47dc23a2c70903e6275c4dec5f39"
+  },
+  "src/main/java/com/viajajunto/api/modules/review/entity/AvaliacaoEntity.java": {
+    "mtime": 1793226376.5560894,
+    "seen": 1793227442.6219506,
+    "ast_hash": "36785b431c83d00d54262776b2b09541",
+    "semantic_hash": "36785b431c83d00d54262776b2b09541"
+  },
+  "src/main/java/com/viajajunto/api/modules/review/repository/AvaliacaoRepository.java": {
+    "mtime": 1793226376.5572553,
+    "seen": 1793227442.6219525,
+    "ast_hash": "c8ee5e7e584582ee3ad957dc8d06805f",
+    "semantic_hash": "c8ee5e7e584582ee3ad957dc8d06805f"
+  },
+  "src/main/java/com/viajajunto/api/modules/review/service/AvaliacaoService.java": {
+    "mtime": 1793226376.562461,
+    "seen": 1793227442.6219542,
+    "ast_hash": "95c20e7d1248bb4b9b0260de7b889370",
+    "semantic_hash": "95c20e7d1248bb4b9b0260de7b889370"
+  },
+  "src/main/java/com/viajajunto/api/modules/trip/controller/MembroViagemController.java": {
+    "mtime": 1790888622.3951948,
+    "seen": 1793227442.621956,
+    "ast_hash": "bf724745d145cbf8c1a8a44fa0887851",
+    "semantic_hash": "bf724745d145cbf8c1a8a44fa0887851"
+  },
+  "src/main/java/com/viajajunto/api/modules/trip/controller/ViagemController.java": {
+    "mtime": 1790888622.3951948,
+    "seen": 1793227442.6219583,
+    "ast_hash": "f7abbb11e4788a1018c3afd5830d50bb",
+    "semantic_hash": "f7abbb11e4788a1018c3afd5830d50bb"
+  },
+  "src/main/java/com/viajajunto/api/modules/trip/dto/AddMembroDTO.java": {
+    "mtime": 1790888622.3963304,
+    "seen": 1793227442.6219602,
+    "ast_hash": "20ae651eb2e7f518615c9c5a68a0a799",
+    "semantic_hash": "20ae651eb2e7f518615c9c5a68a0a799"
+  },
+  "src/main/java/com/viajajunto/api/modules/trip/dto/CreateViagemDTO.java": {
+    "mtime": 1790888622.3973315,
+    "seen": 1793227442.6219623,
+    "ast_hash": "73c35afb8856d93a3557d0c32533ca34",
+    "semantic_hash": "73c35afb8856d93a3557d0c32533ca34"
+  },
+  "src/main/java/com/viajajunto/api/modules/trip/dto/MembroResponseDTO.java": {
+    "mtime": 1790888622.3983803,
+    "seen": 1793227442.621964,
+    "ast_hash": "8e295ef3599cc54dd6b777eed72bfaad",
+    "semantic_hash": "8e295ef3599cc54dd6b777eed72bfaad"
+  },
+  "src/main/java/com/viajajunto/api/modules/trip/dto/UpdatePermissaoDTO.java": {
+    "mtime": 1790888622.399517,
+    "seen": 1793227442.621966,
+    "ast_hash": "bd6241387dd3e82e3ed107f650524138",
+    "semantic_hash": "bd6241387dd3e82e3ed107f650524138"
+  },
+  "src/main/java/com/viajajunto/api/modules/trip/dto/UpdateViagemDTO.java": {
+    "mtime": 1790888622.399517,
+    "seen": 1793227442.6219678,
+    "ast_hash": "3cef3ba33e696d384be306cd0e209fc7",
+    "semantic_hash": "3cef3ba33e696d384be306cd0e209fc7"
+  },
+  "src/main/java/com/viajajunto/api/modules/trip/dto/ViagemResponseDTO.java": {
+    "mtime": 1790888622.4005187,
+    "seen": 1793227442.6219697,
+    "ast_hash": "a8b06be793094ddfd5a895e4512c3df0",
+    "semantic_hash": "a8b06be793094ddfd5a895e4512c3df0"
+  },
+  "src/main/java/com/viajajunto/api/modules/trip/entity/MembroViagemEntity.java": {
+    "mtime": 1793226376.5635493,
+    "seen": 1793227442.6219716,
+    "ast_hash": "69872fd450011bcbb8c97ffc2ee1a2b9",
+    "semantic_hash": "69872fd450011bcbb8c97ffc2ee1a2b9"
+  },
+  "src/main/java/com/viajajunto/api/modules/trip/entity/PermissaoMembro.java": {
+    "mtime": 1790888622.402783,
+    "seen": 1793227442.6219738,
+    "ast_hash": "dd290c851c001360196e17fc5e0b8c84",
+    "semantic_hash": "dd290c851c001360196e17fc5e0b8c84"
+  },
+  "src/main/java/com/viajajunto/api/modules/trip/entity/StatusViagem.java": {
+    "mtime": 1790888622.40392,
+    "seen": 1793227442.621976,
+    "ast_hash": "b6e8225f0e8bb9b0c666aedd696e3aea",
+    "semantic_hash": "b6e8225f0e8bb9b0c666aedd696e3aea"
+  },
+  "src/main/java/com/viajajunto/api/modules/trip/entity/ViagemEntity.java": {
+    "mtime": 1793226376.56455,
+    "seen": 1793227442.6219776,
+    "ast_hash": "2618df1ddf61f500eeb247120ed7d8dd",
+    "semantic_hash": "2618df1ddf61f500eeb247120ed7d8dd"
+  },
+  "src/main/java/com/viajajunto/api/modules/trip/repository/MembroViagemRepository.java": {
+    "mtime": 1793226376.5655496,
+    "seen": 1793227442.6219797,
+    "ast_hash": "47e64574c0f3305b8d53d89065ac7fec",
+    "semantic_hash": "47e64574c0f3305b8d53d89065ac7fec"
+  },
+  "src/main/java/com/viajajunto/api/modules/trip/repository/ViagemRepository.java": {
+    "mtime": 1793226376.5681238,
+    "seen": 1793227442.6219816,
+    "ast_hash": "c7a96b8ac813c8ec6764a029e640cd79",
+    "semantic_hash": "c7a96b8ac813c8ec6764a029e640cd79"
+  },
+  "src/main/java/com/viajajunto/api/modules/trip/service/MembroViagemService.java": {
+    "mtime": 1793226376.5701344,
+    "seen": 1793227442.6219838,
+    "ast_hash": "29ca9f77fcdfd84e8ebedda7beacee8e",
+    "semantic_hash": "29ca9f77fcdfd84e8ebedda7beacee8e"
+  },
+  "src/main/java/com/viajajunto/api/modules/trip/service/ViagemService.java": {
+    "mtime": 1793226376.572133,
+    "seen": 1793227442.6219854,
+    "ast_hash": "b0efea8953bece450bcd69d5addb8f6f",
+    "semantic_hash": "b0efea8953bece450bcd69d5addb8f6f"
+  },
+  "src/test/java/com/viajajunto/api/modules/auth/service/AuthServiceTest.java": {
+    "mtime": 1793226376.5799112,
+    "seen": 1793227442.6219873,
+    "ast_hash": "ba67969374a794bae6e4b13cc0bcffd2",
+    "semantic_hash": "ba67969374a794bae6e4b13cc0bcffd2"
+  },
+  "src/test/java/com/viajajunto/api/modules/budget/service/OrcamentoServiceTest.java": {
+    "mtime": 1793226376.5821462,
+    "seen": 1793227442.6219897,
+    "ast_hash": "9949198265406b9fbc04c9979bbabe63",
+    "semantic_hash": "9949198265406b9fbc04c9979bbabe63"
+  },
+  "src/test/java/com/viajajunto/api/modules/review/service/AvaliacaoServiceTest.java": {
+    "mtime": 1793226376.5841484,
+    "seen": 1793227442.6219914,
+    "ast_hash": "16d3f00fc533180750ed5183836aadce",
+    "semantic_hash": "16d3f00fc533180750ed5183836aadce"
+  },
+  "src/test/java/com/viajajunto/api/modules/trip/service/ViagemServiceTest.java": {
+    "mtime": 1793226376.5871453,
+    "seen": 1793227442.6219935,
+    "ast_hash": "1abb34842de5639e0c14186b2ca57868",
+    "semantic_hash": "1abb34842de5639e0c14186b2ca57868"
+  }
+}

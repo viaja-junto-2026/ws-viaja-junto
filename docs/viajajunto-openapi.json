@@ -1,0 +1,4085 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "ViajaJunto API",
+    "version": "1.0.0",
+    "description": "API do ViajaJunto, plataforma de planejamento colaborativo de viagens em grupo.\n\n**Autenticação:** JWT Bearer (Firebase Authentication). Envie `Authorization: Bearer <accessToken>`. Endpoints públicos estão marcados sem cadeado.\n\n**Paginação:** listas usam `?page=1&limit=20` e retornam `{data, meta}`.\n\n**Erros:** formato padrão `{code, message, details}`.\n\n**Rate limit:** 429 quando excedido."
+  },
+  "servers": [
+    {
+      "url": "https://api.viajajunto.com/v1",
+      "description": "Produção"
+    },
+    {
+      "url": "http://localhost:3000/v1",
+      "description": "Local"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Autenticação"
+    },
+    {
+      "name": "Usuários"
+    },
+    {
+      "name": "Roteiros"
+    },
+    {
+      "name": "Membros"
+    },
+    {
+      "name": "Destinos"
+    },
+    {
+      "name": "Atividades"
+    },
+    {
+      "name": "Mapa"
+    },
+    {
+      "name": "Despesas"
+    },
+    {
+      "name": "Avaliações"
+    },
+    {
+      "name": "Fórum"
+    },
+    {
+      "name": "Notificações"
+    }
+  ],
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ],
+  "paths": {
+    "/auth/register": {
+      "post": {
+        "tags": [
+          "Autenticação"
+        ],
+        "summary": "Cadastrar usuário",
+        "description": "Cria conta com e-mail e senha (Firebase Authentication) e envia e-mail de verificação.",
+        "parameters": [],
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterRequest"
+              },
+              "example": {
+                "name": "Ana Souza",
+                "email": "ana@email.com",
+                "password": "Senha@123"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Usuário criado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "user": {
+                      "$ref": "#/components/schemas/User"
+                    },
+                    "tokens": {
+                      "$ref": "#/components/schemas/AuthTokens"
+                    }
+                  }
+                },
+                "example": {
+                  "user": {
+                    "id": "usr_01",
+                    "name": "Ana Souza",
+                    "email": "ana@email.com",
+                    "avatarUrl": null,
+                    "createdAt": "2026-09-01T12:00:00Z"
+                  },
+                  "tokens": {
+                    "accessToken": "eyJhbGciOi...",
+                    "refreshToken": "def50200...",
+                    "expiresIn": 3600,
+                    "tokenType": "Bearer"
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "409": {
+            "description": "E-mail já cadastrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "code": "EMAIL_IN_USE",
+                  "message": "E-mail já cadastrado"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "tags": [
+          "Autenticação"
+        ],
+        "summary": "Login com e-mail e senha",
+        "description": "Autentica e retorna tokens JWT. Use o accessToken no header Authorization: Bearer.",
+        "parameters": [],
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              },
+              "example": {
+                "email": "ana@email.com",
+                "password": "Senha@123"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Autenticado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthTokens"
+                },
+                "example": {
+                  "accessToken": "eyJhbGciOi...",
+                  "refreshToken": "def50200...",
+                  "expiresIn": 3600,
+                  "tokenType": "Bearer"
+                }
+              }
+            }
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+    "/auth/social": {
+      "post": {
+        "tags": [
+          "Autenticação"
+        ],
+        "summary": "Login social",
+        "description": "Autentica via provedor social (Google, Facebook, Apple) usando o idToken do provedor.",
+        "parameters": [],
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SocialLoginRequest"
+              },
+              "example": {
+                "provider": "google",
+                "idToken": "eyJhbGciOi..."
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Autenticado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthTokens"
+                },
+                "example": {
+                  "accessToken": "eyJhbGciOi...",
+                  "refreshToken": "def50200...",
+                  "expiresIn": 3600,
+                  "tokenType": "Bearer"
+                }
+              }
+            }
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          }
+        }
+      }
+    },
+    "/auth/refresh": {
+      "post": {
+        "tags": [
+          "Autenticação"
+        ],
+        "summary": "Renovar token",
+        "description": "Gera novo accessToken a partir do refreshToken.",
+        "parameters": [],
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefreshRequest"
+              },
+              "example": {
+                "refreshToken": "def50200..."
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Token renovado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthTokens"
+                },
+                "example": {
+                  "accessToken": "eyJhbGciOi...",
+                  "refreshToken": "def50200...",
+                  "expiresIn": 3600,
+                  "tokenType": "Bearer"
+                }
+              }
+            }
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          }
+        }
+      }
+    },
+    "/auth/password-reset": {
+      "post": {
+        "tags": [
+          "Autenticação"
+        ],
+        "summary": "Recuperar senha",
+        "description": "Envia e-mail de recuperação. Sempre retorna 204 para não revelar se o e-mail existe.",
+        "parameters": [],
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PasswordResetRequest"
+              },
+              "example": {
+                "email": "ana@email.com"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "E-mail enviado (se existir)"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          }
+        }
+      }
+    },
+    "/users/me": {
+      "get": {
+        "tags": [
+          "Usuários"
+        ],
+        "summary": "Perfil do usuário autenticado",
+        "description": "Retorna os dados do usuário logado.",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Perfil",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                },
+                "example": {
+                  "id": "usr_01",
+                  "name": "Ana Souza",
+                  "email": "ana@email.com",
+                  "avatarUrl": null,
+                  "createdAt": "2026-09-01T12:00:00Z"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Usuários"
+        ],
+        "summary": "Atualizar perfil",
+        "description": "Atualização parcial de nome e avatar.",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserUpdate"
+              },
+              "example": {
+                "name": "Ana S. Souza"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Perfil atualizado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                },
+                "example": {
+                  "id": "usr_01",
+                  "name": "Ana Souza",
+                  "email": "ana@email.com",
+                  "avatarUrl": null,
+                  "createdAt": "2026-09-01T12:00:00Z"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          }
+        }
+      }
+    },
+    "/trips": {
+      "get": {
+        "tags": [
+          "Roteiros"
+        ],
+        "summary": "Listar roteiros",
+        "description": "Lista roteiros dos quais o usuário é membro. Paginado.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/page"
+          },
+          {
+            "$ref": "#/components/parameters/limit"
+          },
+          {
+            "$ref": "#/components/parameters/sort"
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "planning",
+                "confirmed",
+                "completed",
+                "cancelled"
+              ]
+            }
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "description": "Busca por título",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista paginada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Trip"
+                      }
+                    },
+                    "meta": {
+                      "$ref": "#/components/schemas/PageMeta"
+                    }
+                  }
+                },
+                "example": {
+                  "data": [
+                    {
+                      "id": "trp_01",
+                      "title": "Eurotrip 2027",
+                      "description": "Viagem de 20 dias pela Europa",
+                      "startDate": "2027-01-10",
+                      "endDate": "2027-01-30",
+                      "baseCurrency": "BRL",
+                      "status": "planning",
+                      "ownerId": "usr_01",
+                      "createdAt": "2026-09-10T10:00:00Z"
+                    }
+                  ],
+                  "meta": {
+                    "page": 1,
+                    "limit": 20,
+                    "totalItems": 1,
+                    "totalPages": 1
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Roteiros"
+        ],
+        "summary": "Criar roteiro",
+        "description": "Cria um roteiro; o criador vira owner.",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TripCreate"
+              },
+              "example": {
+                "title": "Eurotrip 2027",
+                "description": "Viagem de 20 dias pela Europa",
+                "startDate": "2027-01-10",
+                "endDate": "2027-01-30",
+                "baseCurrency": "BRL"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Roteiro criado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Trip"
+                },
+                "example": {
+                  "id": "trp_01",
+                  "title": "Eurotrip 2027",
+                  "description": "Viagem de 20 dias pela Europa",
+                  "startDate": "2027-01-10",
+                  "endDate": "2027-01-30",
+                  "baseCurrency": "BRL",
+                  "status": "planning",
+                  "ownerId": "usr_01",
+                  "createdAt": "2026-09-10T10:00:00Z"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          }
+        }
+      }
+    },
+    "/trips/{tripId}": {
+      "get": {
+        "tags": [
+          "Roteiros"
+        ],
+        "summary": "Detalhar roteiro",
+        "description": "Retorna o roteiro. Requer ser membro.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/tripId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Roteiro",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Trip"
+                },
+                "example": {
+                  "id": "trp_01",
+                  "title": "Eurotrip 2027",
+                  "description": "Viagem de 20 dias pela Europa",
+                  "startDate": "2027-01-10",
+                  "endDate": "2027-01-30",
+                  "baseCurrency": "BRL",
+                  "status": "planning",
+                  "ownerId": "usr_01",
+                  "createdAt": "2026-09-10T10:00:00Z"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Roteiros"
+        ],
+        "summary": "Atualizar roteiro",
+        "description": "Atualização parcial. Requer papel owner ou editor.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/tripId"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TripCreate"
+              },
+              "example": {
+                "title": "Eurotrip 2027 - v2"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Atualizado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Trip"
+                },
+                "example": {
+                  "id": "trp_01",
+                  "title": "Eurotrip 2027",
+                  "description": "Viagem de 20 dias pela Europa",
+                  "startDate": "2027-01-10",
+                  "endDate": "2027-01-30",
+                  "baseCurrency": "BRL",
+                  "status": "planning",
+                  "ownerId": "usr_01",
+                  "createdAt": "2026-09-10T10:00:00Z"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Roteiros"
+        ],
+        "summary": "Excluir roteiro",
+        "description": "Remove o roteiro e seus dados. Apenas owner.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/tripId"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Excluído"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/trips/{tripId}/members": {
+      "get": {
+        "tags": [
+          "Membros"
+        ],
+        "summary": "Listar membros",
+        "description": "Lista participantes do roteiro. Paginado.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/tripId"
+          },
+          {
+            "$ref": "#/components/parameters/page"
+          },
+          {
+            "$ref": "#/components/parameters/limit"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista paginada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Member"
+                      }
+                    },
+                    "meta": {
+                      "$ref": "#/components/schemas/PageMeta"
+                    }
+                  }
+                },
+                "example": {
+                  "data": [
+                    {
+                      "userId": "usr_02",
+                      "name": "Bruno Lima",
+                      "email": "bruno@email.com",
+                      "role": "editor",
+                      "status": "active"
+                    }
+                  ],
+                  "meta": {
+                    "page": 1,
+                    "limit": 20,
+                    "totalItems": 1,
+                    "totalPages": 1
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Membros"
+        ],
+        "summary": "Convidar membro",
+        "description": "Envia convite por e-mail (SendGrid) e notificação push. Apenas owner.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/tripId"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MemberInvite"
+              },
+              "example": {
+                "email": "bruno@email.com",
+                "role": "editor"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Convite enviado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Member"
+                },
+                "example": {
+                  "userId": "usr_02",
+                  "name": "Bruno Lima",
+                  "email": "bruno@email.com",
+                  "role": "editor",
+                  "status": "invited"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          }
+        }
+      }
+    },
+    "/trips/{tripId}/members/{userId}": {
+      "patch": {
+        "tags": [
+          "Membros"
+        ],
+        "summary": "Alterar papel do membro",
+        "description": "Altera o papel (editor/viewer). Apenas owner.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/tripId"
+          },
+          {
+            "$ref": "#/components/parameters/userId"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MemberUpdate"
+              },
+              "example": {
+                "role": "viewer"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Atualizado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Member"
+                },
+                "example": {
+                  "userId": "usr_02",
+                  "name": "Bruno Lima",
+                  "email": "bruno@email.com",
+                  "role": "editor",
+                  "status": "active"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Membros"
+        ],
+        "summary": "Remover membro",
+        "description": "Remove membro (ou permite sair do grupo se for o próprio usuário).",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/tripId"
+          },
+          {
+            "$ref": "#/components/parameters/userId"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Removido"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/trips/{tripId}/destinations": {
+      "get": {
+        "tags": [
+          "Destinos"
+        ],
+        "summary": "Listar destinos do roteiro",
+        "description": "Destinos ordenados por 'order'. Paginado.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/tripId"
+          },
+          {
+            "$ref": "#/components/parameters/page"
+          },
+          {
+            "$ref": "#/components/parameters/limit"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista paginada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Destination"
+                      }
+                    },
+                    "meta": {
+                      "$ref": "#/components/schemas/PageMeta"
+                    }
+                  }
+                },
+                "example": {
+                  "data": [
+                    {
+                      "id": "dst_01",
+                      "name": "Lisboa",
+                      "country": "PT",
+                      "placeId": "ChIJ1_gG1tw0GQ0R",
+                      "latitude": 38.7223,
+                      "longitude": -9.1393,
+                      "arrivalDate": "2027-01-10",
+                      "departureDate": "2027-01-14",
+                      "order": 1
+                    }
+                  ],
+                  "meta": {
+                    "page": 1,
+                    "limit": 20,
+                    "totalItems": 1,
+                    "totalPages": 1
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Destinos"
+        ],
+        "summary": "Adicionar destino",
+        "description": "Adiciona destino (placeId do Google Places) ao roteiro.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/tripId"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DestinationCreate"
+              },
+              "example": {
+                "name": "Lisboa",
+                "country": "PT",
+                "placeId": "ChIJ1_gG1tw0GQ0R",
+                "latitude": 38.7223,
+                "longitude": -9.1393,
+                "arrivalDate": "2027-01-10",
+                "departureDate": "2027-01-14"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Criado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Destination"
+                },
+                "example": {
+                  "id": "dst_01",
+                  "name": "Lisboa",
+                  "country": "PT",
+                  "placeId": "ChIJ1_gG1tw0GQ0R",
+                  "latitude": 38.7223,
+                  "longitude": -9.1393,
+                  "arrivalDate": "2027-01-10",
+                  "departureDate": "2027-01-14",
+                  "order": 1
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          }
+        }
+      }
+    },
+    "/trips/{tripId}/destinations/{destinationId}": {
+      "patch": {
+        "tags": [
+          "Destinos"
+        ],
+        "summary": "Atualizar destino",
+        "description": "Atualização parcial (datas, ordem).",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/tripId"
+          },
+          {
+            "$ref": "#/components/parameters/destinationId"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DestinationCreate"
+              },
+              "example": {
+                "order": 2
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Atualizado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Destination"
+                },
+                "example": {
+                  "id": "dst_01",
+                  "name": "Lisboa",
+                  "country": "PT",
+                  "placeId": "ChIJ1_gG1tw0GQ0R",
+                  "latitude": 38.7223,
+                  "longitude": -9.1393,
+                  "arrivalDate": "2027-01-10",
+                  "departureDate": "2027-01-14",
+                  "order": 1
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Destinos"
+        ],
+        "summary": "Remover destino",
+        "description": "Remove destino e desvincula atividades.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/tripId"
+          },
+          {
+            "$ref": "#/components/parameters/destinationId"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Removido"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/trips/{tripId}/activities": {
+      "get": {
+        "tags": [
+          "Atividades"
+        ],
+        "summary": "Listar atividades",
+        "description": "Lista atividades do roteiro, com filtros. Paginado.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/tripId"
+          },
+          {
+            "$ref": "#/components/parameters/page"
+          },
+          {
+            "$ref": "#/components/parameters/limit"
+          },
+          {
+            "name": "destinationId",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "date",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista paginada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Activity"
+                      }
+                    },
+                    "meta": {
+                      "$ref": "#/components/schemas/PageMeta"
+                    }
+                  }
+                },
+                "example": {
+                  "data": [
+                    {
+                      "id": "act_01",
+                      "destinationId": "dst_01",
+                      "title": "Passeio de bonde 28",
+                      "description": "Roteiro por Alfama",
+                      "date": "2027-01-11",
+                      "startTime": "10:00",
+                      "endTime": "12:00",
+                      "estimatedCost": 15.5,
+                      "currency": "EUR",
+                      "category": "passeio",
+                      "latitude": 38.7139,
+                      "longitude": -9.1334
+                    }
+                  ],
+                  "meta": {
+                    "page": 1,
+                    "limit": 20,
+                    "totalItems": 1,
+                    "totalPages": 1
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Atividades"
+        ],
+        "summary": "Criar atividade",
+        "description": "Cria atividade. Retorna 409 se houver conflito de horário para o mesmo grupo.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/tripId"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ActivityCreate"
+              },
+              "example": {
+                "destinationId": "dst_01",
+                "title": "Passeio de bonde 28",
+                "description": "Roteiro por Alfama",
+                "date": "2027-01-11",
+                "startTime": "10:00",
+                "endTime": "12:00",
+                "estimatedCost": 15.5,
+                "currency": "EUR",
+                "category": "passeio",
+                "latitude": 38.7139,
+                "longitude": -9.1334
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Criada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Activity"
+                },
+                "example": {
+                  "id": "act_01",
+                  "destinationId": "dst_01",
+                  "title": "Passeio de bonde 28",
+                  "description": "Roteiro por Alfama",
+                  "date": "2027-01-11",
+                  "startTime": "10:00",
+                  "endTime": "12:00",
+                  "estimatedCost": 15.5,
+                  "currency": "EUR",
+                  "category": "passeio",
+                  "latitude": 38.7139,
+                  "longitude": -9.1334
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "409": {
+            "description": "Conflito de agenda",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "code": "SCHEDULE_CONFLICT",
+                  "message": "Já existe atividade nesse horário"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/trips/{tripId}/activities/{activityId}": {
+      "patch": {
+        "tags": [
+          "Atividades"
+        ],
+        "summary": "Atualizar atividade",
+        "description": "Atualização parcial.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/tripId"
+          },
+          {
+            "$ref": "#/components/parameters/activityId"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ActivityCreate"
+              },
+              "example": {
+                "startTime": "11:00"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Atualizada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Activity"
+                },
+                "example": {
+                  "id": "act_01",
+                  "destinationId": "dst_01",
+                  "title": "Passeio de bonde 28",
+                  "description": "Roteiro por Alfama",
+                  "date": "2027-01-11",
+                  "startTime": "10:00",
+                  "endTime": "12:00",
+                  "estimatedCost": 15.5,
+                  "currency": "EUR",
+                  "category": "passeio",
+                  "latitude": 38.7139,
+                  "longitude": -9.1334
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Atividades"
+        ],
+        "summary": "Remover atividade",
+        "description": "Remove a atividade.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/tripId"
+          },
+          {
+            "$ref": "#/components/parameters/activityId"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Removida"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/trips/{tripId}/map": {
+      "get": {
+        "tags": [
+          "Mapa"
+        ],
+        "summary": "Marcadores do mapa",
+        "description": "Retorna destinos e atividades como marcadores (Google Maps). Resultado em cache.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/tripId"
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "destination",
+                "activity"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Marcadores",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MapData"
+                },
+                "example": {
+                  "markers": [
+                    {
+                      "type": "destination",
+                      "id": "dst_01",
+                      "label": "Lisboa",
+                      "latitude": 38.7223,
+                      "longitude": -9.1393
+                    },
+                    {
+                      "type": "activity",
+                      "id": "act_01",
+                      "label": "Passeio de bonde 28",
+                      "latitude": 38.7139,
+                      "longitude": -9.1334
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/trips/{tripId}/route": {
+      "get": {
+        "tags": [
+          "Mapa"
+        ],
+        "summary": "Rota entre destinos",
+        "description": "Calcula rota (Directions API) entre os destinos na ordem do roteiro.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/tripId"
+          },
+          {
+            "name": "mode",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "driving",
+                "walking",
+                "transit",
+                "bicycling"
+              ],
+              "default": "driving"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Rota",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RouteResult"
+                },
+                "example": {
+                  "mode": "driving",
+                  "totalDistanceKm": 640.2,
+                  "totalDurationMin": 420,
+                  "legs": [
+                    {
+                      "from": "dst_01",
+                      "to": "dst_02",
+                      "distanceKm": 640.2,
+                      "durationMin": 420
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/trips/{tripId}/expenses": {
+      "get": {
+        "tags": [
+          "Despesas"
+        ],
+        "summary": "Listar despesas",
+        "description": "Lista despesas do grupo. Paginado.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/tripId"
+          },
+          {
+            "$ref": "#/components/parameters/page"
+          },
+          {
+            "$ref": "#/components/parameters/limit"
+          },
+          {
+            "$ref": "#/components/parameters/sort"
+          },
+          {
+            "name": "paidBy",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista paginada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Expense"
+                      }
+                    },
+                    "meta": {
+                      "$ref": "#/components/schemas/PageMeta"
+                    }
+                  }
+                },
+                "example": {
+                  "data": [
+                    {
+                      "id": "exp_01",
+                      "description": "Jantar em Alfama",
+                      "amount": 120.0,
+                      "currency": "EUR",
+                      "date": "2027-01-11",
+                      "paidBy": "usr_01",
+                      "activityId": "act_01",
+                      "splitType": "equal",
+                      "participants": [
+                        {
+                          "userId": "usr_01",
+                          "share": null
+                        },
+                        {
+                          "userId": "usr_02",
+                          "share": null
+                        }
+                      ]
+                    }
+                  ],
+                  "meta": {
+                    "page": 1,
+                    "limit": 20,
+                    "totalItems": 1,
+                    "totalPages": 1
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Despesas"
+        ],
+        "summary": "Registrar despesa",
+        "description": "Registra despesa e regra de divisão (equal, percentage, fixed). Para percentage a soma dos shares deve ser 100; para fixed, igual ao amount.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/tripId"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExpenseCreate"
+              },
+              "example": {
+                "description": "Jantar em Alfama",
+                "amount": 120.0,
+                "currency": "EUR",
+                "date": "2027-01-11",
+                "paidBy": "usr_01",
+                "activityId": "act_01",
+                "splitType": "equal",
+                "participants": [
+                  {
+                    "userId": "usr_01",
+                    "share": null
+                  },
+                  {
+                    "userId": "usr_02",
+                    "share": null
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Criada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Expense"
+                },
+                "example": {
+                  "id": "exp_01",
+                  "description": "Jantar em Alfama",
+                  "amount": 120.0,
+                  "currency": "EUR",
+                  "date": "2027-01-11",
+                  "paidBy": "usr_01",
+                  "activityId": "act_01",
+                  "splitType": "equal",
+                  "participants": [
+                    {
+                      "userId": "usr_01",
+                      "share": null
+                    },
+                    {
+                      "userId": "usr_02",
+                      "share": null
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          }
+        }
+      }
+    },
+    "/trips/{tripId}/expenses/{expenseId}": {
+      "patch": {
+        "tags": [
+          "Despesas"
+        ],
+        "summary": "Atualizar despesa",
+        "description": "Atualização parcial; saldos são recalculados.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/tripId"
+          },
+          {
+            "$ref": "#/components/parameters/expenseId"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExpenseCreate"
+              },
+              "example": {
+                "amount": 130.0
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Atualizada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Expense"
+                },
+                "example": {
+                  "id": "exp_01",
+                  "description": "Jantar em Alfama",
+                  "amount": 120.0,
+                  "currency": "EUR",
+                  "date": "2027-01-11",
+                  "paidBy": "usr_01",
+                  "activityId": "act_01",
+                  "splitType": "equal",
+                  "participants": [
+                    {
+                      "userId": "usr_01",
+                      "share": null
+                    },
+                    {
+                      "userId": "usr_02",
+                      "share": null
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Despesas"
+        ],
+        "summary": "Excluir despesa",
+        "description": "Remove a despesa e recalcula saldos.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/tripId"
+          },
+          {
+            "$ref": "#/components/parameters/expenseId"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Excluída"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/trips/{tripId}/balances": {
+      "get": {
+        "tags": [
+          "Despesas"
+        ],
+        "summary": "Saldos e dívidas simplificadas",
+        "description": "Retorna saldo líquido por participante e a lista mínima de transferências para quitar.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/tripId"
+          },
+          {
+            "name": "currency",
+            "in": "query",
+            "description": "Moeda de conversão (padrão: moeda base do roteiro)",
+            "schema": {
+              "type": "string",
+              "example": "BRL"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Saldos",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Balances"
+                },
+                "example": {
+                  "currency": "BRL",
+                  "balances": [
+                    {
+                      "userId": "usr_01",
+                      "name": "Ana Souza",
+                      "net": 300.0
+                    },
+                    {
+                      "userId": "usr_02",
+                      "name": "Bruno Lima",
+                      "net": -300.0
+                    }
+                  ],
+                  "transfers": [
+                    {
+                      "from": "usr_02",
+                      "to": "usr_01",
+                      "amount": 300.0,
+                      "currency": "BRL"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/trips/{tripId}/settlements": {
+      "post": {
+        "tags": [
+          "Despesas"
+        ],
+        "summary": "Registrar pagamento de dívida",
+        "description": "Registra que um participante quitou valor a outro.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/tripId"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SettlementCreate"
+              },
+              "example": {
+                "from": "usr_02",
+                "to": "usr_01",
+                "amount": 300.0,
+                "currency": "BRL"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Registrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Settlement"
+                },
+                "example": {
+                  "id": "stl_01",
+                  "from": "usr_02",
+                  "to": "usr_01",
+                  "amount": 300.0,
+                  "currency": "BRL",
+                  "date": "2027-02-01"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          }
+        }
+      }
+    },
+    "/places": {
+      "get": {
+        "tags": [
+          "Avaliações"
+        ],
+        "summary": "Buscar destinos da comunidade",
+        "description": "Busca destinos com nota média. Público (sem autenticação). Paginado.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/page"
+          },
+          {
+            "$ref": "#/components/parameters/limit"
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "country",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "example": "PT"
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "rating",
+                "-rating",
+                "reviews",
+                "name"
+              ]
+            }
+          }
+        ],
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Lista paginada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Place"
+                      }
+                    },
+                    "meta": {
+                      "$ref": "#/components/schemas/PageMeta"
+                    }
+                  }
+                },
+                "example": {
+                  "data": [
+                    {
+                      "id": "plc_01",
+                      "name": "Lisboa",
+                      "country": "PT",
+                      "latitude": 38.7223,
+                      "longitude": -9.1393,
+                      "averageRating": 4.7,
+                      "reviewCount": 132
+                    }
+                  ],
+                  "meta": {
+                    "page": 1,
+                    "limit": 20,
+                    "totalItems": 1,
+                    "totalPages": 1
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          }
+        }
+      }
+    },
+    "/places/{placeId}": {
+      "get": {
+        "tags": [
+          "Avaliações"
+        ],
+        "summary": "Detalhar destino",
+        "description": "Detalhes e nota média. Público.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/placeId"
+          }
+        ],
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Destino",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Place"
+                },
+                "example": {
+                  "id": "plc_01",
+                  "name": "Lisboa",
+                  "country": "PT",
+                  "latitude": 38.7223,
+                  "longitude": -9.1393,
+                  "averageRating": 4.7,
+                  "reviewCount": 132
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          }
+        }
+      }
+    },
+    "/places/{placeId}/reviews": {
+      "get": {
+        "tags": [
+          "Avaliações"
+        ],
+        "summary": "Listar avaliações",
+        "description": "Avaliações do destino. Público. Paginado.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/placeId"
+          },
+          {
+            "$ref": "#/components/parameters/page"
+          },
+          {
+            "$ref": "#/components/parameters/limit"
+          },
+          {
+            "name": "minRating",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 5
+            }
+          }
+        ],
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Lista paginada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Review"
+                      }
+                    },
+                    "meta": {
+                      "$ref": "#/components/schemas/PageMeta"
+                    }
+                  }
+                },
+                "example": {
+                  "data": [
+                    {
+                      "id": "rev_01",
+                      "placeId": "plc_01",
+                      "author": {
+                        "id": "usr_01",
+                        "name": "Ana Souza"
+                      },
+                      "rating": 5,
+                      "title": "Cidade incrível",
+                      "comment": "Ótima gastronomia e vista.",
+                      "createdAt": "2026-09-15T09:00:00Z"
+                    }
+                  ],
+                  "meta": {
+                    "page": 1,
+                    "limit": 20,
+                    "totalItems": 1,
+                    "totalPages": 1
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Avaliações"
+        ],
+        "summary": "Criar avaliação",
+        "description": "Uma avaliação por usuário por destino (409 se já existir).",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/placeId"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReviewCreate"
+              },
+              "example": {
+                "rating": 5,
+                "title": "Cidade incrível",
+                "comment": "Ótima gastronomia e vista."
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Criada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Review"
+                },
+                "example": {
+                  "id": "rev_01",
+                  "placeId": "plc_01",
+                  "author": {
+                    "id": "usr_01",
+                    "name": "Ana Souza"
+                  },
+                  "rating": 5,
+                  "title": "Cidade incrível",
+                  "comment": "Ótima gastronomia e vista.",
+                  "createdAt": "2026-09-15T09:00:00Z"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "409": {
+            "description": "Usuário já avaliou",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "code": "REVIEW_EXISTS",
+                  "message": "Você já avaliou este destino"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/reviews/{reviewId}": {
+      "patch": {
+        "tags": [
+          "Avaliações"
+        ],
+        "summary": "Editar avaliação",
+        "description": "Apenas o autor.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/reviewId"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReviewCreate"
+              },
+              "example": {
+                "rating": 4
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Atualizada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Review"
+                },
+                "example": {
+                  "id": "rev_01",
+                  "placeId": "plc_01",
+                  "author": {
+                    "id": "usr_01",
+                    "name": "Ana Souza"
+                  },
+                  "rating": 5,
+                  "title": "Cidade incrível",
+                  "comment": "Ótima gastronomia e vista.",
+                  "createdAt": "2026-09-15T09:00:00Z"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Avaliações"
+        ],
+        "summary": "Excluir avaliação",
+        "description": "Autor ou moderador.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/reviewId"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Excluída"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/places/{placeId}/topics": {
+      "get": {
+        "tags": [
+          "Fórum"
+        ],
+        "summary": "Listar tópicos",
+        "description": "Tópicos do fórum do destino. Público. Paginado.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/placeId"
+          },
+          {
+            "$ref": "#/components/parameters/page"
+          },
+          {
+            "$ref": "#/components/parameters/limit"
+          },
+          {
+            "$ref": "#/components/parameters/sort"
+          }
+        ],
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Lista paginada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Topic"
+                      }
+                    },
+                    "meta": {
+                      "$ref": "#/components/schemas/PageMeta"
+                    }
+                  }
+                },
+                "example": {
+                  "data": [
+                    {
+                      "id": "top_01",
+                      "placeId": "plc_01",
+                      "title": "Melhor época para ir?",
+                      "content": "Alguém já foi em janeiro?",
+                      "author": {
+                        "id": "usr_02",
+                        "name": "Bruno Lima"
+                      },
+                      "commentCount": 4,
+                      "createdAt": "2026-09-16T09:00:00Z"
+                    }
+                  ],
+                  "meta": {
+                    "page": 1,
+                    "limit": 20,
+                    "totalItems": 1,
+                    "totalPages": 1
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Fórum"
+        ],
+        "summary": "Criar tópico",
+        "description": "Cria tópico no fórum do destino.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/placeId"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TopicCreate"
+              },
+              "example": {
+                "title": "Melhor época para ir?",
+                "content": "Alguém já foi em janeiro?"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Criado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Topic"
+                },
+                "example": {
+                  "id": "top_01",
+                  "placeId": "plc_01",
+                  "title": "Melhor época para ir?",
+                  "content": "Alguém já foi em janeiro?",
+                  "author": {
+                    "id": "usr_02",
+                    "name": "Bruno Lima"
+                  },
+                  "commentCount": 4,
+                  "createdAt": "2026-09-16T09:00:00Z"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          }
+        }
+      }
+    },
+    "/topics/{topicId}/comments": {
+      "get": {
+        "tags": [
+          "Fórum"
+        ],
+        "summary": "Listar comentários",
+        "description": "Comentários do tópico. Público. Paginado.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/topicId"
+          },
+          {
+            "$ref": "#/components/parameters/page"
+          },
+          {
+            "$ref": "#/components/parameters/limit"
+          }
+        ],
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Lista paginada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Comment"
+                      }
+                    },
+                    "meta": {
+                      "$ref": "#/components/schemas/PageMeta"
+                    }
+                  }
+                },
+                "example": {
+                  "data": [
+                    {
+                      "id": "cmt_01",
+                      "topicId": "top_01",
+                      "content": "Fui em janeiro, tempo ameno.",
+                      "author": {
+                        "id": "usr_01",
+                        "name": "Ana Souza"
+                      },
+                      "createdAt": "2026-09-16T10:00:00Z"
+                    }
+                  ],
+                  "meta": {
+                    "page": 1,
+                    "limit": 20,
+                    "totalItems": 1,
+                    "totalPages": 1
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Fórum"
+        ],
+        "summary": "Comentar",
+        "description": "Adiciona comentário ao tópico.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/topicId"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CommentCreate"
+              },
+              "example": {
+                "content": "Fui em janeiro, tempo ameno."
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Criado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Comment"
+                },
+                "example": {
+                  "id": "cmt_01",
+                  "topicId": "top_01",
+                  "content": "Fui em janeiro, tempo ameno.",
+                  "author": {
+                    "id": "usr_01",
+                    "name": "Ana Souza"
+                  },
+                  "createdAt": "2026-09-16T10:00:00Z"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          }
+        }
+      }
+    },
+    "/reports": {
+      "post": {
+        "tags": [
+          "Fórum"
+        ],
+        "summary": "Denunciar conteúdo",
+        "description": "Denuncia review, tópico ou comentário para moderação.",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReportCreate"
+              },
+              "example": {
+                "targetType": "comment",
+                "targetId": "cmt_01",
+                "reason": "spam"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Denúncia recebida"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          }
+        }
+      }
+    },
+    "/notifications": {
+      "get": {
+        "tags": [
+          "Notificações"
+        ],
+        "summary": "Listar notificações",
+        "description": "Notificações do usuário. Paginado.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/page"
+          },
+          {
+            "$ref": "#/components/parameters/limit"
+          },
+          {
+            "name": "unread",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista paginada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Notification"
+                      }
+                    },
+                    "meta": {
+                      "$ref": "#/components/schemas/PageMeta"
+                    }
+                  }
+                },
+                "example": {
+                  "data": [
+                    {
+                      "id": "ntf_01",
+                      "type": "expense_added",
+                      "title": "Nova despesa",
+                      "message": "Ana adicionou 'Jantar em Alfama'",
+                      "read": false,
+                      "createdAt": "2026-09-17T20:00:00Z"
+                    }
+                  ],
+                  "meta": {
+                    "page": 1,
+                    "limit": 20,
+                    "totalItems": 1,
+                    "totalPages": 1
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          }
+        }
+      }
+    },
+    "/notifications/{notificationId}/read": {
+      "patch": {
+        "tags": [
+          "Notificações"
+        ],
+        "summary": "Marcar como lida",
+        "description": "Marca a notificação como lida.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/notificationId"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Marcada"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/notifications/preferences": {
+      "get": {
+        "tags": [
+          "Notificações"
+        ],
+        "summary": "Obter preferências",
+        "description": "Preferências de canal por tipo de evento.",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Preferências",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotificationPreferences"
+                },
+                "example": {
+                  "email": true,
+                  "push": true,
+                  "types": {
+                    "expense_added": true,
+                    "activity_changed": true,
+                    "member_invited": true
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Notificações"
+        ],
+        "summary": "Atualizar preferências",
+        "description": "Substitui as preferências.",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NotificationPreferences"
+              },
+              "example": {
+                "email": true,
+                "push": false,
+                "types": {
+                  "expense_added": true
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Atualizadas",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotificationPreferences"
+                },
+                "example": {
+                  "email": true,
+                  "push": false,
+                  "types": {
+                    "expense_added": true
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          }
+        }
+      }
+    },
+    "/notifications/devices": {
+      "post": {
+        "tags": [
+          "Notificações"
+        ],
+        "summary": "Registrar dispositivo push",
+        "description": "Registra token FCM para push.",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeviceToken"
+              },
+              "example": {
+                "token": "fcm_token_abc",
+                "platform": "web"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Registrado"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "parameters": {
+      "page": {
+        "name": "page",
+        "in": "query",
+        "description": "Número da página (começa em 1)",
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "default": 1
+        }
+      },
+      "limit": {
+        "name": "limit",
+        "in": "query",
+        "description": "Itens por página (máx. 100)",
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100,
+          "default": 20
+        }
+      },
+      "sort": {
+        "name": "sort",
+        "in": "query",
+        "description": "Campo de ordenação; prefixo '-' = decrescente",
+        "schema": {
+          "type": "string",
+          "example": "-createdAt"
+        }
+      },
+      "tripId": {
+        "name": "tripId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      },
+      "userId": {
+        "name": "userId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      },
+      "destinationId": {
+        "name": "destinationId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      },
+      "activityId": {
+        "name": "activityId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      },
+      "expenseId": {
+        "name": "expenseId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      },
+      "placeId": {
+        "name": "placeId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      },
+      "reviewId": {
+        "name": "reviewId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      },
+      "topicId": {
+        "name": "topicId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      },
+      "notificationId": {
+        "name": "notificationId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      }
+    },
+    "schemas": {
+      "Error": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "details": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "field": {
+                  "type": "string"
+                },
+                "issue": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "required": [
+          "code",
+          "message"
+        ]
+      },
+      "PageMeta": {
+        "type": "object",
+        "properties": {
+          "page": {
+            "type": "integer"
+          },
+          "limit": {
+            "type": "integer"
+          },
+          "totalItems": {
+            "type": "integer"
+          },
+          "totalPages": {
+            "type": "integer"
+          }
+        }
+      },
+      "User": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "avatarUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "RegisterRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "password": {
+            "type": "string",
+            "minLength": 8
+          }
+        },
+        "required": [
+          "name",
+          "email",
+          "password"
+        ]
+      },
+      "LoginRequest": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "password": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "email",
+          "password"
+        ]
+      },
+      "SocialLoginRequest": {
+        "type": "object",
+        "properties": {
+          "provider": {
+            "type": "string",
+            "enum": [
+              "google",
+              "facebook",
+              "apple"
+            ]
+          },
+          "idToken": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "provider",
+          "idToken"
+        ]
+      },
+      "RefreshRequest": {
+        "type": "object",
+        "properties": {
+          "refreshToken": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "refreshToken"
+        ]
+      },
+      "PasswordResetRequest": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email"
+          }
+        },
+        "required": [
+          "email"
+        ]
+      },
+      "AuthTokens": {
+        "type": "object",
+        "properties": {
+          "accessToken": {
+            "type": "string"
+          },
+          "refreshToken": {
+            "type": "string"
+          },
+          "expiresIn": {
+            "type": "integer"
+          },
+          "tokenType": {
+            "type": "string"
+          }
+        }
+      },
+      "UserUpdate": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "avatarUrl": {
+            "type": "string"
+          }
+        }
+      },
+      "Trip": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "startDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "endDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "baseCurrency": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 3
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "planning",
+              "confirmed",
+              "completed",
+              "cancelled"
+            ]
+          },
+          "ownerId": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "TripCreate": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "startDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "endDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "baseCurrency": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 3
+          }
+        },
+        "required": [
+          "title",
+          "startDate",
+          "endDate",
+          "baseCurrency"
+        ]
+      },
+      "Member": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "owner",
+              "editor",
+              "viewer"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "invited",
+              "active"
+            ]
+          }
+        }
+      },
+      "MemberInvite": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "editor",
+              "viewer"
+            ]
+          }
+        },
+        "required": [
+          "email",
+          "role"
+        ]
+      },
+      "MemberUpdate": {
+        "type": "object",
+        "properties": {
+          "role": {
+            "type": "string",
+            "enum": [
+              "editor",
+              "viewer"
+            ]
+          }
+        },
+        "required": [
+          "role"
+        ]
+      },
+      "Destination": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "country": {
+            "type": "string"
+          },
+          "placeId": {
+            "type": "string"
+          },
+          "latitude": {
+            "type": "number"
+          },
+          "longitude": {
+            "type": "number"
+          },
+          "arrivalDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "departureDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "order": {
+            "type": "integer"
+          }
+        }
+      },
+      "DestinationCreate": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "country": {
+            "type": "string"
+          },
+          "placeId": {
+            "type": "string"
+          },
+          "latitude": {
+            "type": "number"
+          },
+          "longitude": {
+            "type": "number"
+          },
+          "arrivalDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "departureDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "order": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "name",
+          "latitude",
+          "longitude",
+          "arrivalDate",
+          "departureDate"
+        ]
+      },
+      "Activity": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "destinationId": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "date": {
+            "type": "string",
+            "format": "date"
+          },
+          "startTime": {
+            "type": "string"
+          },
+          "endTime": {
+            "type": "string"
+          },
+          "estimatedCost": {
+            "type": "number"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          },
+          "latitude": {
+            "type": "number"
+          },
+          "longitude": {
+            "type": "number"
+          }
+        }
+      },
+      "ActivityCreate": {
+        "type": "object",
+        "properties": {
+          "destinationId": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "date": {
+            "type": "string",
+            "format": "date"
+          },
+          "startTime": {
+            "type": "string"
+          },
+          "endTime": {
+            "type": "string"
+          },
+          "estimatedCost": {
+            "type": "number"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          },
+          "latitude": {
+            "type": "number"
+          },
+          "longitude": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "destinationId",
+          "title",
+          "date"
+        ]
+      },
+      "MapData": {
+        "type": "object",
+        "properties": {
+          "markers": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "enum": [
+                    "destination",
+                    "activity"
+                  ]
+                },
+                "id": {
+                  "type": "string"
+                },
+                "label": {
+                  "type": "string"
+                },
+                "latitude": {
+                  "type": "number"
+                },
+                "longitude": {
+                  "type": "number"
+                }
+              }
+            }
+          }
+        }
+      },
+      "RouteResult": {
+        "type": "object",
+        "properties": {
+          "mode": {
+            "type": "string"
+          },
+          "totalDistanceKm": {
+            "type": "number"
+          },
+          "totalDurationMin": {
+            "type": "number"
+          },
+          "legs": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "from": {
+                  "type": "string"
+                },
+                "to": {
+                  "type": "string"
+                },
+                "distanceKm": {
+                  "type": "number"
+                },
+                "durationMin": {
+                  "type": "number"
+                }
+              }
+            }
+          }
+        }
+      },
+      "Expense": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "number"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "date": {
+            "type": "string",
+            "format": "date"
+          },
+          "paidBy": {
+            "type": "string"
+          },
+          "activityId": {
+            "type": "string",
+            "nullable": true
+          },
+          "splitType": {
+            "type": "string",
+            "enum": [
+              "equal",
+              "percentage",
+              "fixed"
+            ]
+          },
+          "participants": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "userId": {
+                  "type": "string"
+                },
+                "share": {
+                  "type": "number",
+                  "nullable": true,
+                  "description": "Percentual ou valor fixo; nulo se equal"
+                }
+              }
+            }
+          }
+        }
+      },
+      "ExpenseCreate": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "number",
+            "minimum": 0.01
+          },
+          "currency": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 3
+          },
+          "date": {
+            "type": "string",
+            "format": "date"
+          },
+          "paidBy": {
+            "type": "string"
+          },
+          "activityId": {
+            "type": "string",
+            "nullable": true
+          },
+          "splitType": {
+            "type": "string",
+            "enum": [
+              "equal",
+              "percentage",
+              "fixed"
+            ]
+          },
+          "participants": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "properties": {
+                "userId": {
+                  "type": "string"
+                },
+                "share": {
+                  "type": "number",
+                  "nullable": true
+                }
+              },
+              "required": [
+                "userId"
+              ]
+            }
+          }
+        },
+        "required": [
+          "description",
+          "amount",
+          "currency",
+          "paidBy",
+          "splitType",
+          "participants"
+        ]
+      },
+      "Balances": {
+        "type": "object",
+        "properties": {
+          "currency": {
+            "type": "string"
+          },
+          "balances": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "userId": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "net": {
+                  "type": "number"
+                }
+              }
+            }
+          },
+          "transfers": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "from": {
+                  "type": "string"
+                },
+                "to": {
+                  "type": "string"
+                },
+                "amount": {
+                  "type": "number"
+                },
+                "currency": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "SettlementCreate": {
+        "type": "object",
+        "properties": {
+          "from": {
+            "type": "string"
+          },
+          "to": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "number",
+            "minimum": 0.01
+          },
+          "currency": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "from",
+          "to",
+          "amount",
+          "currency"
+        ]
+      },
+      "Settlement": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "from": {
+            "type": "string"
+          },
+          "to": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "number"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "date": {
+            "type": "string",
+            "format": "date"
+          }
+        }
+      },
+      "Place": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "country": {
+            "type": "string"
+          },
+          "latitude": {
+            "type": "number"
+          },
+          "longitude": {
+            "type": "number"
+          },
+          "averageRating": {
+            "type": "number"
+          },
+          "reviewCount": {
+            "type": "integer"
+          }
+        }
+      },
+      "Review": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "placeId": {
+            "type": "string"
+          },
+          "author": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              }
+            }
+          },
+          "rating": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 5
+          },
+          "title": {
+            "type": "string"
+          },
+          "comment": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "ReviewCreate": {
+        "type": "object",
+        "properties": {
+          "rating": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 5
+          },
+          "title": {
+            "type": "string"
+          },
+          "comment": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "rating"
+        ]
+      },
+      "Topic": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "placeId": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "content": {
+            "type": "string"
+          },
+          "author": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              }
+            }
+          },
+          "commentCount": {
+            "type": "integer"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "TopicCreate": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "content": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "title",
+          "content"
+        ]
+      },
+      "Comment": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "topicId": {
+            "type": "string"
+          },
+          "content": {
+            "type": "string"
+          },
+          "author": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              }
+            }
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "CommentCreate": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "content"
+        ]
+      },
+      "ReportCreate": {
+        "type": "object",
+        "properties": {
+          "targetType": {
+            "type": "string",
+            "enum": [
+              "review",
+              "topic",
+              "comment"
+            ]
+          },
+          "targetId": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string",
+            "enum": [
+              "spam",
+              "offensive",
+              "other"
+            ]
+          }
+        },
+        "required": [
+          "targetType",
+          "targetId",
+          "reason"
+        ]
+      },
+      "Notification": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "read": {
+            "type": "boolean"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "NotificationPreferences": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "boolean"
+          },
+          "push": {
+            "type": "boolean"
+          },
+          "types": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "boolean"
+            }
+          }
+        }
+      },
+      "DeviceToken": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string"
+          },
+          "platform": {
+            "type": "string",
+            "enum": [
+              "web",
+              "android",
+              "ios"
+            ]
+          }
+        },
+        "required": [
+          "token",
+          "platform"
+        ]
+      }
+    },
+    "responses": {
+      "Unauthorized": {
+        "description": "Token ausente, inválido ou expirado",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            },
+            "example": {
+              "code": "UNAUTHORIZED",
+              "message": "Token inválido ou expirado"
+            }
+          }
+        }
+      },
+      "Forbidden": {
+        "description": "Sem permissão para o recurso",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            },
+            "example": {
+              "code": "FORBIDDEN",
+              "message": "Você não tem permissão para esta ação"
+            }
+          }
+        }
+      },
+      "NotFound": {
+        "description": "Recurso não encontrado",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            },
+            "example": {
+              "code": "NOT_FOUND",
+              "message": "Recurso não encontrado"
+            }
+          }
+        }
+      },
+      "ValidationError": {
+        "description": "Dados inválidos",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            },
+            "example": {
+              "code": "VALIDATION_ERROR",
+              "message": "Dados inválidos",
+              "details": [
+                {
+                  "field": "email",
+                  "issue": "formato inválido"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "TooManyRequests": {
+        "description": "Limite de requisições excedido",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            },
+            "example": {
+              "code": "RATE_LIMIT",
+              "message": "Tente novamente em instantes"
+            }
+          }
+        }
+      }
+    }
+  }
+}
