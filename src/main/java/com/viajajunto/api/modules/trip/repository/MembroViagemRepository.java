@@ -1,6 +1,8 @@
 package com.viajajunto.api.modules.trip.repository;
 
 import com.viajajunto.api.modules.trip.entity.MembroViagemEntity;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -13,6 +15,8 @@ public interface MembroViagemRepository extends JpaRepository<MembroViagemEntity
     Optional<MembroViagemEntity> findByViagemIdAndUsuarioId(Long viagemId, Long usuarioId);
 
     List<MembroViagemEntity> findAllByViagemId(Long viagemId);
+
+    Page<MembroViagemEntity> findAllByViagemId(Long viagemId, Pageable pageable);
 
     boolean existsByViagemIdAndUsuarioId(Long viagemId, Long usuarioId);
 

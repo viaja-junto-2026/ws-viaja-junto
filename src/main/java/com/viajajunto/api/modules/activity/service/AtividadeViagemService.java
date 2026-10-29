@@ -13,6 +13,8 @@ import com.viajajunto.api.modules.activity.repository.CatalogoAtividadeRepositor
 import com.viajajunto.api.modules.destination.entity.DestinoViagemEntity;
 import com.viajajunto.api.modules.destination.repository.DestinoViagemRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -78,6 +80,13 @@ public class AtividadeViagemService {
                 .stream()
                 .map(this::mapToDTO)
                 .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public Page<AtividadeResponseDTO> listAtividadesByViagem(Long viagemId, Long userId, Pageable pageable) {
+        tripSecurityService.validateUserCanViewTrip(viagemId, userId);
+        return atividadeViagemRepository.findPageByViagemId(viagemId, pageable)
+                .map(this::mapToDTO);
     }
 
     @Transactional
