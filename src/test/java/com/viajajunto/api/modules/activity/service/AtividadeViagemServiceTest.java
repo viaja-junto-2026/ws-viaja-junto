@@ -113,4 +113,29 @@ class AtividadeViagemServiceTest {
 
         verify(atividadeViagemRepository, never()).save(any(AtividadeViagemEntity.class));
     }
+
+    @Test
+    @DisplayName("Deve lançar ScheduleConflictException para atividades sem duração no mesmo horário")
+    void addAtividade_ThrowsScheduleConflictException_WhenSameStartWithoutDuration() {
+        LocalDateTime start = LocalDateTime.of(2026, 11, 1, 10, 0);
+        AtividadeViagemEntity existing = AtividadeViagemEntity.builder()
+                .id(50L)
+                .nome("Check-in")
+                .dataHorario(start)
+                .build();
+
+        CreateAtividadeDTO dto = CreateAtividadeDTO.builder()
+                .nome("Retirar chaves")
+                .dataHorario(start)
+                .build();
+
+        when(destinoViagemRepository.findById(10L)).thenReturn(Optional.of(sampleDestino));
+        when(atividadeViagemRepository.findAllByViagemId(1L)).thenReturn(List.of(existing));
+
+        assertThrows(ScheduleConflictException.class, () ->
+                atividadeViagemService.addAtividade(1L, 10L, dto, 1L)
+        );
+
+        verify(atividadeViagemRepository, never()).save(any(AtividadeViagemEntity.class));
+    }
 }

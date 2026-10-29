@@ -4,7 +4,10 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import com.viajajunto.api.modules.auth.entity.UserEntity;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.env.Environment;
+import org.springframework.core.env.Profiles;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -20,8 +23,11 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class JwtAuthFilter extends OncePerRequestFilter {
 
+    private static final String MOCK_TOKEN = "token_mock";
+
     private final JwtService jwtService;
     private final UserDetailsService userDetailsService;
+    private final Environment environment;
 
     @Override
     protected void doFilterInternal(
@@ -39,9 +45,10 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         }
 
         jwt = authHeader.substring(7);
-        if ("token_mock".equals(jwt)) {
+        // Atalho de teste: só vale com o perfil "test" ativo. Remover junto com este filtro na issue #11 (Firebase).
+        if (MOCK_TOKEN.equals(jwt) && environment.acceptsProfiles(Profiles.of("test"))) {
             UserPrincipal mockPrincipal = new UserPrincipal(
-                    com.viajajunto.api.modules.auth.entity.UserEntity.builder()
+                    UserEntity.builder()
                             .id(999999L)
                             .nome("Mock User")
                             .email("mock@viajajunto.com")

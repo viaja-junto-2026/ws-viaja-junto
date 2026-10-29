@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -45,17 +46,19 @@ public class AtividadeViagemService {
 
         if (dto.getDataHorario() != null) {
             int durationMinutes = dto.getDuracaoMinutos() != null ? dto.getDuracaoMinutos() : 0;
-            java.time.LocalDateTime newStart = dto.getDataHorario();
-            java.time.LocalDateTime newEnd = newStart.plusMinutes(durationMinutes);
+            LocalDateTime newStart = dto.getDataHorario();
+            LocalDateTime newEnd = newStart.plusMinutes(durationMinutes);
 
             List<AtividadeViagemEntity> existingActivities = atividadeViagemRepository.findAllByViagemId(viagemId);
             for (AtividadeViagemEntity existing : existingActivities) {
                 if (existing.getDataHorario() != null) {
                     int existingDuration = existing.getDuracaoMinutos() != null ? existing.getDuracaoMinutos() : 0;
-                    java.time.LocalDateTime existStart = existing.getDataHorario();
-                    java.time.LocalDateTime existEnd = existStart.plusMinutes(existingDuration);
+                    LocalDateTime existStart = existing.getDataHorario();
+                    LocalDateTime existEnd = existStart.plusMinutes(existingDuration);
 
-                    if (newStart.isBefore(existEnd) && existStart.isBefore(newEnd)) {
+                    boolean overlaps = newStart.isBefore(existEnd) && existStart.isBefore(newEnd);
+                    // atividades sem duração no mesmo instante também conflitam
+                    if (overlaps || newStart.isEqual(existStart)) {
                         throw new ScheduleConflictException("Conflito de horário com a atividade: " + existing.getNome());
                     }
                 }

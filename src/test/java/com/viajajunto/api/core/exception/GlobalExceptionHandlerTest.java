@@ -4,9 +4,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.MethodParameter;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.validation.BeanPropertyBindingResult;
@@ -19,12 +19,23 @@ import static org.junit.jupiter.api.Assertions.*;
 class GlobalExceptionHandlerTest {
 
     private GlobalExceptionHandler handler;
-    private MockHttpServletRequest request;
 
     @BeforeEach
     void setUp() {
         handler = new GlobalExceptionHandler();
-        request = new MockHttpServletRequest();
+    }
+
+    @Test
+    @DisplayName("handleNoResourceFound deve retornar 404 com mensagem fixa, sem expor detalhes internos do Spring")
+    void handleNoResourceFound_Returns404WithFixedMessage() {
+        NoResourceFoundException ex = new NoResourceFoundException(HttpMethod.GET, "/rota/inexistente");
+
+        ResponseEntity<ErrorResponseDTO> response = handler.handleNoResourceFound(ex);
+
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertEquals("NOT_FOUND", response.getBody().getCode());
+        assertEquals("Recurso não encontrado", response.getBody().getMessage());
     }
 
     @Test
@@ -40,7 +51,7 @@ class GlobalExceptionHandlerTest {
         );
         MethodArgumentNotValidException ex = new MethodArgumentNotValidException(parameter, bindingResult);
 
-        ResponseEntity<ErrorResponseDTO> response = handler.handleValidationExceptions(ex, request);
+        ResponseEntity<ErrorResponseDTO> response = handler.handleValidationExceptions(ex);
 
         assertEquals(HttpStatus.UNPROCESSABLE_ENTITY, response.getStatusCode());
         assertNotNull(response.getBody());
@@ -56,7 +67,7 @@ class GlobalExceptionHandlerTest {
     void handleResourceNotFound_Returns404WithNotFoundCode() {
         ResourceNotFoundException ex = new ResourceNotFoundException("Item não encontrado");
 
-        ResponseEntity<ErrorResponseDTO> response = handler.handleResourceNotFound(ex, request);
+        ResponseEntity<ErrorResponseDTO> response = handler.handleResourceNotFound(ex);
 
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
         assertNotNull(response.getBody());
@@ -69,7 +80,7 @@ class GlobalExceptionHandlerTest {
     void handleScheduleConflict_Returns409WithScheduleConflictCode() {
         ScheduleConflictException ex = new ScheduleConflictException("Conflito na agenda");
 
-        ResponseEntity<ErrorResponseDTO> response = handler.handleScheduleConflict(ex, request);
+        ResponseEntity<ErrorResponseDTO> response = handler.handleBusinessRule(ex);
 
         assertEquals(HttpStatus.CONFLICT, response.getStatusCode());
         assertNotNull(response.getBody());
@@ -82,7 +93,7 @@ class GlobalExceptionHandlerTest {
     void handleReviewExists_Returns409WithReviewExistsCode() {
         ReviewExistsException ex = new ReviewExistsException("Avaliação já existe");
 
-        ResponseEntity<ErrorResponseDTO> response = handler.handleReviewExists(ex, request);
+        ResponseEntity<ErrorResponseDTO> response = handler.handleBusinessRule(ex);
 
         assertEquals(HttpStatus.CONFLICT, response.getStatusCode());
         assertNotNull(response.getBody());
@@ -95,7 +106,7 @@ class GlobalExceptionHandlerTest {
     void handleEmailInUse_Returns409WithEmailInUseCode() {
         EmailInUseException ex = new EmailInUseException("E-mail em uso");
 
-        ResponseEntity<ErrorResponseDTO> response = handler.handleEmailInUse(ex, request);
+        ResponseEntity<ErrorResponseDTO> response = handler.handleBusinessRule(ex);
 
         assertEquals(HttpStatus.CONFLICT, response.getStatusCode());
         assertNotNull(response.getBody());
@@ -108,7 +119,7 @@ class GlobalExceptionHandlerTest {
     void handleBusinessRule_ReturnsConfiguredStatusAndCode() {
         BusinessRuleException ex = new BusinessRuleException("Regra violada");
 
-        ResponseEntity<ErrorResponseDTO> response = handler.handleBusinessRule(ex, request);
+        ResponseEntity<ErrorResponseDTO> response = handler.handleBusinessRule(ex);
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         assertNotNull(response.getBody());
@@ -121,7 +132,7 @@ class GlobalExceptionHandlerTest {
     void handleUnauthorized_Returns403WithForbiddenCode() {
         AccessDeniedException ex = new AccessDeniedException("Sem permissão");
 
-        ResponseEntity<ErrorResponseDTO> response = handler.handleUnauthorized(ex, request);
+        ResponseEntity<ErrorResponseDTO> response = handler.handleUnauthorized(ex);
 
         assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
         assertNotNull(response.getBody());
@@ -133,7 +144,7 @@ class GlobalExceptionHandlerTest {
     void handleBadCredentials_Returns401WithUnauthorizedCode() {
         BadCredentialsException ex = new BadCredentialsException("Bad creds");
 
-        ResponseEntity<ErrorResponseDTO> response = handler.handleBadCredentials(ex, request);
+        ResponseEntity<ErrorResponseDTO> response = handler.handleBadCredentials(ex);
 
         assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
         assertNotNull(response.getBody());
@@ -145,7 +156,7 @@ class GlobalExceptionHandlerTest {
     void handleGenericException_Returns500WithInternalServerErrorCode() {
         Exception ex = new RuntimeException("Erro inesperado");
 
-        ResponseEntity<ErrorResponseDTO> response = handler.handleGenericException(ex, request);
+        ResponseEntity<ErrorResponseDTO> response = handler.handleGenericException(ex);
 
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
         assertNotNull(response.getBody());
