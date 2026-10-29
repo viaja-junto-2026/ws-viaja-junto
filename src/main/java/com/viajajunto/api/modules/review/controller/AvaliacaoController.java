@@ -1,5 +1,6 @@
 package com.viajajunto.api.modules.review.controller;
 
+import com.viajajunto.api.core.dto.PagedResponse;
 import com.viajajunto.api.core.security.UserPrincipal;
 import com.viajajunto.api.modules.review.dto.AvaliacaoResponseDTO;
 import com.viajajunto.api.modules.review.dto.CreateAvaliacaoDTO;
@@ -15,13 +16,12 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/avaliacoes")
 @RequiredArgsConstructor
 public class AvaliacaoController {
 
     private final AvaliacaoService avaliacaoService;
 
-    @PostMapping
+    @PostMapping("/api/avaliacoes")
     public ResponseEntity<AvaliacaoResponseDTO> createAvaliacao(
             @Valid @RequestBody CreateAvaliacaoDTO dto,
             @AuthenticationPrincipal UserPrincipal principal
@@ -30,16 +30,17 @@ public class AvaliacaoController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @GetMapping("/destino/{destinoId}")
-    public ResponseEntity<Page<AvaliacaoResponseDTO>> listAvaliacoesByDestino(
-            @PathVariable Long destinoId,
-            @PageableDefault(size = 10) Pageable pageable
+    @GetMapping("/places/{placeId}/reviews")
+    public ResponseEntity<PagedResponse<AvaliacaoResponseDTO>> listAvaliacoesByPlace(
+            @PathVariable Long placeId,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "20") int limit
     ) {
-        Page<AvaliacaoResponseDTO> avaliacoes = avaliacaoService.listAvaliacoesByDestino(destinoId, pageable);
-        return ResponseEntity.ok(avaliacoes);
+        Page<AvaliacaoResponseDTO> avaliacoes = avaliacaoService.listAvaliacoesByDestino(placeId, PagedResponse.toPageable(page, limit));
+        return ResponseEntity.ok(PagedResponse.of(avaliacoes));
     }
 
-    @GetMapping("/atividade/{atividadeId}")
+    @GetMapping("/api/avaliacoes/atividade/{atividadeId}")
     public ResponseEntity<Page<AvaliacaoResponseDTO>> listAvaliacoesByAtividade(
             @PathVariable Long atividadeId,
             @PageableDefault(size = 10) Pageable pageable

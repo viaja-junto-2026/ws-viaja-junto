@@ -16,6 +16,8 @@ import com.viajajunto.api.modules.trip.entity.ViagemEntity;
 import com.viajajunto.api.modules.trip.repository.MembroViagemRepository;
 import com.viajajunto.api.modules.trip.repository.ViagemRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -73,17 +75,15 @@ public class ViagemService {
     }
 
     @Transactional(readOnly = true)
-    public List<ViagemResponseDTO> listUserTrips(Long userId) {
-        List<ViagemEntity> viagens = viagemRepository.findAllByUserAccess(userId);
-        return viagens.stream()
+    public Page<ViagemResponseDTO> listUserTrips(Long userId, Pageable pageable) {
+        return viagemRepository.findAllByUserAccess(userId, pageable)
                 .map(v -> {
                     PermissaoMembro role = determineUserRole(v, userId);
                     BigDecimal orcamentoTotal = orcamentoRepository.findByViagemId(v.getId())
                             .map(OrcamentoEntity::getOrcamentoTotal)
                             .orElse(BigDecimal.ZERO);
                     return mapToResponse(v, role, orcamentoTotal);
-                })
-                .collect(Collectors.toList());
+                });
     }
 
     @Transactional(readOnly = true)

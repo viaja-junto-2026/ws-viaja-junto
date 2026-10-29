@@ -15,11 +15,10 @@ import com.viajajunto.api.modules.trip.entity.ViagemEntity;
 import com.viajajunto.api.modules.trip.repository.MembroViagemRepository;
 import com.viajajunto.api.modules.trip.repository.ViagemRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -59,12 +58,10 @@ public class MembroViagemService {
     }
 
     @Transactional(readOnly = true)
-    public List<MembroResponseDTO> listMembros(Long viagemId, Long userId) {
+    public Page<MembroResponseDTO> listMembros(Long viagemId, Long userId, Pageable pageable) {
         tripSecurityService.validateUserCanViewTrip(viagemId, userId);
-        return membroViagemRepository.findAllByViagemId(viagemId)
-                .stream()
-                .map(this::mapToDTO)
-                .collect(Collectors.toList());
+        return membroViagemRepository.findAllByViagemId(viagemId, pageable)
+                .map(this::mapToDTO);
     }
 
     @Transactional

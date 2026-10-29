@@ -37,6 +37,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/destinos/catalogo/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/atividades/catalogo/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/avaliacoes/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/places/*/reviews").permitAll()
                         // Protected endpoints
                         .anyRequest().authenticated()
                 )
