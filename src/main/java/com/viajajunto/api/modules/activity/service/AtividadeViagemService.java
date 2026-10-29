@@ -2,6 +2,7 @@ package com.viajajunto.api.modules.activity.service;
 
 import com.viajajunto.api.core.exception.BusinessRuleException;
 import com.viajajunto.api.core.exception.ResourceNotFoundException;
+import com.viajajunto.api.core.exception.ScheduleConflictException;
 import com.viajajunto.api.core.security.TripSecurityService;
 import com.viajajunto.api.modules.activity.dto.AtividadeResponseDTO;
 import com.viajajunto.api.modules.activity.dto.CreateAtividadeDTO;
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -40,6 +42,27 @@ public class AtividadeViagemService {
 
         if (!destino.getViagem().getId().equals(viagemId)) {
             throw new BusinessRuleException("O destino não pertence à viagem indicada.");
+        }
+
+        if (dto.getDataHorario() != null) {
+            int durationMinutes = dto.getDuracaoMinutos() != null ? dto.getDuracaoMinutos() : 0;
+            LocalDateTime newStart = dto.getDataHorario();
+            LocalDateTime newEnd = newStart.plusMinutes(durationMinutes);
+
+            List<AtividadeViagemEntity> existingActivities = atividadeViagemRepository.findAllByViagemId(viagemId);
+            for (AtividadeViagemEntity existing : existingActivities) {
+                if (existing.getDataHorario() != null) {
+                    int existingDuration = existing.getDuracaoMinutos() != null ? existing.getDuracaoMinutos() : 0;
+                    LocalDateTime existStart = existing.getDataHorario();
+                    LocalDateTime existEnd = existStart.plusMinutes(existingDuration);
+
+                    boolean overlaps = newStart.isBefore(existEnd) && existStart.isBefore(newEnd);
+                    // atividades sem duração no mesmo instante também conflitam
+                    if (overlaps || newStart.isEqual(existStart)) {
+                        throw new ScheduleConflictException("Conflito de horário com a atividade: " + existing.getNome());
+                    }
+                }
+            }
         }
 
         CatalogoAtividadeEntity catalogo = null;
