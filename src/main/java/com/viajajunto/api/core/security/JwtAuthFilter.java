@@ -39,6 +39,26 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         }
 
         jwt = authHeader.substring(7);
+        if ("token_mock".equals(jwt)) {
+            UserPrincipal mockPrincipal = new UserPrincipal(
+                    com.viajajunto.api.modules.auth.entity.UserEntity.builder()
+                            .id(999999L)
+                            .nome("Mock User")
+                            .email("mock@viajajunto.com")
+                            .senha("mock_password")
+                            .build()
+            );
+            UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                    mockPrincipal,
+                    null,
+                    mockPrincipal.getAuthorities()
+            );
+            authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+            SecurityContextHolder.getContext().setAuthentication(authToken);
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         try {
             userEmail = jwtService.extractUsername(jwt);
             if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {

@@ -1,6 +1,7 @@
 package com.viajajunto.api.modules.trip.controller;
 
 import com.viajajunto.api.core.dto.PagedResponse;
+import com.viajajunto.api.core.exception.ResourceNotFoundException;
 import com.viajajunto.api.core.security.UserPrincipal;
 import com.viajajunto.api.modules.trip.dto.CreateViagemDTO;
 import com.viajajunto.api.modules.trip.dto.UpdateViagemDTO;
@@ -39,12 +40,18 @@ public class ViagemController {
         return ResponseEntity.ok(PagedResponse.of(trips));
     }
 
-    @GetMapping("/api/viagens/{id}")
+    @GetMapping({"/trips/{id}", "/api/viagens/{id}"})
     public ResponseEntity<ViagemResponseDTO> getViagemById(
-            @PathVariable Long id,
+            @PathVariable String id,
             @AuthenticationPrincipal UserPrincipal principal
     ) {
-        ViagemResponseDTO response = viagemService.getViagemById(id, principal.getId());
+        Long numericId;
+        try {
+            numericId = Long.parseLong(id.replace("trp_", ""));
+        } catch (NumberFormatException e) {
+            throw new ResourceNotFoundException("Viagem não encontrada com o ID: " + id);
+        }
+        ViagemResponseDTO response = viagemService.getViagemById(numericId, principal.getId());
         return ResponseEntity.ok(response);
     }
 

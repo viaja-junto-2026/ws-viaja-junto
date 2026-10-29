@@ -2,6 +2,7 @@ package com.viajajunto.api.modules.activity.service;
 
 import com.viajajunto.api.core.exception.BusinessRuleException;
 import com.viajajunto.api.core.exception.ResourceNotFoundException;
+import com.viajajunto.api.core.exception.ScheduleConflictException;
 import com.viajajunto.api.core.security.TripSecurityService;
 import com.viajajunto.api.modules.activity.dto.AtividadeResponseDTO;
 import com.viajajunto.api.modules.activity.dto.CreateAtividadeDTO;
@@ -40,6 +41,25 @@ public class AtividadeViagemService {
 
         if (!destino.getViagem().getId().equals(viagemId)) {
             throw new BusinessRuleException("O destino não pertence à viagem indicada.");
+        }
+
+        if (dto.getDataHorario() != null) {
+            int durationMinutes = dto.getDuracaoMinutos() != null ? dto.getDuracaoMinutos() : 0;
+            java.time.LocalDateTime newStart = dto.getDataHorario();
+            java.time.LocalDateTime newEnd = newStart.plusMinutes(durationMinutes);
+
+            List<AtividadeViagemEntity> existingActivities = atividadeViagemRepository.findAllByViagemId(viagemId);
+            for (AtividadeViagemEntity existing : existingActivities) {
+                if (existing.getDataHorario() != null) {
+                    int existingDuration = existing.getDuracaoMinutos() != null ? existing.getDuracaoMinutos() : 0;
+                    java.time.LocalDateTime existStart = existing.getDataHorario();
+                    java.time.LocalDateTime existEnd = existStart.plusMinutes(existingDuration);
+
+                    if (newStart.isBefore(existEnd) && existStart.isBefore(newEnd)) {
+                        throw new ScheduleConflictException("Conflito de horário com a atividade: " + existing.getNome());
+                    }
+                }
+            }
         }
 
         CatalogoAtividadeEntity catalogo = null;

@@ -9,6 +9,7 @@ import static org.mockito.Mockito.when;
 
 import com.viajajunto.api.core.exception.BusinessRuleException;
 import com.viajajunto.api.core.exception.ResourceNotFoundException;
+import com.viajajunto.api.core.exception.ReviewExistsException;
 import com.viajajunto.api.modules.activity.entity.CatalogoAtividadeEntity;
 import com.viajajunto.api.modules.activity.repository.CatalogoAtividadeRepository;
 import com.viajajunto.api.modules.auth.entity.UserEntity;
@@ -148,6 +149,42 @@ class AvaliacaoServiceTest {
         when(userRepository.findById(1L)).thenReturn(Optional.of(sampleUser));
 
         assertThrows(BusinessRuleException.class, () ->
+                avaliacaoService.createAvaliacao(dto, 1L)
+        );
+    }
+
+    @Test
+    @DisplayName("Deve lançar ReviewExistsException se usuário já tiver avaliado o destino")
+    void createAvaliacao_Destino_AlreadyReviewed_ThrowsReviewExistsException() {
+        CreateAvaliacaoDTO dto = CreateAvaliacaoDTO.builder().destinoCatalogoId(10L).nota(5).build();
+        when(userRepository.findById(1L)).thenReturn(Optional.of(sampleUser));
+        when(destinoCatalogoRepository.findById(10L)).thenReturn(Optional.of(sampleDestino));
+        AvaliacaoEntity existing = AvaliacaoEntity.builder()
+                .id("av-prev")
+                .usuarioId(1L)
+                .destinoCatalogoId(10L)
+                .build();
+        when(avaliacaoRepository.findAllByDestinoCatalogoId(10L)).thenReturn(List.of(existing));
+
+        assertThrows(ReviewExistsException.class, () ->
+                avaliacaoService.createAvaliacao(dto, 1L)
+        );
+    }
+
+    @Test
+    @DisplayName("Deve lançar ReviewExistsException se usuário já tiver avaliado a atividade")
+    void createAvaliacao_Atividade_AlreadyReviewed_ThrowsReviewExistsException() {
+        CreateAvaliacaoDTO dto = CreateAvaliacaoDTO.builder().catalogoAtividadeId(20L).nota(4).build();
+        when(userRepository.findById(1L)).thenReturn(Optional.of(sampleUser));
+        when(catalogoAtividadeRepository.findById(20L)).thenReturn(Optional.of(sampleAtividade));
+        AvaliacaoEntity existing = AvaliacaoEntity.builder()
+                .id("av-prev-2")
+                .usuarioId(1L)
+                .catalogoAtividadeId(20L)
+                .build();
+        when(avaliacaoRepository.findAllByCatalogoAtividadeId(20L)).thenReturn(List.of(existing));
+
+        assertThrows(ReviewExistsException.class, () ->
                 avaliacaoService.createAvaliacao(dto, 1L)
         );
     }

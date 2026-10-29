@@ -1,6 +1,7 @@
 package com.viajajunto.api.modules.auth.service;
 
 import com.viajajunto.api.core.exception.BusinessRuleException;
+import com.viajajunto.api.core.exception.EmailInUseException;
 import com.viajajunto.api.core.exception.ResourceNotFoundException;
 import com.viajajunto.api.core.security.JwtService;
 import com.viajajunto.api.core.security.UserPrincipal;
@@ -31,7 +32,7 @@ public class AuthService {
     @Transactional
     public AuthResponseDTO register(RegisterDTO dto) {
         if (userRepository.existsByEmail(dto.getEmail())) {
-            throw new BusinessRuleException("O e-mail informado já está em uso.");
+            throw new EmailInUseException("O e-mail informado já está em uso.");
         }
 
         UserEntity user = UserEntity.builder()

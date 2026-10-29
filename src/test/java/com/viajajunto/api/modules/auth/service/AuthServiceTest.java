@@ -1,6 +1,7 @@
 package com.viajajunto.api.modules.auth.service;
 
 import com.viajajunto.api.core.exception.BusinessRuleException;
+import com.viajajunto.api.core.exception.EmailInUseException;
 import com.viajajunto.api.core.security.JwtService;
 import com.viajajunto.api.core.security.UserPrincipal;
 import com.viajajunto.api.modules.auth.dto.AuthResponseDTO;
@@ -79,7 +80,7 @@ class AuthServiceTest {
     }
 
     @Test
-    @DisplayName("Deve lançar BusinessRuleException ao tentar cadastrar e-mail duplicado")
+    @DisplayName("Deve lançar EmailInUseException ao tentar cadastrar e-mail duplicado")
     void shouldThrowExceptionWhenEmailAlreadyExists() {
         RegisterDTO dto = RegisterDTO.builder()
                 .nome("Gabriel Domingues")
@@ -89,7 +90,7 @@ class AuthServiceTest {
 
         when(userRepository.existsByEmail(dto.getEmail())).thenReturn(true);
 
-        assertThrows(BusinessRuleException.class, () -> authService.register(dto));
+        assertThrows(EmailInUseException.class, () -> authService.register(dto));
         verify(userRepository, never()).save(any(UserEntity.class));
     }
 

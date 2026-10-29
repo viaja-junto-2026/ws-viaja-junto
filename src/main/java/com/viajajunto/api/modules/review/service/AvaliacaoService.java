@@ -2,6 +2,7 @@ package com.viajajunto.api.modules.review.service;
 
 import com.viajajunto.api.core.exception.BusinessRuleException;
 import com.viajajunto.api.core.exception.ResourceNotFoundException;
+import com.viajajunto.api.core.exception.ReviewExistsException;
 import com.viajajunto.api.modules.activity.entity.CatalogoAtividadeEntity;
 import com.viajajunto.api.modules.activity.repository.CatalogoAtividadeRepository;
 import com.viajajunto.api.modules.auth.dto.UserDTO;
@@ -50,12 +51,22 @@ public class AvaliacaoService {
         if (dto.getDestinoCatalogoId() != null) {
             destino = destinoCatalogoRepository.findById(dto.getDestinoCatalogoId())
                     .orElseThrow(() -> new ResourceNotFoundException("Destino não encontrado com ID: " + dto.getDestinoCatalogoId()));
+            List<AvaliacaoEntity> existingReviews = avaliacaoRepository.findAllByDestinoCatalogoId(dto.getDestinoCatalogoId());
+            boolean alreadyReviewed = existingReviews.stream().anyMatch(a -> user.getId().equals(a.getUsuarioId()));
+            if (alreadyReviewed) {
+                throw new ReviewExistsException("Você já avaliou este destino.");
+            }
         }
 
         CatalogoAtividadeEntity atividade = null;
         if (dto.getCatalogoAtividadeId() != null) {
             atividade = catalogoAtividadeRepository.findById(dto.getCatalogoAtividadeId())
                     .orElseThrow(() -> new ResourceNotFoundException("Atividade não encontrada com ID: " + dto.getCatalogoAtividadeId()));
+            List<AvaliacaoEntity> existingReviews = avaliacaoRepository.findAllByCatalogoAtividadeId(dto.getCatalogoAtividadeId());
+            boolean alreadyReviewed = existingReviews.stream().anyMatch(a -> user.getId().equals(a.getUsuarioId()));
+            if (alreadyReviewed) {
+                throw new ReviewExistsException("Você já avaliou esta atividade.");
+            }
         }
 
         String targetKey = destino != null ? "DESTINO#" + destino.getId() : "ATIVIDADE#" + atividade.getId();

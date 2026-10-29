@@ -9,27 +9,59 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
-import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(ResourceNotFoundException.class)
+    @ExceptionHandler({ResourceNotFoundException.class, NoResourceFoundException.class})
     public ResponseEntity<ErrorResponseDTO> handleResourceNotFound(
-            ResourceNotFoundException ex,
+            Exception ex,
             HttpServletRequest request
     ) {
         ErrorResponseDTO error = ErrorResponseDTO.builder()
-                .timestamp(LocalDateTime.now())
-                .status(HttpStatus.NOT_FOUND.value())
-                .error(HttpStatus.NOT_FOUND.getReasonPhrase())
-                .message(ex.getMessage())
-                .path(request.getRequestURI())
+                .code("NOT_FOUND")
+                .message(ex.getMessage() != null ? ex.getMessage() : "Recurso não encontrado")
                 .build();
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+    }
+
+    @ExceptionHandler(ScheduleConflictException.class)
+    public ResponseEntity<ErrorResponseDTO> handleScheduleConflict(
+            ScheduleConflictException ex,
+            HttpServletRequest request
+    ) {
+        ErrorResponseDTO error = ErrorResponseDTO.builder()
+                .code(ex.getCode())
+                .message(ex.getMessage())
+                .build();
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
+    }
+
+    @ExceptionHandler(ReviewExistsException.class)
+    public ResponseEntity<ErrorResponseDTO> handleReviewExists(
+            ReviewExistsException ex,
+            HttpServletRequest request
+    ) {
+        ErrorResponseDTO error = ErrorResponseDTO.builder()
+                .code(ex.getCode())
+                .message(ex.getMessage())
+                .build();
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
+    }
+
+    @ExceptionHandler(EmailInUseException.class)
+    public ResponseEntity<ErrorResponseDTO> handleEmailInUse(
+            EmailInUseException ex,
+            HttpServletRequest request
+    ) {
+        ErrorResponseDTO error = ErrorResponseDTO.builder()
+                .code(ex.getCode())
+                .message(ex.getMessage())
+                .build();
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
     }
 
     @ExceptionHandler(BusinessRuleException.class)
@@ -37,14 +69,13 @@ public class GlobalExceptionHandler {
             BusinessRuleException ex,
             HttpServletRequest request
     ) {
+        HttpStatus status = ex.getStatus() != null ? ex.getStatus() : HttpStatus.BAD_REQUEST;
+        String code = ex.getCode() != null ? ex.getCode() : "BUSINESS_RULE_VIOLATION";
         ErrorResponseDTO error = ErrorResponseDTO.builder()
-                .timestamp(LocalDateTime.now())
-                .status(HttpStatus.BAD_REQUEST.value())
-                .error(HttpStatus.BAD_REQUEST.getReasonPhrase())
+                .code(code)
                 .message(ex.getMessage())
-                .path(request.getRequestURI())
                 .build();
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+        return ResponseEntity.status(status).body(error);
     }
 
     @ExceptionHandler({UnauthorizedAccessException.class, AccessDeniedException.class})
@@ -53,11 +84,8 @@ public class GlobalExceptionHandler {
             HttpServletRequest request
     ) {
         ErrorResponseDTO error = ErrorResponseDTO.builder()
-                .timestamp(LocalDateTime.now())
-                .status(HttpStatus.FORBIDDEN.value())
-                .error(HttpStatus.FORBIDDEN.getReasonPhrase())
+                .code("FORBIDDEN")
                 .message(ex.getMessage())
-                .path(request.getRequestURI())
                 .build();
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error);
     }
@@ -68,11 +96,8 @@ public class GlobalExceptionHandler {
             HttpServletRequest request
     ) {
         ErrorResponseDTO error = ErrorResponseDTO.builder()
-                .timestamp(LocalDateTime.now())
-                .status(HttpStatus.UNAUTHORIZED.value())
-                .error(HttpStatus.UNAUTHORIZED.getReasonPhrase())
+                .code("UNAUTHORIZED")
                 .message("Credenciais inválidas: e-mail ou senha incorretos.")
-                .path(request.getRequestURI())
                 .build();
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
     }
@@ -82,22 +107,23 @@ public class GlobalExceptionHandler {
             MethodArgumentNotValidException ex,
             HttpServletRequest request
     ) {
-        Map<String, String> errors = new HashMap<>();
-        ex.getBindingResult().getAllErrors().forEach(error -> {
-            String fieldName = ((FieldError) error).getField();
-            String errorMessage = error.getDefaultMessage();
-            errors.put(fieldName, errorMessage);
-        });
+        List<ErrorDetail> details = ex.getBindingResult().getAllErrors().stream()
+                .map(error -> {
+                    String fieldName = (error instanceof FieldError fe) ? fe.getField() : error.getObjectName();
+                    String errorMessage = error.getDefaultMessage();
+                    return ErrorDetail.builder()
+                            .field(fieldName)
+                            .issue(errorMessage)
+                            .build();
+                })
+                .toList();
 
         ErrorResponseDTO error = ErrorResponseDTO.builder()
-                .timestamp(LocalDateTime.now())
-                .status(HttpStatus.BAD_REQUEST.value())
-                .error("Validation Failed")
+                .code("VALIDATION_ERROR")
                 .message("Dados fornecidos são inválidos")
-                .path(request.getRequestURI())
-                .validationErrors(errors)
+                .details(details)
                 .build();
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(error);
     }
 
     @ExceptionHandler(Exception.class)
@@ -106,11 +132,8 @@ public class GlobalExceptionHandler {
             HttpServletRequest request
     ) {
         ErrorResponseDTO error = ErrorResponseDTO.builder()
-                .timestamp(LocalDateTime.now())
-                .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
-                .error(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())
+                .code("INTERNAL_SERVER_ERROR")
                 .message("Ocorreu um erro interno inesperado no servidor.")
-                .path(request.getRequestURI())
                 .build();
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
     }
