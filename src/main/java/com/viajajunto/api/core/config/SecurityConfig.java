@@ -34,10 +34,9 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/**", "/auth/**").permitAll()
                         .requestMatchers("/h2-console/**").permitAll()
                         .requestMatchers("/actuator/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/destinos/catalogo/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/atividades/catalogo/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/destinos/catalogo/**", "/places/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/atividades/catalogo/**", "/activities/catalog/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/avaliacoes/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/places/*/reviews").permitAll()
                         // Protected endpoints
                         .anyRequest().authenticated()
                 )

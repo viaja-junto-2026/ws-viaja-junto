@@ -70,13 +70,13 @@ Recomendada durante o desenvolvimento para recarregamento rápido e depuração:
 | Serviço | URL | Credenciais / Observações |
 | :--- | :--- | :--- |
 | **API Base** | `http://localhost:8080` | Porta padrão da aplicação |
-| **Status / Health** | `http://localhost:8080/api/v1/status` | Verificação de disponibilidade |
+| **Status / Health** | `http://localhost:8080/actuator/health` | Health Check via Spring Boot Actuator |
 | **H2 Console** | `http://localhost:8080/h2-console` | **JDBC URL:** `jdbc:h2:mem:viajajuntodb`<br>**User:** `sa` \| **Password:** *(vazio)* |
-| **DynamoDB Admin** | `http://localhost:8002` | Interface web para gerenciar tabelas do DynamoDB |
-| **MiniStack (AWS)** | `http://localhost:4566` | Endpoint local para serviços AWS |
+| **DynamoDB Admin** | `http://localhost:8002` | Interface web para visualização de tabelas e itens |
+| **MiniStack (AWS Local)** | `http://localhost:4566` | Emulador local com suporte a DynamoDB |
 
 > [!TIP]
-> O banco de dados relacional (H2) é inicializado automaticamente com dados fictícios de teste carregados a partir do arquivo [`src/main/resources/import.sql`](src/main/resources/import.sql) (usuários, destinos turísticos, atividades e viagens).
+> O banco de dados relacional (H2) é inicializado automaticamente com dados fictícios carregados a partir do arquivo [`src/main/resources/import.sql`](src/main/resources/import.sql) (usuários, destinos turísticos, atividades e viagens).
 
 ---
 
@@ -111,7 +111,7 @@ export SPRING_PROFILES_ACTIVE=test
 
 ## 🧪 Como Rodar os Testes
 
-O projeto conta com suítes de testes unitários isolados com Mockito e testes de contrato ponta a ponta com REST Assured.
+O projeto conta com testes unitários isolados com Mockito e testes de contrato ponta a ponta com REST Assured.
 
 ### Executar todos os testes
 - **Linux / macOS:**
@@ -128,11 +128,6 @@ O projeto conta com suítes de testes unitários isolados com Mockito e testes d
 ./mvnw test -Dtest=ViagemServiceTest
 ```
 
-### Executar um método de teste específico
-```bash
-./mvnw test -Dtest=ViagemServiceTest#deveCriarViagemComSucesso
-```
-
 ### Gerar Relatório de Cobertura de Código (JaCoCo)
 ```bash
 ./mvnw clean test jacoco:report
@@ -142,95 +137,86 @@ O relatório HTML completo será gerado em:
 
 ---
 
+## 📌 Principais Rotas da API (Padrão OpenAPI)
+
+As rotas e recursos da API seguem a especificação OpenAPI 3.0.3 v1.0.0 ([`docs/viajajunto-openapi.json`](docs/viajajunto-openapi.json)):
+
+### Autenticação & Usuários (`/auth`)
+| Método | Endpoint | Descrição | Autenticação |
+| :--- | :--- | :--- | :---: |
+| `POST` | `/auth/register` | Cadastro de novo usuário | Pública |
+| `POST` | `/auth/login` | Login e emissão de token JWT | Pública |
+| `GET` | `/auth/me` | Dados do perfil do usuário autenticado | Bearer JWT |
+| `POST` | `/auth/forgot-password` | Solicitação de recuperação de senha | Pública |
+
+### Viagens & Roteiros (`/trips`)
+| Método | Endpoint | Descrição | Resposta |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/trips` | Listagem de viagens do usuário logado | Paginada (`{data, meta}`) |
+| `POST` | `/trips` | Criação de novo roteiro | Detalhes da viagem |
+| `GET` | `/trips/{id}` | Consulta de viagem por ID | Detalhes da viagem |
+| `PUT` | `/trips/{id}` | Atualização de dados da viagem | Detalhes atualizados |
+| `DELETE` | `/trips/{id}` | Exclusão de viagem | `204 No Content` |
+
+### Membros da Viagem (`/trips/{tripId}/members`)
+| Método | Endpoint | Descrição |
+| :--- | :--- | :--- |
+| `GET` | `/trips/{tripId}/members` | Listagem paginada de membros participantes |
+| `POST` | `/trips/{tripId}/members/join` | Ingresso na viagem através de código de convite |
+| `PATCH` | `/trips/{tripId}/members/{memberId}` | Atualização do nível de permissão do membro |
+| `DELETE` | `/trips/{tripId}/members/{memberId}` | Remoção de membro da viagem |
+
+### Itinerário & Atividades (`/trips/{tripId}/activities`)
+| Método | Endpoint | Descrição |
+| :--- | :--- | :--- |
+| `GET` | `/trips/{tripId}/activities` | Listagem paginada de atividades agendadas |
+| `POST` | `/trips/{tripId}/destinations/{destinationId}/activities` | Adiciona atividade prevenindo conflitos de horário |
+| `DELETE` | `/trips/{tripId}/activities/{activityId}` | Remove atividade do itinerário |
+
+### Orçamento & Finanças (`/trips/{tripId}/budget`)
+| Método | Endpoint | Descrição |
+| :--- | :--- | :--- |
+| `GET` | `/trips/{tripId}/budget` | Resumo financeiro consolidado da viagem |
+| `PUT` | `/trips/{tripId}/budget` | Atualização do teto orçamentário total |
+
+### Lugares & Avaliações da Comunidade (`/places`)
+| Método | Endpoint | Descrição | Autenticação |
+| :--- | :--- | :--- | :---: |
+| `GET` | `/places` | Catálogo paginado com busca e filtros | Pública |
+| `GET` | `/places/{id}` | Detalhes do destino selecionado | Pública |
+| `GET` | `/places/featured` | Destinos com melhores avaliações | Pública |
+| `GET` | `/places/{placeId}/reviews` | Lista paginada de avaliações do destino | Pública |
+| `POST` | `/places/{placeId}/reviews` | Criação de avaliação (persistência DynamoDB) | Bearer JWT |
+
+### Catálogo de Atividades (`/activities/catalog`)
+| Método | Endpoint | Descrição | Autenticação |
+| :--- | :--- | :--- | :---: |
+| `GET` | `/activities/catalog` | Busca de atividades e passeios turísticos | Pública |
+| `GET` | `/activities/catalog/{id}` | Consulta de atividade do catálogo por ID | Pública |
+| `GET` | `/activities/catalog/featured` | Atividades em destaque | Pública |
+
+---
+
 ## 📁 Estrutura de Pacotes
 
-O código está estruturado em uma arquitetura modular orientada a domínios (Package-by-Feature), separando as configurações transversais das regras de negócio:
+O projeto segue arquitetura modular por funcionalidades (Package-by-Feature):
 
 ```text
 src/main/java/com/viajajunto/api/
 ├── core/                                # Componentes transversais e infraestrutura
 │   ├── config/                          # Configurações Spring (Security, DynamoDB, CORS, Beans)
-│   ├── dto/                             # DTOs globais e envoltórios (ex: paginação e erros)
-│   ├── exception/                       # Tratamento centralizado de exceções (@ControllerAdvice)
-│   └── security/                        # Implementação de segurança JWT (filtros, provedores, tokens)
+│   ├── dto/                             # DTOs globais e envoltórios (ex: paginação PagedResponse e PageMeta)
+│   ├── exception/                       # Tratamento centralizado de erros (@RestControllerAdvice)
+│   └── security/                        # Segurança JWT (filtros, provedores, autenticação)
 │
-├── integrations/                        # Clientes para serviços externos
-│   └── google/                          # Integração com APIs externas (Google Places)
+├── integrations/                        # Clientes de APIs externas
+│   └── google/                          # Integração com Google Places API
 │
-└── modules/                             # Módulos de domínio desacoplados
-    ├── activity/                        # Gestão de atividades e passeios do itinerário
-    │   ├── controller/
-    │   ├── dto/
-    │   ├── entity/
-    │   ├── repository/
-    │   └── service/
-    │
-    ├── auth/                            # Autenticação, login e perfil de usuários
-    │   ├── controller/
-    │   ├── dto/
-    │   ├── entity/
-    │   ├── repository/
-    │   └── service/
-    │
-    ├── budget/                          # Orçamentos e planejamento financeiro da viagem
-    │   ├── controller/
-    │   ├── dto/
-    │   ├── entity/
-    │   ├── repository/
-    │   └── service/
-    │
-    ├── destination/                     # Catálogo e pesquisa de destinos turísticos
-    │   ├── controller/
-    │   ├── dto/
-    │   ├── entity/
-    │   ├── repository/
-    │   └── service/
-    │
-    ├── review/                          # Avaliações de destinos e viagens (DynamoDB NoSQL)
-    │   ├── controller/
-    │   ├── dto/
-    │   ├── entity/
-    │   ├── repository/
-    │   └── service/
-    │
-    └── trip/                            # Gestão central de viagens, participantes e convites
-        ├── controller/
-        ├── dto/
-        ├── entity/
-        ├── repository/
-        └── service/
+└── modules/                             # Módulos de domínio de negócio
+    ├── activity/                        # Atividades e passeios do itinerário
+    ├── auth/                            # Autenticação, usuários e perfil
+    ├── budget/                          # Orçamentos e finanças da viagem
+    ├── destination/                     # Destinos e catálogo de lugares
+    ├── review/                          # Avaliações (DynamoDB NoSQL)
+    └── trip/                            # Gestão central de viagens e membros
 ```
-
-### Responsabilidades de cada camada interna:
-- **`controller`:** Endpoints HTTP REST, validação de requisições (`@Valid`) e mapeamento de respostas.
-- **`dto`:** Objetos de transferência de dados (Request / Response) isolando a camada externa do modelo de domínio.
-- **`entity`:** Entidades persistentes mapeadas via JPA (banco relacional) ou DynamoDB Enhanced (NoSQL).
-- **`repository`:** Interfaces de acesso a dados (Spring Data JPA e DAOs DynamoDB).
-- **`service`:** Regras de negócio, cálculos, validações lógicas e orquestração transacional.
-
----
-
-## 🌐 Convenção de Idioma e Contrato OpenAPI
-
-Para garantir a consistência arquitetural e a conformidade com o contrato de API ([`docs/viajajunto-openapi.json`](docs/viajajunto-openapi.json)), estabeleceu-se a seguinte diretriz de idioma para o projeto:
-
-### ⚠️ Regra para Novo Código (New Features & Refactorings)
-
-> [!IMPORTANT]
-> **Todo código novo, rota HTTP e DTO deve ser implementado obrigatoriamente em inglês**, em total conformidade com o OpenAPI 3.0.3 v1.0.0.
-
-- **Rotas e Endpoints:** Devem ser nomeados em inglês e seguir o padrão RESTful estabelecido no contrato OpenAPI:
-  - ✅ **Correto:** `GET /trips`, `POST /trips/{tripId}/activities`, `GET /places/{placeId}/reviews`
-  - ❌ **Evitar:** `GET /api/viagens`, `POST /atividades`, `GET /destinos/{id}/avaliacoes`
-- **DTOs e Payloads JSON:**
-  - Nomes das classes de request/response e seus campos serializados devem ser em inglês:
-  - ✅ **Correto:** `CreateTripRequest`, `TripResponseDTO`, com campos JSON como `{ "title": "...", "startDate": "...", "budget": 1000 }`
-  - ❌ **Evitar:** `ViagemRequestDTO`, com campos `{ "nome": "...", "dataInicio": "..." }`
-- **Respostas Paginadas:**
-  - Listagens novas devem utilizar o padrão de envelopamento `{ "data": [...], "meta": { "page": 1, "limit": 20, "totalItems": 100, "totalPages": 5 } }`.
-- **Tratamento de Erros:**
-  - As mensagens e schemas de erro devem respeitar o formato padronizado da OpenAPI (`{ "timestamp": "...", "status": 404, "error": "Not Found", "message": "...", "path": "..." }`).
-
-### 🔄 Convivência com Código Legado
-O projeto ainda possui classes e entidades legadas em português (ex.: `ViagemEntity`, `OrcamentoService`, `AvaliacaoController`). Essas estruturas estão em processo de transição; **ao criar novos módulos, novas rotas ou refatorar componentes existentes, utilize exclusivamente o inglês**.
-

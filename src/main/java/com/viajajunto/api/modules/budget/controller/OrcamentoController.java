@@ -11,7 +11,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/viagens/{viagemId}/orcamento")
+@RequestMapping({"/trips/{viagemId}/budget", "/api/viagens/{viagemId}/orcamento"})
 @RequiredArgsConstructor
 public class OrcamentoController {
 

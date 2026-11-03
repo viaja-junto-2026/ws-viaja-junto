@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/destinos/catalogo")
+@RequestMapping({"/places", "/api/destinos/catalogo"})
 @RequiredArgsConstructor
 public class DestinoCatalogoController {
 
@@ -38,13 +38,13 @@ public class DestinoCatalogoController {
         return ResponseEntity.ok(dto);
     }
 
-    @GetMapping("/destaques")
+    @GetMapping({"/destaques", "/featured"})
     public ResponseEntity<List<DestinoCatalogoDTO>> getTopRatedDestinos() {
         List<DestinoCatalogoDTO> destaques = destinoCatalogoService.getTopRatedDestinos();
         return ResponseEntity.ok(destaques);
     }
 
-    @GetMapping("/paises-visitados")
+    @GetMapping({"/paises-visitados", "/visited-countries"})
     public ResponseEntity<VisitedCountryDTO> getVisitedCountries(@AuthenticationPrincipal UserPrincipal principal) {
         VisitedCountryDTO dto = destinoCatalogoService.getUserVisitedCountries(principal.getId());
         return ResponseEntity.ok(dto);

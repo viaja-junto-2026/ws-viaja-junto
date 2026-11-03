@@ -21,11 +21,15 @@ public class AvaliacaoController {
 
     private final AvaliacaoService avaliacaoService;
 
-    @PostMapping("/api/avaliacoes")
+    @PostMapping({"/places/{placeId}/reviews", "/api/avaliacoes"})
     public ResponseEntity<AvaliacaoResponseDTO> createAvaliacao(
+            @PathVariable(required = false) Long placeId,
             @Valid @RequestBody CreateAvaliacaoDTO dto,
             @AuthenticationPrincipal UserPrincipal principal
     ) {
+        if (placeId != null && dto.getDestinoCatalogoId() == null) {
+            dto.setDestinoCatalogoId(placeId);
+        }
         AvaliacaoResponseDTO response = avaliacaoService.createAvaliacao(dto, principal.getId());
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
@@ -40,8 +44,9 @@ public class AvaliacaoController {
         return ResponseEntity.ok(PagedResponse.of(avaliacoes));
     }
 
-    @GetMapping("/api/avaliacoes/atividade/{atividadeId}")
+    @GetMapping({"/places/{placeId}/activities/{atividadeId}/reviews", "/api/avaliacoes/atividade/{atividadeId}"})
     public ResponseEntity<Page<AvaliacaoResponseDTO>> listAvaliacoesByAtividade(
+            @PathVariable(required = false) Long placeId,
             @PathVariable Long atividadeId,
             @PageableDefault(size = 10) Pageable pageable
     ) {
