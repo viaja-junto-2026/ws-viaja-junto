@@ -1,5 +1,7 @@
 package com.viajajunto.api.modules.destination.service;
 
+import static com.viajajunto.api.core.util.FallbackUtils.resolveValue;
+
 import com.viajajunto.api.core.exception.BusinessRuleException;
 import com.viajajunto.api.core.exception.ResourceNotFoundException;
 import com.viajajunto.api.core.security.TripSecurityService;
@@ -41,12 +43,12 @@ public class DestinoViagemService {
                 .viagem(viagem)
                 .destinoCatalogo(catalogo)
                 .nome(dto.getNome())
-                .pais(dto.getPais() != null ? dto.getPais() : (catalogo != null ? catalogo.getPais() : null))
-                .codigoPaisIso(dto.getCodigoPaisIso() != null ? dto.getCodigoPaisIso() : (catalogo != null ? catalogo.getCodigoPaisIso() : null))
-                .localizacao(dto.getLocalizacao() != null ? dto.getLocalizacao() : (catalogo != null ? catalogo.getCidade() : null))
-                .fotoUrl(dto.getFotoUrl() != null ? dto.getFotoUrl() : (catalogo != null ? catalogo.getFotoUrl() : null))
-                .descricao(dto.getDescricao() != null ? dto.getDescricao() : (catalogo != null ? catalogo.getDescricao() : null))
-                .categoria(dto.getCategoria() != null ? dto.getCategoria() : (catalogo != null ? catalogo.getCategoria() : null))
+                .pais(resolveValue(dto.getPais(), catalogo, DestinoCatalogoEntity::getPais))
+                .codigoPaisIso(resolveValue(dto.getCodigoPaisIso(), catalogo, DestinoCatalogoEntity::getCodigoPaisIso))
+                .localizacao(resolveValue(dto.getLocalizacao(), catalogo, DestinoCatalogoEntity::getCidade))
+                .fotoUrl(resolveValue(dto.getFotoUrl(), catalogo, DestinoCatalogoEntity::getFotoUrl))
+                .descricao(resolveValue(dto.getDescricao(), catalogo, DestinoCatalogoEntity::getDescricao))
+                .categoria(resolveValue(dto.getCategoria(), catalogo, DestinoCatalogoEntity::getCategoria))
                 .dataChegada(dto.getDataChegada())
                 .dataSaida(dto.getDataSaida())
                 .ordemVisita(nextOrder)

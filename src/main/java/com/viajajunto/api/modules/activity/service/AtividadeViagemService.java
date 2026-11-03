@@ -1,5 +1,7 @@
 package com.viajajunto.api.modules.activity.service;
 
+import static com.viajajunto.api.core.util.FallbackUtils.resolveValue;
+
 import com.viajajunto.api.core.exception.BusinessRuleException;
 import com.viajajunto.api.core.exception.ResourceNotFoundException;
 import com.viajajunto.api.core.exception.ScheduleConflictException;
@@ -74,10 +76,10 @@ public class AtividadeViagemService {
                 .destinoViagem(destino)
                 .catalogoAtividade(catalogo)
                 .nome(dto.getNome())
-                .tipo(dto.getTipo() != null ? dto.getTipo() : (catalogo != null ? catalogo.getTipo() : null))
-                .local(dto.getLocal() != null ? dto.getLocal() : (catalogo != null ? catalogo.getLocalizacao() : null))
-                .fotoUrl(dto.getFotoUrl() != null ? dto.getFotoUrl() : (catalogo != null ? catalogo.getFotoUrl() : null))
-                .descricao(dto.getDescricao() != null ? dto.getDescricao() : (catalogo != null ? catalogo.getDescricao() : null))
+                .tipo(resolveValue(dto.getTipo(), catalogo, CatalogoAtividadeEntity::getTipo))
+                .local(resolveValue(dto.getLocal(), catalogo, CatalogoAtividadeEntity::getLocalizacao))
+                .fotoUrl(resolveValue(dto.getFotoUrl(), catalogo, CatalogoAtividadeEntity::getFotoUrl))
+                .descricao(resolveValue(dto.getDescricao(), catalogo, CatalogoAtividadeEntity::getDescricao))
                 .dataHorario(dto.getDataHorario())
                 .duracaoMinutos(dto.getDuracaoMinutos())
                 .custoPrevisto(dto.getCustoPrevisto() != null ? dto.getCustoPrevisto() : BigDecimal.ZERO)

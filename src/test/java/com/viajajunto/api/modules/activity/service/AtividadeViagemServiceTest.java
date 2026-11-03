@@ -9,6 +9,7 @@ import com.viajajunto.api.core.security.TripSecurityService;
 import com.viajajunto.api.modules.activity.dto.AtividadeResponseDTO;
 import com.viajajunto.api.modules.activity.dto.CreateAtividadeDTO;
 import com.viajajunto.api.modules.activity.entity.AtividadeViagemEntity;
+import com.viajajunto.api.modules.activity.entity.CatalogoAtividadeEntity;
 import com.viajajunto.api.modules.activity.repository.AtividadeViagemRepository;
 import com.viajajunto.api.modules.activity.repository.CatalogoAtividadeRepository;
 import com.viajajunto.api.modules.destination.entity.DestinoViagemEntity;
@@ -84,6 +85,41 @@ class AtividadeViagemServiceTest {
         assertNotNull(response);
         assertEquals("Passeio de Barco", response.getNome());
         verify(atividadeViagemRepository).save(any(AtividadeViagemEntity.class));
+    }
+
+    @Test
+    @DisplayName("Deve usar valores do catálogo como fallback quando campos do DTO forem nulos")
+    void addAtividade_FallbackToCatalog_WhenFieldsAreNull() {
+        CatalogoAtividadeEntity catalogo = CatalogoAtividadeEntity.builder()
+                .id(200L)
+                .nome("Torre Eiffel")
+                .tipo("Passeio")
+                .localizacao("Paris")
+                .fotoUrl("https://foto.com/torre.jpg")
+                .descricao("Subida na torre")
+                .build();
+
+        CreateAtividadeDTO dto = CreateAtividadeDTO.builder()
+                .nome("Visita Torre")
+                .catalogoAtividadeId(200L)
+                .build();
+
+        when(destinoViagemRepository.findById(10L)).thenReturn(Optional.of(sampleDestino));
+        when(catalogoAtividadeRepository.findById(200L)).thenReturn(Optional.of(catalogo));
+        when(atividadeViagemRepository.save(any(AtividadeViagemEntity.class))).thenAnswer(i -> {
+            AtividadeViagemEntity a = i.getArgument(0);
+            a.setId(101L);
+            return a;
+        });
+
+        AtividadeResponseDTO response = atividadeViagemService.addAtividade(1L, 10L, dto, 1L);
+
+        assertNotNull(response);
+        assertEquals("Visita Torre", response.getNome());
+        assertEquals("Passeio", response.getTipo());
+        assertEquals("Paris", response.getLocal());
+        assertEquals("https://foto.com/torre.jpg", response.getFotoUrl());
+        assertEquals("Subida na torre", response.getDescricao());
     }
 
     @Test
