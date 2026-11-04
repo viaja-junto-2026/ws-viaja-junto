@@ -30,6 +30,7 @@ jobs:
         uses: SonarSource/sonarqube-scan-action@v5
         with:
           args: >
+            -Dsonar.organization=viaja-junto-2026
             -Dsonar.projectKey=viajajunto-api
             -Dsonar.projectName=viajajunto-api
             -Dsonar.sources=src/main/java
