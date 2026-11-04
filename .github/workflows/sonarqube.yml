@@ -38,7 +38,6 @@ jobs:
             -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }} # Opcional se usar o SonarCloud oficial
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       # Opcional: Garante que o workflow falha se o Quality Gate for reprovado
