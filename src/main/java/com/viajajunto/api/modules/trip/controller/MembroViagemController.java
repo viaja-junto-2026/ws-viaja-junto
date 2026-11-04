@@ -20,7 +20,7 @@ public class MembroViagemController {
 
     private final MembroViagemService membroViagemService;
 
-    @PostMapping("/api/viagens/{viagemId}/membros/join")
+    @PostMapping({"/trips/{viagemId}/members/join", "/api/viagens/{viagemId}/membros/join"})
     public ResponseEntity<MembroResponseDTO> joinViagem(
             @Valid @RequestBody AddMembroDTO dto,
             @AuthenticationPrincipal UserPrincipal principal
@@ -40,7 +40,7 @@ public class MembroViagemController {
         return ResponseEntity.ok(PagedResponse.of(membros));
     }
 
-    @PatchMapping("/api/viagens/{viagemId}/membros/{membroId}")
+    @PatchMapping({"/trips/{viagemId}/members/{membroId}", "/api/viagens/{viagemId}/membros/{membroId}"})
     public ResponseEntity<MembroResponseDTO> updatePermissao(
             @PathVariable Long viagemId,
             @PathVariable Long membroId,
@@ -51,7 +51,7 @@ public class MembroViagemController {
         return ResponseEntity.ok(response);
     }
 
-    @DeleteMapping("/api/viagens/{viagemId}/membros/{membroId}")
+    @DeleteMapping({"/trips/{viagemId}/members/{membroId}", "/api/viagens/{viagemId}/membros/{membroId}"})
     public ResponseEntity<Void> removeMembro(
             @PathVariable Long viagemId,
             @PathVariable Long membroId,

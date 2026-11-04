@@ -21,7 +21,7 @@ public class AtividadeViagemController {
 
     private final AtividadeViagemService atividadeViagemService;
 
-    @PostMapping("/api/viagens/{viagemId}/destinos/{destinoId}/atividades")
+    @PostMapping({"/trips/{viagemId}/destinations/{destinoId}/activities", "/api/viagens/{viagemId}/destinos/{destinoId}/atividades"})
     public ResponseEntity<AtividadeResponseDTO> addAtividade(
             @PathVariable Long viagemId,
             @PathVariable Long destinoId,
@@ -32,7 +32,7 @@ public class AtividadeViagemController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @GetMapping("/api/viagens/{viagemId}/destinos/{destinoId}/atividades")
+    @GetMapping({"/trips/{viagemId}/destinations/{destinoId}/activities", "/api/viagens/{viagemId}/destinos/{destinoId}/atividades"})
     public ResponseEntity<List<AtividadeResponseDTO>> listAtividades(
             @PathVariable Long viagemId,
             @PathVariable Long destinoId,
@@ -53,7 +53,7 @@ public class AtividadeViagemController {
         return ResponseEntity.ok(PagedResponse.of(atividades));
     }
 
-    @DeleteMapping("/api/viagens/{viagemId}/destinos/{destinoId}/atividades/{atividadeId}")
+    @DeleteMapping({"/trips/{viagemId}/activities/{atividadeId}", "/trips/{viagemId}/destinations/{destinoId}/atividades/{atividadeId}", "/api/viagens/{viagemId}/destinos/{destinoId}/atividades/{atividadeId}"})
     public ResponseEntity<Void> removeAtividade(
             @PathVariable Long viagemId,
             @PathVariable Long destinoId,

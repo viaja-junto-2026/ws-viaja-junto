@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/atividades/catalogo")
+@RequestMapping({"/activities/catalog", "/api/atividades/catalogo"})
 @RequiredArgsConstructor
 public class CatalogoAtividadeController {
 
@@ -35,7 +35,7 @@ public class CatalogoAtividadeController {
         return ResponseEntity.ok(dto);
     }
 
-    @GetMapping("/destaques")
+    @GetMapping({"/destaques", "/featured"})
     public ResponseEntity<List<CatalogoAtividadeDTO>> getTopRatedAtividades() {
         List<CatalogoAtividadeDTO> destaques = catalogoAtividadeService.getTopRatedAtividades();
         return ResponseEntity.ok(destaques);

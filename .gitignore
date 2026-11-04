@@ -34,3 +34,6 @@ build/
 
 ### VS Code Java build output ###
 bin/
+
+### Tool Analysis & Cache ###
+graphify-out/
