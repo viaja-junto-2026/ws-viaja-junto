@@ -20,6 +20,7 @@ services:
     ports:
       - "8080:8080"
     environment:
+      - SPRING_PROFILES_ACTIVE=dev
       - AWS_REGION=us-east-1
       - AWS_DYNAMODB_ENDPOINT=http://ministack:4566
       - AWS_ACCESS_KEY_ID=fakeAccessKey

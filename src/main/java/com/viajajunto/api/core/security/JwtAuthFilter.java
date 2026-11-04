@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import com.viajajunto.api.modules.auth.entity.UserEntity;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.env.Environment;
 import org.springframework.core.env.Profiles;
 import org.springframework.lang.NonNull;
@@ -19,6 +20,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class JwtAuthFilter extends OncePerRequestFilter {
@@ -81,7 +83,10 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 }
             }
         } catch (Exception ex) {
-            // Log or let context proceed unauthenticated
+            // Segue sem autenticação (a rota protegida responderá 401). Registra só o tipo do erro, nunca o token.
+            log.warn("Falha ao validar o token JWT da requisição {} {}: {}",
+                    request.getMethod(), request.getRequestURI(), ex.getClass().getSimpleName());
+            log.debug("Detalhe da falha de autenticação JWT", ex);
         }
 
         filterChain.doFilter(request, response);
