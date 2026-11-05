@@ -4,6 +4,8 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+import com.viajajunto.api.core.exception.BusinessRuleException;
+import com.viajajunto.api.core.exception.ResourceNotFoundException;
 import com.viajajunto.api.core.exception.ScheduleConflictException;
 import com.viajajunto.api.core.security.TripSecurityService;
 import com.viajajunto.api.modules.activity.dto.AtividadeResponseDTO;
@@ -173,5 +175,68 @@ class AtividadeViagemServiceTest {
         );
 
         verify(atividadeViagemRepository, never()).save(any(AtividadeViagemEntity.class));
+    }
+
+    private AtividadeViagemEntity savedActivity() {
+        return AtividadeViagemEntity.builder().id(50L).nome("Tour").destinoViagem(sampleDestino).build();
+    }
+
+    @Test
+    @DisplayName("Remove a atividade pela rota da viagem, que não informa o destino (destinoId nulo)")
+    void removeAtividade_WithoutDestinationId_DeletesWhenActivityBelongsToTrip() {
+        AtividadeViagemEntity atividade = savedActivity();
+        when(atividadeViagemRepository.findById(50L)).thenReturn(Optional.of(atividade));
+
+        atividadeViagemService.removeAtividade(1L, null, 50L, 1L);
+
+        verify(tripSecurityService).validateUserCanEditTrip(1L, 1L);
+        verify(atividadeViagemRepository).delete(atividade);
+    }
+
+    @Test
+    @DisplayName("Remove a atividade quando o destino informado é o dela")
+    void removeAtividade_WithMatchingDestination_Deletes() {
+        AtividadeViagemEntity atividade = savedActivity();
+        when(atividadeViagemRepository.findById(50L)).thenReturn(Optional.of(atividade));
+
+        atividadeViagemService.removeAtividade(1L, 10L, 50L, 1L);
+
+        verify(atividadeViagemRepository).delete(atividade);
+    }
+
+    @Test
+    @DisplayName("Não remove quando o destino informado não é o da atividade")
+    void removeAtividade_ThrowsWhenActivityBelongsToAnotherDestination() {
+        when(atividadeViagemRepository.findById(50L)).thenReturn(Optional.of(savedActivity()));
+
+        assertThrows(BusinessRuleException.class, () ->
+                atividadeViagemService.removeAtividade(1L, 99L, 50L, 1L)
+        );
+
+        verify(atividadeViagemRepository, never()).delete(any(AtividadeViagemEntity.class));
+    }
+
+    @Test
+    @DisplayName("Não remove quando a atividade pertence a outra viagem")
+    void removeAtividade_ThrowsWhenActivityBelongsToAnotherTrip() {
+        when(atividadeViagemRepository.findById(50L)).thenReturn(Optional.of(savedActivity()));
+
+        assertThrows(BusinessRuleException.class, () ->
+                atividadeViagemService.removeAtividade(2L, null, 50L, 1L)
+        );
+
+        verify(atividadeViagemRepository, never()).delete(any(AtividadeViagemEntity.class));
+    }
+
+    @Test
+    @DisplayName("Atividade inexistente responde ResourceNotFoundException")
+    void removeAtividade_ThrowsWhenActivityDoesNotExist() {
+        when(atividadeViagemRepository.findById(50L)).thenReturn(Optional.empty());
+
+        assertThrows(ResourceNotFoundException.class, () ->
+                atividadeViagemService.removeAtividade(1L, null, 50L, 1L)
+        );
+
+        verify(atividadeViagemRepository, never()).delete(any(AtividadeViagemEntity.class));
     }
 }
