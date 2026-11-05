@@ -3,7 +3,6 @@ package com.viajajunto.api.core.exception;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -25,7 +24,7 @@ public class GlobalExceptionHandler {
         return notFound("Recurso não encontrado");
     }
 
-    // Cobre também ScheduleConflictException, ReviewExistsException e EmailInUseException,
+    // Cobre também ScheduleConflictException e ReviewExistsException,
     // que carregam o próprio code e status (409).
     @ExceptionHandler(BusinessRuleException.class)
     public ResponseEntity<ErrorResponseDTO> handleBusinessRule(BusinessRuleException ex) {
@@ -45,15 +44,6 @@ public class GlobalExceptionHandler {
                 .message(ex.getMessage())
                 .build();
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error);
-    }
-
-    @ExceptionHandler(BadCredentialsException.class)
-    public ResponseEntity<ErrorResponseDTO> handleBadCredentials(BadCredentialsException ex) {
-        ErrorResponseDTO error = ErrorResponseDTO.builder()
-                .code("UNAUTHORIZED")
-                .message("Credenciais inválidas: e-mail ou senha incorretos.")
-                .build();
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

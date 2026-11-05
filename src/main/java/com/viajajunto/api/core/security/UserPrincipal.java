@@ -2,73 +2,32 @@ package com.viajajunto.api.core.security;
 
 import com.viajajunto.api.modules.auth.entity.UserEntity;
 import lombok.Getter;
-import org.springframework.security.core.CredentialsContainer;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.Collections;
 
 /**
- * Usuário autenticado. O hash da senha só existe para o login: o Spring Security chama
- * {@link #eraseCredentials()} depois de autenticar, e o {@code JwtAuthFilter} faz o mesmo
- * antes de colocar o usuário no contexto da requisição.
+ * Usuário autenticado pelo token do Firebase. Os controllers recebem este objeto com
+ * {@code @AuthenticationPrincipal} e usam {@link #getId()}, o ID do banco: o token só traz o
+ * {@code firebaseUid}, e quem faz a ponte entre os dois é o {@code FirebaseJwtAuthenticationConverter}.
+ * A API não guarda nem recebe senha: as credenciais ficam no Firebase.
  */
 @Getter
-public class UserPrincipal implements UserDetails, CredentialsContainer {
+public class UserPrincipal {
 
     private final Long id;
     private final String nome;
     private final String email;
-    private String senha;
+    private final String firebaseUid;
     private final Collection<? extends GrantedAuthority> authorities;
 
     public UserPrincipal(UserEntity user) {
         this.id = user.getId();
         this.nome = user.getNome();
         this.email = user.getEmail();
-        this.senha = user.getSenha();
+        this.firebaseUid = user.getFirebaseUid();
         this.authorities = Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"));
-    }
-
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return authorities;
-    }
-
-    @Override
-    public String getPassword() {
-        return senha;
-    }
-
-    @Override
-    public void eraseCredentials() {
-        this.senha = null;
-    }
-
-    @Override
-    public String getUsername() {
-        return email;
-    }
-
-    @Override
-    public boolean isAccountNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isAccountNonLocked() {
-        return true;
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return true;
     }
 }
