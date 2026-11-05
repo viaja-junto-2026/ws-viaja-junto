@@ -70,7 +70,10 @@ public class AvaliacaoService {
             }
         }
 
-        String targetKey = destino != null ? "DESTINO#" + destino.getId() : "ATIVIDADE#" + atividade.getId();
+        // Sem destino, a avaliação é de uma atividade, que foi buscada exatamente por este ID (garantido pela
+        // checagem no início do método). Usar o ID do pedido evita acessar "atividade", que o analisador não
+        // consegue provar que é não nulo.
+        String targetKey = destino != null ? "DESTINO#" + destino.getId() : "ATIVIDADE#" + dto.getCatalogoAtividadeId();
         String avaliacaoId = UUID.randomUUID().toString();
         String nowIso = Instant.now().toString();
 
