@@ -194,6 +194,14 @@ O job **Build and Scan with Trivy** constrói a imagem Docker e a escaneia a cad
 
 ---
 
+## ✅ Pipeline de CI/CD
+
+A cada PR rodam, em jobs separados, o **lint** (Checkstyle), os **testes com cobertura** (JaCoCo), a **validação do contrato** (Spectral), a **análise do SonarQube** (com Quality Gate) e o **scan do Trivy**. Todos são obrigatórios para mergear na `main`, que só aceita alterações por Pull Request. No push na `main` e em tags `v*`, a imagem é publicada no Docker Hub com as tags `latest`, versão semântica e SHA.
+
+A comprovação de cada requisito, com os links, está em [`docs/evidencias-ci.md`](docs/evidencias-ci.md).
+
+---
+
 ## 📖 Documentação da API (OpenAPI e Swagger)
 
 Há dois documentos, com papéis diferentes:
