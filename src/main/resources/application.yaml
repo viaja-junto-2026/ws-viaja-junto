@@ -6,12 +6,10 @@ spring:
     driverClassName: org.h2.Driver
     username: sa
     password: ""
+  # O H2 console só é habilitado no perfil "dev" (ver application-dev.yaml).
   h2:
     console:
-      enabled: true
-      path: /h2-console
-      settings:
-        web-allow-others: true
+      enabled: false
   jpa:
     database-platform: org.hibernate.dialect.H2Dialect
     hibernate:
@@ -23,19 +21,24 @@ spring:
 
 app:
   jwt:
-    secret: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
+    # Obrigatório via variável de ambiente (mínimo 32 caracteres). Sem valor padrão fora do perfil "dev".
+    secret: ${JWT_SECRET}
     expiration-ms: 86400000 # 24h
+  cors:
+    # Lista separada por vírgula. Vazio = nenhuma origem externa permitida.
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:}
   integrations:
     google:
-      places-api-key: ${GOOGLE_PLACES_API_KEY:mock-key}
+      # Só por variável de ambiente. Vazio = sem integração (a busca devolve resposta vazia).
+      places-api-key: ${GOOGLE_PLACES_API_KEY:}
       places-base-url: https://maps.googleapis.com/maps/api/place
 
 aws:
   region: ${AWS_REGION:us-east-1}
   dynamodb:
-    endpoint: ${AWS_DYNAMODB_ENDPOINT:http://localhost:4566}
-    access-key-id: ${AWS_ACCESS_KEY_ID:fakeAccessKey}
-    secret-access-key: ${AWS_SECRET_ACCESS_KEY:fakeSecretKey}
+    # Vazio = DynamoDB real da AWS. O emulador local é configurado no perfil "dev".
+    endpoint: ${AWS_DYNAMODB_ENDPOINT:}
+    # Obrigatórias via variável de ambiente, sem valor padrão fora dos perfis "dev" e de teste.
+    access-key-id: ${AWS_ACCESS_KEY_ID}
+    secret-access-key: ${AWS_SECRET_ACCESS_KEY}
     table-name: Avaliacoes
-
-
