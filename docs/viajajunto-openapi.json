@@ -3,7 +3,11 @@
   "info": {
     "title": "ViajaJunto API",
     "version": "1.0.0",
-    "description": "API do ViajaJunto, plataforma de planejamento colaborativo de viagens em grupo.\n\n**Autenticação:** feita no Firebase Authentication (cadastro, login, login social, renovação de sessão e recuperação de senha são do SDK do Firebase no app; a API não tem essas rotas). Envie o ID token do Firebase em `Authorization: Bearer <idToken>`. O e-mail do usuário precisa estar verificado. No primeiro acesso a API cria o usuário a partir do token (ou o vincula a um usuário existente com o mesmo e-mail). Endpoints públicos estão marcados sem cadeado.\n\n**Paginação:** listas usam `?page=1&limit=20` e retornam `{data, meta}`.\n\n**Erros:** formato padrão `{code, message, details}`.\n\n**Rate limit:** 429 quando excedido."
+    "description": "API do ViajaJunto, plataforma de planejamento colaborativo de viagens em grupo.\n\n**Autenticação:** feita no Firebase Authentication (cadastro, login, login social, renovação de sessão e recuperação de senha são do SDK do Firebase no app; a API não tem essas rotas). Envie o ID token do Firebase em `Authorization: Bearer <idToken>`. O e-mail do usuário precisa estar verificado. No primeiro acesso a API cria o usuário a partir do token (ou o vincula a um usuário existente com o mesmo e-mail). Endpoints públicos estão marcados sem cadeado.\n\n**Paginação:** listas usam `?page=1&limit=20` e retornam `{data, meta}`.\n\n**Erros:** formato padrão `{code, message, details}`.\n\n**Rate limit:** 429 quando excedido.",
+    "contact": {
+      "name": "Equipe ViajaJunto",
+      "email": "contato@viajajunto.com"
+    }
   },
   "servers": [
     {
@@ -59,6 +63,7 @@
           "Usuários"
         ],
         "summary": "Perfil do usuário autenticado",
+        "operationId": "getCurrentUser",
         "description": "Retorna os dados do usuário logado. No primeiro acesso, o usuário é criado a partir do token do Firebase (ou vinculado a um usuário existente com o mesmo e-mail verificado).",
         "parameters": [],
         "responses": {
@@ -89,6 +94,7 @@
           "Usuários"
         ],
         "summary": "Atualizar perfil",
+        "operationId": "updateCurrentUser",
         "description": "Atualização parcial de nome e avatar: só os campos enviados são alterados. Nome em branco responde 422.",
         "parameters": [],
         "requestBody": {
@@ -137,6 +143,7 @@
           "Roteiros"
         ],
         "summary": "Listar roteiros",
+        "operationId": "listTrips",
         "description": "Lista roteiros dos quais o usuário é membro. Paginado.",
         "parameters": [
           {
@@ -226,6 +233,7 @@
           "Roteiros"
         ],
         "summary": "Criar roteiro",
+        "operationId": "createTrip",
         "description": "Cria um roteiro; o criador vira owner.",
         "parameters": [],
         "requestBody": {
@@ -282,6 +290,7 @@
           "Roteiros"
         ],
         "summary": "Detalhar roteiro",
+        "operationId": "getTrip",
         "description": "Retorna o roteiro. Requer ser membro.",
         "parameters": [
           {
@@ -326,6 +335,7 @@
           "Roteiros"
         ],
         "summary": "Atualizar roteiro",
+        "operationId": "updateTrip",
         "description": "Atualização parcial. Requer papel owner ou editor.",
         "parameters": [
           {
@@ -337,7 +347,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/TripCreate"
+                "$ref": "#/components/schemas/TripUpdate"
               },
               "example": {
                 "title": "Eurotrip 2027 - v2"
@@ -389,6 +399,7 @@
           "Roteiros"
         ],
         "summary": "Excluir roteiro",
+        "operationId": "deleteTrip",
         "description": "Remove o roteiro e seus dados. Apenas owner.",
         "parameters": [
           {
@@ -417,6 +428,7 @@
           "Membros"
         ],
         "summary": "Listar membros",
+        "operationId": "listTripMembers",
         "description": "Lista participantes do roteiro. Paginado.",
         "parameters": [
           {
@@ -484,6 +496,7 @@
           "Membros"
         ],
         "summary": "Convidar membro",
+        "operationId": "inviteTripMember",
         "description": "Envia convite por e-mail (SendGrid) e notificação push. Apenas owner.",
         "parameters": [
           {
@@ -546,6 +559,7 @@
           "Membros"
         ],
         "summary": "Alterar papel do membro",
+        "operationId": "updateTripMember",
         "description": "Altera o papel (editor/viewer). Apenas owner.",
         "parameters": [
           {
@@ -608,6 +622,7 @@
           "Membros"
         ],
         "summary": "Remover membro",
+        "operationId": "removeTripMember",
         "description": "Remove membro (ou permite sair do grupo se for o próprio usuário).",
         "parameters": [
           {
@@ -639,6 +654,7 @@
           "Destinos"
         ],
         "summary": "Listar destinos do roteiro",
+        "operationId": "listTripDestinations",
         "description": "Destinos ordenados por 'order'. Paginado.",
         "parameters": [
           {
@@ -710,6 +726,7 @@
           "Destinos"
         ],
         "summary": "Adicionar destino",
+        "operationId": "createTripDestination",
         "description": "Adiciona destino (placeId do Google Places) ao roteiro.",
         "parameters": [
           {
@@ -781,6 +798,7 @@
           "Destinos"
         ],
         "summary": "Atualizar destino",
+        "operationId": "updateTripDestination",
         "description": "Atualização parcial (datas, ordem).",
         "parameters": [
           {
@@ -795,7 +813,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/DestinationCreate"
+                "$ref": "#/components/schemas/DestinationUpdate"
               },
               "example": {
                 "order": 2
@@ -847,6 +865,7 @@
           "Destinos"
         ],
         "summary": "Remover destino",
+        "operationId": "deleteTripDestination",
         "description": "Remove destino e desvincula atividades.",
         "parameters": [
           {
@@ -878,6 +897,7 @@
           "Atividades"
         ],
         "summary": "Listar atividades",
+        "operationId": "listTripActivities",
         "description": "Lista atividades do roteiro, com filtros. Paginado.",
         "parameters": [
           {
@@ -967,6 +987,7 @@
           "Atividades"
         ],
         "summary": "Criar atividade",
+        "operationId": "createTripActivity",
         "description": "Cria atividade. Retorna 409 se houver conflito de horário para o mesmo grupo.",
         "parameters": [
           {
@@ -1030,12 +1051,6 @@
           "404": {
             "$ref": "#/components/responses/NotFound"
           },
-          "422": {
-            "$ref": "#/components/responses/ValidationError"
-          },
-          "429": {
-            "$ref": "#/components/responses/TooManyRequests"
-          },
           "409": {
             "description": "Conflito de agenda",
             "content": {
@@ -1049,6 +1064,12 @@
                 }
               }
             }
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
           }
         }
       }
@@ -1059,6 +1080,7 @@
           "Atividades"
         ],
         "summary": "Atualizar atividade",
+        "operationId": "updateTripActivity",
         "description": "Atualização parcial.",
         "parameters": [
           {
@@ -1073,7 +1095,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ActivityCreate"
+                "$ref": "#/components/schemas/ActivityUpdate"
               },
               "example": {
                 "startTime": "11:00"
@@ -1128,6 +1150,7 @@
           "Atividades"
         ],
         "summary": "Remover atividade",
+        "operationId": "deleteTripActivity",
         "description": "Remove a atividade.",
         "parameters": [
           {
@@ -1159,6 +1182,7 @@
           "Mapa"
         ],
         "summary": "Marcadores do mapa",
+        "operationId": "getTripMap",
         "description": "Retorna destinos e atividades como marcadores (Google Maps). Resultado em cache.",
         "parameters": [
           {
@@ -1223,6 +1247,7 @@
           "Mapa"
         ],
         "summary": "Rota entre destinos",
+        "operationId": "getTripRoute",
         "description": "Calcula rota (Directions API) entre os destinos na ordem do roteiro.",
         "parameters": [
           {
@@ -1285,6 +1310,7 @@
           "Despesas"
         ],
         "summary": "Listar despesas",
+        "operationId": "listTripExpenses",
         "description": "Lista despesas do grupo. Paginado.",
         "parameters": [
           {
@@ -1331,7 +1357,7 @@
                     {
                       "id": "exp_01",
                       "description": "Jantar em Alfama",
-                      "amount": 120.0,
+                      "amount": 120,
                       "currency": "EUR",
                       "date": "2027-01-11",
                       "paidBy": "usr_01",
@@ -1375,6 +1401,7 @@
           "Despesas"
         ],
         "summary": "Registrar despesa",
+        "operationId": "createTripExpense",
         "description": "Registra despesa e regra de divisão (equal, percentage, fixed). Para percentage a soma dos shares deve ser 100; para fixed, igual ao amount.",
         "parameters": [
           {
@@ -1390,7 +1417,7 @@
               },
               "example": {
                 "description": "Jantar em Alfama",
-                "amount": 120.0,
+                "amount": 120,
                 "currency": "EUR",
                 "date": "2027-01-11",
                 "paidBy": "usr_01",
@@ -1421,7 +1448,7 @@
                 "example": {
                   "id": "exp_01",
                   "description": "Jantar em Alfama",
-                  "amount": 120.0,
+                  "amount": 120,
                   "currency": "EUR",
                   "date": "2027-01-11",
                   "paidBy": "usr_01",
@@ -1465,6 +1492,7 @@
           "Despesas"
         ],
         "summary": "Atualizar despesa",
+        "operationId": "updateTripExpense",
         "description": "Atualização parcial; saldos são recalculados.",
         "parameters": [
           {
@@ -1479,10 +1507,10 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ExpenseCreate"
+                "$ref": "#/components/schemas/ExpenseUpdate"
               },
               "example": {
-                "amount": 130.0
+                "amount": 130
               }
             }
           }
@@ -1498,7 +1526,7 @@
                 "example": {
                   "id": "exp_01",
                   "description": "Jantar em Alfama",
-                  "amount": 120.0,
+                  "amount": 120,
                   "currency": "EUR",
                   "date": "2027-01-11",
                   "paidBy": "usr_01",
@@ -1540,6 +1568,7 @@
           "Despesas"
         ],
         "summary": "Excluir despesa",
+        "operationId": "deleteTripExpense",
         "description": "Remove a despesa e recalcula saldos.",
         "parameters": [
           {
@@ -1571,6 +1600,7 @@
           "Despesas"
         ],
         "summary": "Saldos e dívidas simplificadas",
+        "operationId": "getTripBalances",
         "description": "Retorna saldo líquido por participante e a lista mínima de transferências para quitar.",
         "parameters": [
           {
@@ -1600,19 +1630,19 @@
                     {
                       "userId": "usr_01",
                       "name": "Ana Souza",
-                      "net": 300.0
+                      "net": 300
                     },
                     {
                       "userId": "usr_02",
                       "name": "Bruno Lima",
-                      "net": -300.0
+                      "net": -300
                     }
                   ],
                   "transfers": [
                     {
                       "from": "usr_02",
                       "to": "usr_01",
-                      "amount": 300.0,
+                      "amount": 300,
                       "currency": "BRL"
                     }
                   ]
@@ -1638,6 +1668,7 @@
           "Despesas"
         ],
         "summary": "Registrar pagamento de dívida",
+        "operationId": "createTripSettlement",
         "description": "Registra que um participante quitou valor a outro.",
         "parameters": [
           {
@@ -1654,7 +1685,7 @@
               "example": {
                 "from": "usr_02",
                 "to": "usr_01",
-                "amount": 300.0,
+                "amount": 300,
                 "currency": "BRL"
               }
             }
@@ -1672,7 +1703,7 @@
                   "id": "stl_01",
                   "from": "usr_02",
                   "to": "usr_01",
-                  "amount": 300.0,
+                  "amount": 300,
                   "currency": "BRL",
                   "date": "2027-02-01"
                 }
@@ -1703,6 +1734,7 @@
           "Avaliações"
         ],
         "summary": "Buscar destinos da comunidade",
+        "operationId": "listPlaces",
         "description": "Busca destinos com nota média. Público (sem autenticação). Paginado.",
         "parameters": [
           {
@@ -1797,6 +1829,7 @@
           "Avaliações"
         ],
         "summary": "Detalhar destino",
+        "operationId": "getPlace",
         "description": "Detalhes e nota média. Público.",
         "parameters": [
           {
@@ -1839,6 +1872,7 @@
           "Avaliações"
         ],
         "summary": "Listar avaliações",
+        "operationId": "listPlaceReviews",
         "description": "Avaliações do destino. Público. Paginado.",
         "parameters": [
           {
@@ -1918,6 +1952,7 @@
           "Avaliações"
         ],
         "summary": "Criar avaliação",
+        "operationId": "createPlaceReview",
         "description": "Uma avaliação por usuário por destino (409 se já existir).",
         "parameters": [
           {
@@ -1971,12 +2006,6 @@
           "404": {
             "$ref": "#/components/responses/NotFound"
           },
-          "422": {
-            "$ref": "#/components/responses/ValidationError"
-          },
-          "429": {
-            "$ref": "#/components/responses/TooManyRequests"
-          },
           "409": {
             "description": "Usuário já avaliou",
             "content": {
@@ -1990,6 +2019,12 @@
                 }
               }
             }
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
           }
         }
       }
@@ -2000,6 +2035,7 @@
           "Avaliações"
         ],
         "summary": "Editar avaliação",
+        "operationId": "updateReview",
         "description": "Apenas o autor.",
         "parameters": [
           {
@@ -2064,6 +2100,7 @@
           "Avaliações"
         ],
         "summary": "Excluir avaliação",
+        "operationId": "deleteReview",
         "description": "Autor ou moderador.",
         "parameters": [
           {
@@ -2092,6 +2129,7 @@
           "Fórum"
         ],
         "summary": "Listar tópicos",
+        "operationId": "listPlaceTopics",
         "description": "Tópicos do fórum do destino. Público. Paginado.",
         "parameters": [
           {
@@ -2165,6 +2203,7 @@
           "Fórum"
         ],
         "summary": "Criar tópico",
+        "operationId": "createPlaceTopic",
         "description": "Cria tópico no fórum do destino.",
         "parameters": [
           {
@@ -2232,6 +2271,7 @@
           "Fórum"
         ],
         "summary": "Listar comentários",
+        "operationId": "listTopicComments",
         "description": "Comentários do tópico. Público. Paginado.",
         "parameters": [
           {
@@ -2300,6 +2340,7 @@
           "Fórum"
         ],
         "summary": "Comentar",
+        "operationId": "createTopicComment",
         "description": "Adiciona comentário ao tópico.",
         "parameters": [
           {
@@ -2364,6 +2405,7 @@
           "Fórum"
         ],
         "summary": "Denunciar conteúdo",
+        "operationId": "createReport",
         "description": "Denuncia review, tópico ou comentário para moderação.",
         "parameters": [],
         "requestBody": {
@@ -2403,6 +2445,7 @@
           "Notificações"
         ],
         "summary": "Listar notificações",
+        "operationId": "listNotifications",
         "description": "Notificações do usuário. Paginado.",
         "parameters": [
           {
@@ -2474,6 +2517,7 @@
           "Notificações"
         ],
         "summary": "Marcar como lida",
+        "operationId": "markNotificationAsRead",
         "description": "Marca a notificação como lida.",
         "parameters": [
           {
@@ -2499,6 +2543,7 @@
           "Notificações"
         ],
         "summary": "Obter preferências",
+        "operationId": "getNotificationPreferences",
         "description": "Preferências de canal por tipo de evento.",
         "parameters": [],
         "responses": {
@@ -2531,6 +2576,7 @@
           "Notificações"
         ],
         "summary": "Atualizar preferências",
+        "operationId": "updateNotificationPreferences",
         "description": "Substitui as preferências.",
         "parameters": [],
         "requestBody": {
@@ -2583,6 +2629,7 @@
           "Notificações"
         ],
         "summary": "Registrar dispositivo push",
+        "operationId": "registerNotificationDevice",
         "description": "Registra token FCM para push.",
         "parameters": [],
         "requestBody": {
@@ -3637,6 +3684,155 @@
           "token",
           "platform"
         ]
+      },
+      "TripUpdate": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "startDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "endDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "baseCurrency": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 3
+          }
+        }
+      },
+      "DestinationUpdate": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "country": {
+            "type": "string"
+          },
+          "placeId": {
+            "type": "string"
+          },
+          "latitude": {
+            "type": "number"
+          },
+          "longitude": {
+            "type": "number"
+          },
+          "arrivalDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "departureDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "order": {
+            "type": "integer"
+          }
+        }
+      },
+      "ActivityUpdate": {
+        "type": "object",
+        "properties": {
+          "destinationId": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "date": {
+            "type": "string",
+            "format": "date"
+          },
+          "startTime": {
+            "type": "string"
+          },
+          "endTime": {
+            "type": "string"
+          },
+          "estimatedCost": {
+            "type": "number"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          },
+          "latitude": {
+            "type": "number"
+          },
+          "longitude": {
+            "type": "number"
+          }
+        }
+      },
+      "ExpenseUpdate": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "number",
+            "minimum": 0.01
+          },
+          "currency": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 3
+          },
+          "date": {
+            "type": "string",
+            "format": "date"
+          },
+          "paidBy": {
+            "type": "string"
+          },
+          "activityId": {
+            "type": "string",
+            "nullable": true
+          },
+          "splitType": {
+            "type": "string",
+            "enum": [
+              "equal",
+              "percentage",
+              "fixed"
+            ]
+          },
+          "participants": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "properties": {
+                "userId": {
+                  "type": "string"
+                },
+                "share": {
+                  "type": "number",
+                  "nullable": true
+                }
+              },
+              "required": [
+                "userId"
+              ]
+            }
+          }
+        }
       }
     },
     "responses": {

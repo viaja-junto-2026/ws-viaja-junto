@@ -1,5 +1,8 @@
 package com.viajajunto.api.modules.destination.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import com.viajajunto.api.core.security.UserPrincipal;
 import com.viajajunto.api.modules.destination.dto.DestinoCatalogoDTO;
 import com.viajajunto.api.modules.destination.dto.VisitedCountryDTO;
@@ -17,10 +20,13 @@ import java.util.List;
 @RestController
 @RequestMapping({"/places", "/api/destinos/catalogo"})
 @RequiredArgsConstructor
+@Tag(name = "Destinos do catálogo")
 public class DestinoCatalogoController {
 
     private final DestinoCatalogoService destinoCatalogoService;
 
+    @Operation(summary = "Buscar destinos da comunidade (público)")
+    @SecurityRequirements
     @GetMapping
     public ResponseEntity<Page<DestinoCatalogoDTO>> searchDestinos(
             @RequestParam(required = false) String q,
@@ -32,18 +38,23 @@ public class DestinoCatalogoController {
         return ResponseEntity.ok(page);
     }
 
+    @Operation(summary = "Detalhar destino do catálogo (público)")
+    @SecurityRequirements
     @GetMapping("/{id}")
     public ResponseEntity<DestinoCatalogoDTO> getDestinoById(@PathVariable Long id) {
         DestinoCatalogoDTO dto = destinoCatalogoService.getDestinoById(id);
         return ResponseEntity.ok(dto);
     }
 
+    @Operation(summary = "Destinos mais bem avaliados (público)")
+    @SecurityRequirements
     @GetMapping({"/destaques", "/featured"})
     public ResponseEntity<List<DestinoCatalogoDTO>> getTopRatedDestinos() {
         List<DestinoCatalogoDTO> destaques = destinoCatalogoService.getTopRatedDestinos();
         return ResponseEntity.ok(destaques);
     }
 
+    @Operation(summary = "Países visitados pelo usuário")
     @GetMapping({"/paises-visitados", "/visited-countries"})
     public ResponseEntity<VisitedCountryDTO> getVisitedCountries(@AuthenticationPrincipal UserPrincipal principal) {
         VisitedCountryDTO dto = destinoCatalogoService.getUserVisitedCountries(principal.getId());

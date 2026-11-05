@@ -172,6 +172,21 @@ O relatório HTML completo será gerado em:
 
 ---
 
+## 📖 Documentação da API (OpenAPI e Swagger)
+
+Há dois documentos, com papéis diferentes:
+
+| Documento | Papel | Onde |
+| :--- | :--- | :--- |
+| **Contrato** (escrito à mão) | **Fonte da verdade**: o que a API deve ter | [`docs/viajajunto-openapi.json`](docs/viajajunto-openapi.json) |
+| **Spec gerada** (springdoc) | **Reflexo do código**: o que a API tem hoje | `/v3/api-docs` e Swagger UI |
+
+- **Validação do contrato:** o workflow *Lint OpenAPI Contract* roda o Spectral sobre `docs/viajajunto-openapi.json` em todo push e PR. Localmente: `npx @stoplight/spectral-cli lint docs/viajajunto-openapi.json`.
+- **Swagger UI (somente perfil `dev`):** com `SPRING_PROFILES_ACTIVE=dev` (ou `docker compose up`), abra <http://localhost:8080/swagger-ui.html>. Fora do `dev` o Swagger e `/v3/api-docs` ficam desligados. Para testar rotas protegidas use o botão **Authorize** com um ID token do Firebase.
+- **Diferenças entre contrato e código:** veja [`docs/rotas-contrato-vs-implementacao.md`](docs/rotas-contrato-vs-implementacao.md), com o que falta ou difere em cada rota.
+
+---
+
 ## 📌 Principais Rotas da API (Padrão OpenAPI)
 
 As rotas e recursos da API seguem a especificação OpenAPI 3.0.3 v1.0.0 ([`docs/viajajunto-openapi.json`](docs/viajajunto-openapi.json)):

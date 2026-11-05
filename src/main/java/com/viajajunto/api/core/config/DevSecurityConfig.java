@@ -29,4 +29,16 @@ public class DevSecurityConfig {
 
         return http.build();
     }
+
+    // Swagger UI e a spec gerada: somente leitura e só no perfil "dev". As chamadas "Try it out" usam
+    // o token Bearer do usuário na própria API (cadeia principal).
+    @Bean
+    @Order(2)
+    public SecurityFilterChain swaggerFilterChain(HttpSecurity http) throws Exception {
+        http
+                .securityMatcher("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs", "/v3/api-docs/**")
+                .authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
+
+        return http.build();
+    }
 }

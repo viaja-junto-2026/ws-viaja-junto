@@ -28,3 +28,10 @@ aws:
     endpoint: ${AWS_DYNAMODB_ENDPOINT:http://localhost:4566}
     access-key-id: ${AWS_ACCESS_KEY_ID:fakeAccessKey}
     secret-access-key: ${AWS_SECRET_ACCESS_KEY:fakeSecretKey}
+
+# Swagger UI em http://localhost:8080/swagger-ui.html e spec em /v3/api-docs (somente em desenvolvimento).
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
