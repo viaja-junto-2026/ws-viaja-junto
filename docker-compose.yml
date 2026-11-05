@@ -21,6 +21,8 @@ services:
       - "8080:8080"
     environment:
       - SPRING_PROFILES_ACTIVE=dev
+      # ID do projeto Firebase cujos tokens a API aceita. Defina no arquivo .env (ver README, Passo 4).
+      - FIREBASE_PROJECT_ID=${FIREBASE_PROJECT_ID:-viajajunto-dev}
       - AWS_REGION=us-east-1
       - AWS_DYNAMODB_ENDPOINT=http://ministack:4566
       - AWS_ACCESS_KEY_ID=fakeAccessKey

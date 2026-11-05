@@ -2,6 +2,8 @@
 
 API RESTful para planejamento colaborativo de viagens em grupo. A plataforma permite aos viajantes organizar itinerários, gerenciar atividades com prevenção de conflitos de agenda, controlar orçamentos coletivos, consultar destinos e registrar avaliações.
 
+> 👉 **Quer rodar e testar agora?** Vá direto ao [passo a passo](#-como-rodar-e-testar-passo-a-passo): ele cobre desde a criação do projeto no Firebase até o roteiro de testes no Swagger.
+
 ---
 
 ## 🛠️ Tecnologias Utilizadas
@@ -18,50 +20,306 @@ API RESTful para planejamento colaborativo de viagens em grupo. A plataforma per
 
 ## 📋 Pré-requisitos
 
-- **Java JDK 17** ou superior instalado
-- **Docker** e **Docker Compose** instalados e em execução
-- Git
+- **Java JDK 17** ou superior instalado (`java -version`)
+- **Docker Desktop** (ou Docker + Docker Compose) instalado **e ligado**
+- **Git**
+- Uma **conta Google**, para criar o projeto no Firebase (gratuito, veja o [Passo 2](#passo-2-criar-o-projeto-no-firebase))
+- Um terminal: PowerShell no Windows, ou bash no Linux e macOS
 
 > [!NOTE]
 > Não é necessário ter o Maven instalado globalmente na máquina; o projeto inclui o Maven Wrapper (`mvnw` / `mvnw.cmd`).
 
 ---
 
-## 🚀 Como Rodar a Aplicação
+## 🚀 Como Rodar e Testar (Passo a Passo)
 
-### Opção 1: Ambiente Completo via Docker Compose
+Este guia leva do zero até a primeira chamada autenticada.
 
-Esta opção constrói a imagem da aplicação e sobe todos os serviços (MiniStack, DynamoDB Admin e API) em contêineres:
+1. [Clonar o repositório](#passo-1-clonar-o-repositório)
+2. [Criar o projeto no Firebase](#passo-2-criar-o-projeto-no-firebase)
+3. [Subir o banco local (MiniStack)](#passo-3-subir-o-banco-local-ministack)
+4. [Subir a API](#passo-4-subir-a-api)
+5. [Conferir que subiu](#passo-5-conferir-que-subiu)
+6. [Gerar o token de acesso](#passo-6-gerar-o-token-de-acesso)
+7. [Autorizar no Swagger](#passo-7-autorizar-no-swagger)
+8. [Roteiro de teste](#passo-8-roteiro-de-teste)
+9. [Rodar os testes automáticos](#passo-9-rodar-os-testes-automáticos)
+10. [Problemas comuns](#passo-10-problemas-comuns)
+
+> [!IMPORTANT]
+> **A API não tem tela de login nem guarda senha.** Quem cadastra e autentica os usuários é o **Firebase Authentication**. A API só valida o **token** que o Firebase emite. Por isso, para usar as rotas protegidas, você precisa de um projeto Firebase (gratuito) e de um token. Rotas públicas (como `GET /places`) funcionam sem token.
+
+### Passo 1: Clonar o repositório
 
 ```bash
-docker compose up --build
+git clone https://github.com/viaja-junto-2026/ws-viaja-junto.git
+cd ws-viaja-junto
 ```
 
-Para encerrar os serviços:
+### Passo 2: Criar o projeto no Firebase
+
+Faça isso uma vez só. Cada grupo usa o **próprio** projeto: a API só aceita tokens do projeto indicado em `FIREBASE_PROJECT_ID`.
+
+1. Entre em <https://console.firebase.google.com> com uma conta Google e clique em **Criar um projeto** (*Add project*). Dê um nome e pode **desativar** o Google Analytics.
+2. No menu da esquerda, abra **Authentication** → **Vamos começar** (*Get started*) → aba **Método de login** (*Sign-in method*) → **E-mail/senha** (*Email/Password*) → ative a primeira opção → **Salvar**.
+3. Clique na **engrenagem** ao lado de "Visão geral do projeto" → **Configurações do projeto** (*Project settings*) → aba **Geral**.
+4. Role até **Seus aplicativos** (*Your apps*) e clique no ícone **`</>`** (Web). Dê um apelido (por exemplo `swagger`) e clique em **Registrar app**. Não precisa configurar o *Hosting*.
+5. Vai aparecer um bloco de código como este. **Anote dois valores**:
+   ```js
+   const firebaseConfig = {
+     apiKey: "AIzaSy...",          // <- WEB_API_KEY (39 caracteres, começa com "AIza")
+     authDomain: "...",
+     projectId: "meu-projeto-a1b2c", // <- PROJECT_ID (minúsculas e hifens)
+     appId: "1:123456789:web:..."    // <- NÃO é a chave, ignore
+   };
+   ```
+   Para ver o bloco de novo depois: **Configurações do projeto → Geral → Seus aplicativos →** clique no app → **Configuração do SDK**.
+
+| Valor | Como é | Para que serve |
+| :--- | :--- | :--- |
+| **`projectId`** | minúsculas e hifens, ex.: `meu-projeto-a1b2c` | vai na variável `FIREBASE_PROJECT_ID` da API |
+| **`apiKey`** (Web API Key) | 39 caracteres, começa com `AIza` | usada nos comandos do Passo 6 para cadastrar e logar |
+
+> [!NOTE]
+> A Web API Key do Firebase é só um identificador do projeto (ela vai embutida em aplicativos publicados). Mesmo assim, **não a coloque no repositório**. O que vale como senha é o **token** e a **senha do usuário**.
+
+### Passo 3: Subir o banco local (MiniStack)
+
+As **avaliações** ficam no DynamoDB, emulado localmente pelo MiniStack. Abra o **Docker Desktop**, espere ele ficar ligado e rode:
+
 ```bash
-docker compose down
+docker compose up -d ministack dynamodb-admin
 ```
 
----
+Confira que o `ministack` está `healthy`:
+```bash
+docker compose ps
+```
 
-### Opção 2: Desenvolvimento Local (Spring Boot + Serviços Auxiliares)
+### Passo 4: Subir a API
 
-Recomendada durante o desenvolvimento para recarregamento rápido e depuração:
+Escolha **uma** das duas formas. Em ambas, **informe o `projectId` do Passo 2** em `FIREBASE_PROJECT_ID`. Sem isso, a API usa o projeto de exemplo `viajajunto-dev` e **recusa (401) os tokens do seu projeto**.
 
-1. **Suba apenas os serviços de infraestrutura local (MiniStack e DynamoDB Admin):**
+**Opção A: pelo Maven (recomendada para desenvolver)**
+
+- **Windows (PowerShell):**
+  ```powershell
+  $env:FIREBASE_PROJECT_ID="meu-projeto-a1b2c"; .\mvnw.cmd spring-boot:run "-Dspring-boot.run.profiles=dev"
+  ```
+- **Linux / macOS:**
+  ```bash
+  FIREBASE_PROJECT_ID="meu-projeto-a1b2c" ./mvnw spring-boot:run -Dspring-boot.run.profiles=dev
+  ```
+
+**Opção B: tudo no Docker (API, MiniStack e DynamoDB Admin)**
+
+1. Crie, na raiz do projeto, um arquivo chamado **`.env`** com o seu `projectId` (o arquivo é ignorado pelo Git):
+   ```
+   FIREBASE_PROJECT_ID=meu-projeto-a1b2c
+   ```
+2. Suba tudo:
    ```bash
-   docker compose up -d ministack dynamodb-admin
+   docker compose up --build
    ```
 
-2. **Execute a aplicação com o Maven Wrapper, usando o perfil `dev`** (ele traz um ID de projeto Firebase de desenvolvimento, as origens do CORS, o H2 console e as credenciais do emulador AWS para uso local; sem ele a aplicação não sobe, veja [Variáveis de Ambiente](#-variáveis-de-ambiente)):
-   - **Linux / macOS:**
-     ```bash
-     ./mvnw spring-boot:run -Dspring-boot.run.profiles=dev
-     ```
-   - **Windows (PowerShell ou Prompt de Comando):**
-     ```powershell
-     .\mvnw.cmd spring-boot:run "-Dspring-boot.run.profiles=dev"
-     ```
+Espere aparecer `Started ViajaJuntoApiApplication` no log. O perfil `dev` já cuida do resto (dados de exemplo, H2 console, CORS local, DynamoDB local).
+
+Para encerrar: `Ctrl+C` no terminal da API e, para parar o Docker, `docker compose down`.
+
+### Passo 5: Conferir que subiu
+
+> [!NOTE]
+> **No PowerShell, use `curl.exe` no lugar de `curl`** (nele, `curl` é um apelido de outro comando e não aceita as mesmas opções). No Linux, macOS e Git Bash, use `curl` normalmente.
+
+1. Saúde da API:
+   ```bash
+   curl http://localhost:8080/actuator/health
+   ```
+   O esperado é `{"status":"UP"}`.
+2. Abra o **Swagger UI**: <http://localhost:8080/swagger-ui.html>.
+3. Teste uma rota **pública**: `GET /places` → **Try it out → Execute**. Deve listar os 4 destinos de exemplo (Paris, Rio de Janeiro, Tóquio, Bariloche).
+4. Confirme que as rotas protegidas exigem login (sem token deve dar **401**):
+   ```bash
+   curl -i http://localhost:8080/users/me
+   ```
+
+### Passo 6: Gerar o token de acesso
+
+O token é o **ID token do Firebase**: um texto longo que começa com `eyJ`. Você o obtém fazendo login no Firebase com e-mail e senha. Use os comandos abaixo com a **Web API Key** do Passo 2.
+
+> [!WARNING]
+> - O **e-mail precisa ser real e verificado**: a API recusa (401) tokens de e-mail não verificado. O Firebase não verifica sozinho; você vai clicar em um link enviado para a sua caixa de entrada (olhe o spam).
+> - **Não use** os e-mails de exemplo do `data.sql` (como `ana.silva@email.com`): eles têm um identificador fixo e a API recusa outra conta com o mesmo e-mail.
+> - A senha precisa ter pelo menos **6 caracteres**. Não compartilhe o token nem a senha.
+
+**Windows (PowerShell)**
+
+1. Defina os dados (troque os três valores, mantendo as aspas simples):
+   ```powershell
+   $key = 'SUA_WEB_API_KEY'; $email = 'voce@email.com'; $senha = 'UmaSenha123'
+   ```
+2. **Cadastrar o usuário** (só na primeira vez):
+   ```powershell
+   $t = (Invoke-RestMethod -Method Post -Uri "https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=$key" -ContentType "application/json" -Body (@{ email=$email; password=$senha; returnSecureToken=$true } | ConvertTo-Json)).idToken
+   ```
+3. **Pedir o e-mail de verificação** e **clicar no link** que chegar (só na primeira vez):
+   ```powershell
+   Invoke-RestMethod -Method Post -Uri "https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key=$key" -ContentType "application/json" -Body (@{ requestType="VERIFY_EMAIL"; idToken=$t } | ConvertTo-Json)
+   ```
+4. **Fazer o login e copiar o token** (repita só este passo quando o token vencer):
+   ```powershell
+   $t = (Invoke-RestMethod -Method Post -Uri "https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=$key" -ContentType "application/json" -Body (@{ email=$email; password=$senha; returnSecureToken=$true } | ConvertTo-Json)).idToken
+   $t | Set-Clipboard
+   ```
+   O token já fica copiado. Para conferir sem mostrá-lo: `$t.Substring(0,3); $t.Length` deve imprimir `eyJ` e um número acima de 800.
+
+**Linux / macOS / Git Bash**
+
+1. Defina os dados (troque os três valores):
+   ```bash
+   KEY='SUA_WEB_API_KEY'; EMAIL='voce@email.com'; SENHA='UmaSenha123'
+   ```
+2. **Cadastrar o usuário** (só na primeira vez). A resposta traz o `idToken`; guarde-o:
+   ```bash
+   TOKEN=$(curl -s -X POST "https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=$KEY" -H 'Content-Type: application/json' -d "{\"email\":\"$EMAIL\",\"password\":\"$SENHA\",\"returnSecureToken\":true}" | sed -n 's/.*"idToken": *"\([^"]*\)".*/\1/p')
+   ```
+3. **Pedir o e-mail de verificação** e **clicar no link** que chegar (só na primeira vez):
+   ```bash
+   curl -s -X POST "https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key=$KEY" -H 'Content-Type: application/json' -d "{\"requestType\":\"VERIFY_EMAIL\",\"idToken\":\"$TOKEN\"}"
+   ```
+4. **Fazer o login e obter o token** (repita só este passo quando o token vencer):
+   ```bash
+   TOKEN=$(curl -s -X POST "https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=$KEY" -H 'Content-Type: application/json' -d "{\"email\":\"$EMAIL\",\"password\":\"$SENHA\",\"returnSecureToken\":true}" | sed -n 's/.*"idToken": *"\([^"]*\)".*/\1/p')
+   echo "$TOKEN"
+   ```
+   Copie o texto impresso (ou use `echo -n "$TOKEN" | pbcopy` no macOS, `xclip -selection clipboard` no Linux).
+
+Se algum comando devolver erro, o campo `message` da resposta diz o motivo:
+
+| Mensagem | Causa | O que fazer |
+| :--- | :--- | :--- |
+| `API key not valid` | a chave está errada ou é de outro projeto | copie de novo o `apiKey` do Passo 2 (39 caracteres, começa com `AIza`) |
+| `EMAIL_EXISTS` | o e-mail já foi cadastrado | pule o cadastro e faça só o login (passo 4) |
+| `INVALID_LOGIN_CREDENTIALS` | e-mail ou senha errados | confira os valores e a senha (mínimo 6 caracteres) |
+| `OPERATION_NOT_ALLOWED` | o login por e-mail e senha está desligado | ative em *Authentication → Método de login → E-mail/senha* |
+| `WEAK_PASSWORD` | senha com menos de 6 caracteres | use uma senha maior |
+
+> [!TIP]
+> O token **vale 1 hora**. Quando vencer, as rotas protegidas passam a responder **401**: basta repetir o **passo 4** do login e colar o token novo no Swagger. Não precisa reiniciar a API.
+
+### Passo 7: Autorizar no Swagger
+
+1. Abra <http://localhost:8080/swagger-ui.html> e clique em **Authorize** (cadeado, no topo).
+2. No campo **Value**, cole **só o token** (o texto que começa com `eyJ`). **Não escreva `Bearer`**: o Swagger acrescenta sozinho. Escrever duplica e dá 401.
+3. Clique em **Authorize** e depois em **Close**. Os cadeados das rotas protegidas ficam fechados.
+4. Teste `GET /users/me` → **Try it out → Execute**. O esperado é **200**, com os seus dados (no primeiro acesso a API cria o usuário a partir do token).
+
+Para trocar o token depois de vencido: **Authorize → Logout**, cole o novo e confirme.
+
+Fora do Swagger, o token vai no cabeçalho de toda chamada. Em Linux, macOS e Git Bash:
+```bash
+curl -H "Authorization: Bearer $TOKEN" http://localhost:8080/users/me
+```
+No PowerShell (o token está em `$t`):
+```powershell
+curl.exe -H "Authorization: Bearer $t" http://localhost:8080/users/me
+```
+
+### Passo 8: Roteiro de teste
+
+Siga na ordem, no Swagger (**Try it out → Execute**). Os números (`id`) que as respostas devolvem entram nos passos seguintes. Em todas as rotas de destino e atividade, o `{destinoId}` precisa ser de um destino **da própria viagem**.
+
+| # | Rota | Corpo | Esperado |
+| :-: | :--- | :--- | :--- |
+| 1 | `GET /users/me` | (sem corpo) | **200** com os seus dados |
+| 2 | `POST /trips` | ver abaixo | **201**. Anote o `id` (é o `{viagemId}`) |
+| 3 | `GET /trips` | (sem corpo) | **200**, paginada `{data, meta}`, com a viagem criada |
+| 4 | `POST /trips/{viagemId}/destinations` | ver abaixo | **201**. Anote o `id` (é o `{destinoId}`) |
+| 5 | `POST /trips/{viagemId}/destinations/{destinoId}/activities` | ver abaixo (2 atividades) | **201** em cada uma |
+| 6 | `GET /trips/{viagemId}/budget` | (sem corpo) | **200** com `totalPlanejado` 1000 |
+| 7 | `PUT /trips/{viagemId}/budget` | `{ "orcamentoTotal": 8000 }` | **200** com `orcamentoTotal` 8000 |
+| 8 | `GET /trips/{viagemId}/activities` | (sem corpo) | **200**, as 2 atividades em `{data, meta}` |
+
+**Corpo do passo 2** (criar a viagem):
+```json
+{
+  "nome": "Viagem de teste",
+  "descricao": "Testando o Swagger",
+  "dataInicio": "2026-12-01",
+  "dataFim": "2026-12-10",
+  "orcamentoTotal": 5000
+}
+```
+**Corpo do passo 4** (criar o destino):
+```json
+{ "nome": "Lisboa", "pais": "Portugal" }
+```
+**Corpos do passo 5** (rode a rota duas vezes, uma com cada corpo):
+```json
+{
+  "nome": "Passeio de barco",
+  "tipo": "Passeio",
+  "dataHorario": "2026-12-02T10:00:00",
+  "duracaoMinutos": 60,
+  "custoPrevisto": 600
+}
+```
+```json
+{
+  "nome": "Jantar tradicional",
+  "tipo": "Gastronomia",
+  "dataHorario": "2026-12-02T20:00:00",
+  "duracaoMinutos": 90,
+  "custoPrevisto": 400
+}
+```
+No passo 6 o resumo vem assim: `totalPlanejado` 1000, `saldoDisponivel` 4000, `percentualConsumidoTotal` 20.0 e os gastos por categoria (`Passeio` 600 e `Gastronomia` 400).
+
+**Avaliações (usam o DynamoDB).** Os destinos de exemplo têm `id` 1 a 4 (Paris, Rio de Janeiro, Tóquio, Bariloche) e as atividades do catálogo também, de 1 a 4. Cada um já vem com 3 avaliações do seed:
+
+| # | Rota | Corpo | Esperado |
+| :-: | :--- | :--- | :--- |
+| 9 | `GET /places/1/reviews` | (sem corpo, não precisa de token) | **200**, 3 avaliações de exemplo |
+| 10 | `POST /places/2/reviews` | `{ "rating": 5, "comment": "Lugar incrível" }` | **201**; o `GET /places/2/reviews` agora tem 4 |
+| 11 | `POST /places/2/reviews` (de novo, mesmo corpo) | o mesmo | **409** `REVIEW_EXISTS` (uma avaliação por destino) |
+| 12 | `POST /places/1/activities/1/reviews` | `{ "rating": 4, "comment": "Passeio ótimo" }` | **201**; veja em `GET /places/1/activities/1/reviews` |
+
+Você pode ver os itens gravados no **DynamoDB Admin**: <http://localhost:8002> → tabela `Avaliacoes`.
+
+**Erros para demonstrar** (todos de propósito):
+
+| Teste | Esperado |
+| :--- | :--- |
+| qualquer rota protegida sem **Authorize** | **401** `UNAUTHORIZED` |
+| `GET /trips/99999/budget` | **404** `NOT_FOUND` |
+| `GET /trips/1/budget` (viagem de outro usuário do seed) | **403** `FORBIDDEN` |
+| `POST /trips` com `"nome": ""` | **422** `VALIDATION_ERROR` |
+| `POST /places/2/reviews` com `{ "rating": 9 }` | **422** `VALIDATION_ERROR` |
+| segunda atividade sobreposta, às `2026-12-02T10:30:00` | **409** `SCHEDULE_CONFLICT` |
+| `POST /trips` com JSON quebrado (falta uma aspa) | **400** `MALFORMED_REQUEST` |
+
+### Passo 9: Rodar os testes automáticos
+
+```bash
+./mvnw verify
+```
+No Windows: `.\mvnw.cmd verify`. Roda o lint, todos os testes e a verificação de cobertura mínima. Com o **Docker ligado**, os testes que usam DynamoDB de verdade também rodam. Os testes **não precisam** de Firebase nem de internet (usam um token simulado). Mais detalhes na seção [Como Rodar os Testes](#-como-rodar-os-testes).
+
+### Passo 10: Problemas comuns
+
+| Sintoma | Causa provável | O que fazer |
+| :--- | :--- | :--- |
+| A API não sobe e reclama de `FIREBASE_PROJECT_ID` ou de `AWS_...` | faltou o perfil `dev` | rode com `-Dspring-boot.run.profiles=dev` (Passo 4) |
+| **401** em todas as rotas protegidas | token vencido (vale 1 hora) | repita o login (Passo 6, passo 4) e use o **Authorize** de novo |
+| **401** só com o seu e-mail | e-mail ainda **não verificado**, ou a API subiu **sem** o `FIREBASE_PROJECT_ID` do seu projeto | clique no link do e-mail e gere um token novo; confira o Passo 4 |
+| **401** logo depois de colar o token | você escreveu `Bearer` antes do token no Swagger | **Authorize → Logout** e cole só o token |
+| **400** "O destino não pertence à viagem indicada" | `{destinoId}` de outra viagem (ou do seed) | liste `GET /trips/{viagemId}/destinations` e use um `id` de lá |
+| **403** em uma viagem | a viagem não é sua | use o `id` da viagem que você criou |
+| **409** `SCHEDULE_CONFLICT` | já existe atividade nesse horário na viagem | mude o `dataHorario` (atividades que terminam quando a outra começa não conflitam) |
+| Rotas de avaliações dão erro | o MiniStack não está no ar | `docker compose up -d ministack dynamodb-admin` (Passo 3) |
+| Erro de porta `8080` em uso | outra API (ou outro contêiner) já usa a porta | pare o outro processo, ou `docker compose down` |
+| As viagens criadas sumiram | a API foi reiniciada: o H2 é em memória | crie de novo (o seed volta sozinho) |
+| `docker` não funciona | o Docker Desktop não está ligado | abra o Docker Desktop e espere ficar pronto |
 
 ---
 
@@ -71,6 +329,8 @@ Recomendada durante o desenvolvimento para recarregamento rápido e depuração:
 | :--- | :--- | :--- |
 | **API Base** | `http://localhost:8080` | Porta padrão da aplicação |
 | **Status / Health** | `http://localhost:8080/actuator/health` | Health Check via Spring Boot Actuator |
+| **Swagger UI** | `http://localhost:8080/swagger-ui.html` | Só no perfil `dev`. Veja o [Passo 7](#passo-7-autorizar-no-swagger) |
+| **Spec OpenAPI gerada** | `http://localhost:8080/v3/api-docs` | Só no perfil `dev` |
 | **H2 Console** | `http://localhost:8080/h2-console` | Só no perfil `dev`.<br>**JDBC URL:** `jdbc:h2:mem:viajajuntodb`<br>**User:** `sa` \| **Password:** *(vazio)* |
 | **DynamoDB Admin** | `http://localhost:8002` | Interface web para visualização de tabelas e itens |
 | **MiniStack (AWS Local)** | `http://localhost:4566` | Emulador local com suporte a DynamoDB |
@@ -121,7 +381,7 @@ Nenhum segredo fica no repositório (ele é público): chaves e credenciais entr
 
 | Variável | Obrigatória? | Para que serve |
 | :--- | :--- | :--- |
-| `FIREBASE_PROJECT_ID` | **Sim**, exceto no perfil `dev` | ID do projeto no Firebase Authentication. A API só aceita tokens emitidos para este projeto (emissor `https://securetoken.google.com/<id>` e audiência `<id>`). O perfil `dev` usa `viajajunto-dev`. |
+| `FIREBASE_PROJECT_ID` | **Sim**, exceto no perfil `dev` | ID do projeto no Firebase Authentication. A API só aceita tokens emitidos para este projeto (emissor `https://securetoken.google.com/<id>` e audiência `<id>`). O perfil `dev` usa o padrão `viajajunto-dev`, que **só aceita tokens de um projeto com esse ID**: para testar com o token do seu projeto, defina a variável com o `projectId` dele ([Passo 4](#passo-4-subir-a-api)). |
 | `AWS_ACCESS_KEY_ID` | **Sim**, exceto no perfil `dev` | Credencial de acesso ao DynamoDB. |
 | `AWS_SECRET_ACCESS_KEY` | **Sim**, exceto no perfil `dev` | Credencial secreta do DynamoDB. |
 | `AWS_REGION` | Não (padrão `us-east-1`) | Região do DynamoDB. |
@@ -266,10 +526,19 @@ Cadastro, login, social, renovação de sessão e recuperação de senha são do
 | `PATCH` | `/trips/{tripId}/members/{memberId}` | Atualização do nível de permissão do membro |
 | `DELETE` | `/trips/{tripId}/members/{memberId}` | Remoção de membro da viagem |
 
+### Destinos da Viagem (`/trips/{tripId}/destinations`)
+| Método | Endpoint | Descrição |
+| :--- | :--- | :--- |
+| `GET` | `/trips/{tripId}/destinations` | Lista os destinos da viagem, na ordem de visita |
+| `POST` | `/trips/{tripId}/destinations` | Adiciona um destino à viagem |
+| `DELETE` | `/trips/{tripId}/destinations/{destinationId}` | Remove o destino da viagem |
+| `GET` | `/trips/{tripId}/map` | Marcadores de destinos e atividades para o mapa (usa o Google Places, com cache) |
+
 ### Itinerário & Atividades (`/trips/{tripId}/activities`)
 | Método | Endpoint | Descrição |
 | :--- | :--- | :--- |
 | `GET` | `/trips/{tripId}/activities` | Listagem paginada de atividades agendadas |
+| `GET` | `/trips/{tripId}/destinations/{destinationId}/activities` | Lista as atividades de um destino da viagem |
 | `POST` | `/trips/{tripId}/destinations/{destinationId}/activities` | Adiciona atividade prevenindo conflitos de horário |
 | `DELETE` | `/trips/{tripId}/activities/{activityId}` | Remove atividade do itinerário |
 
@@ -287,6 +556,8 @@ Cadastro, login, social, renovação de sessão e recuperação de senha são do
 | `GET` | `/places/featured` | Destinos com melhores avaliações | Pública |
 | `GET` | `/places/{placeId}/reviews` | Lista paginada de avaliações do destino | Pública |
 | `POST` | `/places/{placeId}/reviews` | Criação de avaliação (persistência DynamoDB) | Bearer (token Firebase) |
+| `GET` | `/places/{placeId}/activities/{activityId}/reviews` | Avaliações de uma atividade do catálogo | Pública |
+| `POST` | `/places/{placeId}/activities/{activityId}/reviews` | Avaliação de uma atividade do catálogo (DynamoDB) | Bearer (token Firebase) |
 
 ### Catálogo de Atividades (`/activities/catalog`)
 | Método | Endpoint | Descrição | Autenticação |
