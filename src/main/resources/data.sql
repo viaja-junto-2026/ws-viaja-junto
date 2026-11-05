@@ -1,6 +1,9 @@
 -- ====================================================================
 -- DADOS FAKE INICIAIS DO BANCO RELACIONAL (H2) - VIAJA JUNTO API
 -- ====================================================================
+-- Carregado só no perfil "dev" (spring.sql.init.mode=always em application-dev.yaml).
+-- As avaliações moram no DynamoDB: os contadores (avaliacao_media/total_avaliacoes) partem de 0
+-- e o AvaliacaoSeedRunner (perfil "dev") os recalcula a partir das avaliações de exemplo.
 
 -- 1. USUÁRIOS (users)
 -- Senha de todos os usuários de teste: "123456" (hash BCrypt abaixo)
@@ -16,30 +19,30 @@ VALUES (3, 'Beatriz Souza', 'beatriz.souza@email.com', '$2a$10$dXJ3SW6G7P50lGmMk
 
 -- 2. CATÁLOGO DE DESTINOS (destinos_catalogo)
 INSERT INTO destinos_catalogo (id, nome, pais, codigo_pais_iso, cidade, estado, descricao, categoria, foto_url, avaliacao_media, total_avaliacoes) 
-VALUES (1, 'Paris', 'França', 'FRA', 'Paris', 'Île-de-France', 'A incrível Cidade Luz com a Torre Eiffel e museu do Louvre.', 'cultural', 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34', 4.8, 12);
+VALUES (1, 'Paris', 'França', 'FRA', 'Paris', 'Île-de-France', 'A incrível Cidade Luz com a Torre Eiffel e museu do Louvre.', 'cultural', 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34', 0.0, 0);
 
 INSERT INTO destinos_catalogo (id, nome, pais, codigo_pais_iso, cidade, estado, descricao, categoria, foto_url, avaliacao_media, total_avaliacoes) 
-VALUES (2, 'Rio de Janeiro', 'Brasil', 'BRA', 'Rio de Janeiro', 'RJ', 'Cidade Maravilhosa repleta de praias icônicas e o Cristo Redentor.', 'praia', 'https://images.unsplash.com/photo-1483729558449-99ef09a8c325', 4.6, 8);
+VALUES (2, 'Rio de Janeiro', 'Brasil', 'BRA', 'Rio de Janeiro', 'RJ', 'Cidade Maravilhosa repleta de praias icônicas e o Cristo Redentor.', 'praia', 'https://images.unsplash.com/photo-1483729558449-99ef09a8c325', 0.0, 0);
 
 INSERT INTO destinos_catalogo (id, nome, pais, codigo_pais_iso, cidade, estado, descricao, categoria, foto_url, avaliacao_media, total_avaliacoes) 
-VALUES (3, 'Tóquio', 'Japão', 'JPN', 'Tóquio', 'Kanto', 'Metrópole vibrante mesclando tecnologia futurista e tradição millenar.', 'cidade', 'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf', 4.9, 15);
+VALUES (3, 'Tóquio', 'Japão', 'JPN', 'Tóquio', 'Kanto', 'Metrópole vibrante mesclando tecnologia futurista e tradição millenar.', 'cidade', 'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf', 0.0, 0);
 
 INSERT INTO destinos_catalogo (id, nome, pais, codigo_pais_iso, cidade, estado, descricao, categoria, foto_url, avaliacao_media, total_avaliacoes) 
-VALUES (4, 'Bariloche', 'Argentina', 'ARG', 'San Carlos de Bariloche', 'Río Negro', 'Famosa por suas montanhas com neve, lagos cristalinos e chocolates.', 'natureza', 'https://images.unsplash.com/photo-1544644181-1484b3fdfc62', 4.5, 5);
+VALUES (4, 'Bariloche', 'Argentina', 'ARG', 'San Carlos de Bariloche', 'Río Negro', 'Famosa por suas montanhas com neve, lagos cristalinos e chocolates.', 'natureza', 'https://images.unsplash.com/photo-1544644181-1484b3fdfc62', 0.0, 0);
 
 
 -- 3. CATÁLOGO DE ATIVIDADES (catalogo_atividades)
 INSERT INTO catalogo_atividades (id, nome, tipo, localizacao, cidade, pais, descricao, foto_url, preco_medio, avaliacao_media, total_avaliacoes)
-VALUES (1, 'Visita à Torre Eiffel', 'Passeio', 'Champ de Mars', 'Paris', 'França', 'Ingresso com acesso ao topo da famosa estrutura de ferro.', 'https://images.unsplash.com/photo-1511739001486-6bfe10ce785f', 150.00, 4.9, 20);
+VALUES (1, 'Visita à Torre Eiffel', 'Passeio', 'Champ de Mars', 'Paris', 'França', 'Ingresso com acesso ao topo da famosa estrutura de ferro.', 'https://images.unsplash.com/photo-1511739001486-6bfe10ce785f', 150.00, 0.0, 0);
 
 INSERT INTO catalogo_atividades (id, nome, tipo, localizacao, cidade, pais, descricao, foto_url, preco_medio, avaliacao_media, total_avaliacoes)
-VALUES (2, 'Passeio de Bondinho no Pão de Açúcar', 'Passeio', 'Urca', 'Rio de Janeiro', 'Brasil', 'Teleférico com vista panorâmica espetacular da baía de Guanabara.', 'https://images.unsplash.com/photo-1516306580123-e6e52b1b7b5f', 120.00, 4.7, 10);
+VALUES (2, 'Passeio de Bondinho no Pão de Açúcar', 'Passeio', 'Urca', 'Rio de Janeiro', 'Brasil', 'Teleférico com vista panorâmica espetacular da baía de Guanabara.', 'https://images.unsplash.com/photo-1516306580123-e6e52b1b7b5f', 120.00, 0.0, 0);
 
 INSERT INTO catalogo_atividades (id, nome, tipo, localizacao, cidade, pais, descricao, foto_url, preco_medio, avaliacao_media, total_avaliacoes)
-VALUES (3, 'Jantar Tradicional de Lamen em Shibuya', 'Gastronomia', 'Shibuya Crossing', 'Tóquio', 'Japão', 'Experiência gastronômica autêntica nos becos de Tóquio.', 'https://images.unsplash.com/photo-1569718212165-3a8278d5f624', 60.00, 4.8, 14);
+VALUES (3, 'Jantar Tradicional de Lamen em Shibuya', 'Gastronomia', 'Shibuya Crossing', 'Tóquio', 'Japão', 'Experiência gastronômica autêntica nos becos de Tóquio.', 'https://images.unsplash.com/photo-1569718212165-3a8278d5f624', 60.00, 0.0, 0);
 
 INSERT INTO catalogo_atividades (id, nome, tipo, localizacao, cidade, pais, descricao, foto_url, preco_medio, avaliacao_media, total_avaliacoes)
-VALUES (4, 'Aula de Esqui Cerro Catedral', 'Passeio', 'Cerro Catedral', 'Bariloche', 'Argentina', 'Aula prática de esqui na neve com equipamento incluso.', 'https://images.unsplash.com/photo-1551698618-1dfe5d97d256', 300.00, 4.6, 6);
+VALUES (4, 'Aula de Esqui Cerro Catedral', 'Passeio', 'Cerro Catedral', 'Bariloche', 'Argentina', 'Aula prática de esqui na neve com equipamento incluso.', 'https://images.unsplash.com/photo-1551698618-1dfe5d97d256', 300.00, 0.0, 0);
 
 
 -- 4. VIAGENS (viagens)

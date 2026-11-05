@@ -7,6 +7,13 @@ spring:
       path: /h2-console
       settings:
         web-allow-others: true # necessário para acessar de dentro do Docker
+  # Carrega o data.sql (usuários, catálogo e viagens de exemplo) depois do schema.
+  sql:
+    init:
+      mode: always
+  jpa:
+    hibernate:
+      ddl-auto: update
 
 app:
   jwt:
