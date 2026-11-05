@@ -215,6 +215,26 @@ Há dois documentos, com papéis diferentes:
 - **Swagger UI (somente perfil `dev`):** com `SPRING_PROFILES_ACTIVE=dev` (ou `docker compose up`), abra <http://localhost:8080/swagger-ui.html>. Fora do `dev` o Swagger e `/v3/api-docs` ficam desligados. Para testar rotas protegidas use o botão **Authorize** com um ID token do Firebase.
 - **Diferenças entre contrato e código:** veja [`docs/rotas-contrato-vs-implementacao.md`](docs/rotas-contrato-vs-implementacao.md), com o que falta ou difere em cada rota.
 
+### Formato de erros
+Toda resposta de erro da API segue o mesmo formato, definido no contrato:
+```json
+{ "code": "VALIDATION_ERROR", "message": "Dados fornecidos são inválidos", "details": [{ "field": "email", "issue": "formato inválido" }] }
+```
+
+| Status | `code` | Quando acontece |
+| :---: | :--- | :--- |
+| 400 | `MALFORMED_REQUEST` | JSON malformado ou corpo ausente |
+| 400 | `INVALID_PARAMETER` | parâmetro com tipo errado (`?page=abc`) ou obrigatório ausente; `details` indica o campo |
+| 400 | `BUSINESS_RULE_VIOLATION` | regra de negócio violada |
+| 401 | `UNAUTHORIZED` | token ausente, inválido ou expirado |
+| 403 | `FORBIDDEN` | usuário sem permissão sobre o recurso |
+| 404 | `NOT_FOUND` | recurso ou rota inexistente |
+| 405 | `METHOD_NOT_ALLOWED` | método HTTP não suportado; o cabeçalho `Allow` lista os aceitos |
+| 409 | `SCHEDULE_CONFLICT`, `REVIEW_EXISTS` | conflito de horário; avaliação já existente |
+| 415 | `UNSUPPORTED_MEDIA_TYPE` | `Content-Type` diferente de `application/json` |
+| 422 | `VALIDATION_ERROR` | dados inválidos; `details` lista campo e problema |
+| 500 | `INTERNAL_SERVER_ERROR` | erro inesperado; a mensagem não expõe detalhes internos |
+
 ---
 
 ## 📌 Principais Rotas da API (Padrão OpenAPI)
