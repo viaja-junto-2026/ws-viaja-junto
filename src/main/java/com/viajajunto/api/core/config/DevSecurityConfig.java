@@ -17,6 +17,13 @@ import org.springframework.security.web.SecurityFilterChain;
 @Profile("dev")
 public class DevSecurityConfig {
 
+    /**
+     * O CSRF é ignorado somente nas rotas do H2 console: o console envia formulários sem o token e
+     * deixaria de funcionar com a proteção ativa. Isto vale apenas no perfil "dev" e só para
+     * /h2-console/**; o restante da aplicação continua na cadeia principal (SecurityConfig).
+     * Falso positivo aceito do Sonar (S4502), revisado em equipe.
+     */
+    @SuppressWarnings("java:S4502")
     @Bean
     @Order(1)
     public SecurityFilterChain h2ConsoleFilterChain(HttpSecurity http) throws Exception {
