@@ -13,8 +13,14 @@ import static org.hamcrest.Matchers.anyOf;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 
+// O perfil dev carrega o data.sql (dados de exemplo). O H2 em memória é compartilhado entre os
+// contextos de teste da mesma JVM, então este teste usa um banco só dele para não colidir com
+// os registros criados pelos outros.
 @ActiveProfiles("dev")
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(
+        webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+        properties = "spring.datasource.url=jdbc:h2:mem:viajajunto-dev-profile-test;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE"
+)
 class SecurityDevProfileTest {
 
     @LocalServerPort

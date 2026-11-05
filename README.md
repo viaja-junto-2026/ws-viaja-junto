@@ -76,7 +76,7 @@ Recomendada durante o desenvolvimento para recarregamento rápido e depuração:
 | **MiniStack (AWS Local)** | `http://localhost:4566` | Emulador local com suporte a DynamoDB |
 
 > [!TIP]
-> O banco de dados relacional (H2) é inicializado automaticamente com dados fictícios carregados a partir do arquivo [`src/main/resources/import.sql`](src/main/resources/import.sql) (usuários, destinos turísticos, atividades e viagens).
+> No perfil `dev`, o banco relacional (H2) é inicializado com dados fictícios carregados do arquivo [`src/main/resources/data.sql`](src/main/resources/data.sql) (usuários, destinos turísticos, atividades e viagens). As **avaliações** ficam no DynamoDB: ao subir, o `AvaliacaoSeedRunner` cria avaliações de exemplo (sem duplicar se rodar de novo) e recalcula média e total de cada destino e atividade a partir delas. Sem o MiniStack no ar, a API sobe normalmente, mas sem esses dados de avaliação.
 
 ---
 
@@ -87,11 +87,12 @@ A aplicação suporta múltiplos perfis de configuração:
 - **`default` (Padrão, sem perfil ativo):**
   - Configuração segura, sem valores de desenvolvimento: exige as variáveis de ambiente da seção [Variáveis de Ambiente](#-variáveis-de-ambiente) e não sobe sem `JWT_SECRET`.
   - Mantém o H2 console desligado e não permite nenhuma origem externa no CORS.
-  - Carrega o banco H2 em memória com recriação de schema (`hibernate.ddl-auto: update`) e executa a carga inicial do `import.sql`.
+  - Usa o banco H2 em memória, recriado a cada execução (`hibernate.ddl-auto: create-drop`), **sem** dados de exemplo (`spring.sql.init.mode: never`).
 
 - **`dev` (Desenvolvimento local):**
   - Ative com `SPRING_PROFILES_ACTIVE=dev`. **Nunca use em produção.**
   - Liga o H2 console em `/h2-console` (somente neste perfil).
+  - Carrega o `data.sql` (`spring.sql.init.mode: always`) e semeia as avaliações de exemplo no DynamoDB.
   - Traz um segredo JWT de desenvolvimento, libera o CORS para `localhost:3000`, `5173` e `4200` e aponta para o DynamoDB local no MiniStack (`http://localhost:4566`) com credenciais de mentira.
   - É o perfil usado pelo `docker-compose.yml`.
 
@@ -153,6 +154,9 @@ O projeto conta com testes unitários isolados com Mockito e testes de contrato 
   ```powershell
   .\mvnw.cmd test
   ```
+
+> [!NOTE]
+> O `AvaliacaoRepositoryTest` usa um DynamoDB de verdade (MiniStack em contêiner, via Testcontainers) e **precisa do Docker no ar**. Sem o Docker, esses testes são ignorados (aparecem como *Skipped*) e o restante roda normalmente.
 
 ### Executar uma classe de teste específica
 ```bash

@@ -10,10 +10,17 @@ spring:
   h2:
     console:
       enabled: false
+  # data.sql (dados de exemplo) só roda no perfil "dev" (ver application-dev.yaml). O H2 é em memória:
+  # fora do "dev" o schema é criado e descartado a cada execução, sem "update".
+  sql:
+    init:
+      mode: never
   jpa:
     database-platform: org.hibernate.dialect.H2Dialect
+    # data.sql roda depois que o Hibernate cria as tabelas.
+    defer-datasource-initialization: true
     hibernate:
-      ddl-auto: update
+      ddl-auto: create-drop
     show-sql: false
     properties:
       hibernate:
