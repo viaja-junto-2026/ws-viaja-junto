@@ -121,8 +121,9 @@ public class AtividadeViagemService {
         AtividadeViagemEntity atividade = atividadeViagemRepository.findById(atividadeId)
                 .orElseThrow(() -> new ResourceNotFoundException("Atividade não encontrada com ID: " + atividadeId));
 
-        if (!atividade.getDestinoViagem().getId().equals(destinoId) ||
-            !atividade.getDestinoViagem().getViagem().getId().equals(viagemId)) {
+        // destinoId é nulo na rota DELETE /trips/{id}/activities/{id}, que não informa o destino.
+        boolean otherDestination = destinoId != null && !atividade.getDestinoViagem().getId().equals(destinoId);
+        if (otherDestination || !atividade.getDestinoViagem().getViagem().getId().equals(viagemId)) {
             throw new BusinessRuleException("A atividade não pertence ao destino/viagem especificados.");
         }
 

@@ -170,6 +170,11 @@ O projeto conta com testes unitários isolados com Mockito e testes de contrato 
 O relatório HTML completo será gerado em:
 `target/site/jacoco/index.html`
 
+### Cobertura mínima (`mvn verify`)
+O `./mvnw verify` roda os testes, gera o relatório e **reprova o build** se a cobertura do projeto cair abaixo de **70% das linhas** ou **60% dos branches** (regra no `pom.xml`, plugin JaCoCo).
+
+No CI, o job **Tests and Coverage** roda `mvn verify` a cada PR, falha se algum teste quebrar ou ficar ignorado (no CI o Docker está disponível, então nenhum teste é pulado), mostra a cobertura no resumo do job e publica os artefatos `jacoco-report` e `surefire-reports`.
+
 ### Lint (Checkstyle)
 As regras estão em [`config/checkstyle/checkstyle.xml`](config/checkstyle/checkstyle.xml) e todas têm severidade **error**: qualquer violação reprova o build. Elas cobrem imports não usados, chaves obrigatórias, comparações de `String`, `switch` sem `default`, nomes e espaços no fim da linha (formatação como indentação fica de fora). O código de testes também é verificado.
 ```bash

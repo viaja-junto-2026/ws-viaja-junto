@@ -1,5 +1,6 @@
 package com.viajajunto.api.core.exception;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -11,6 +12,7 @@ import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.util.List;
 
+@Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -69,6 +71,8 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponseDTO> handleGenericException(Exception ex) {
+        // Sem o log, um erro 500 some sem deixar rastro da causa.
+        log.error("Erro inesperado ao processar a requisição", ex);
         ErrorResponseDTO error = ErrorResponseDTO.builder()
                 .code("INTERNAL_SERVER_ERROR")
                 .message("Ocorreu um erro interno inesperado no servidor.")

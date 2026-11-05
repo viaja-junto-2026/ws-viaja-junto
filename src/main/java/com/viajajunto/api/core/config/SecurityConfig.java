@@ -35,6 +35,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // Public endpoints
                         .requestMatchers("/actuator/health", "/actuator/health/**").permitAll()
+                        // Exceção dentro do catálogo público: países visitados dependem do usuário logado.
+                        .requestMatchers(HttpMethod.GET, "/places/visited-countries", "/api/destinos/catalogo/paises-visitados").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/destinos/catalogo/**", "/places/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/atividades/catalogo/**", "/activities/catalog/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/avaliacoes/**").permitAll()
