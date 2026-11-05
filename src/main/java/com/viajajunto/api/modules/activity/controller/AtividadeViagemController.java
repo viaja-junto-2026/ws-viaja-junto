@@ -60,7 +60,11 @@ public class AtividadeViagemController {
     }
 
     @Operation(summary = "Remover atividade da viagem")
-    @DeleteMapping({"/trips/{viagemId}/activities/{atividadeId}", "/trips/{viagemId}/destinations/{destinoId}/atividades/{atividadeId}", "/api/viagens/{viagemId}/destinos/{destinoId}/atividades/{atividadeId}"})
+    @DeleteMapping({
+            "/trips/{viagemId}/activities/{atividadeId}",
+            "/trips/{viagemId}/destinations/{destinoId}/atividades/{atividadeId}",
+            "/api/viagens/{viagemId}/destinos/{destinoId}/atividades/{atividadeId}"
+    })
     public ResponseEntity<Void> removeAtividade(
             @PathVariable Long viagemId,
             @PathVariable Long destinoId,

@@ -58,6 +58,7 @@ public class Expense {
                     throw new IllegalArgumentException("FIXED split values must sum exactly to the expense amount.");
                 }
             }
+            default -> throw new IllegalStateException("Unsupported split type: " + type);
         }
     }
 

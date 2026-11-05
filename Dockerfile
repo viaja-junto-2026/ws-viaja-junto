@@ -1,7 +1,8 @@
 FROM eclipse-temurin:17-jdk-alpine AS build
 WORKDIR /app
 COPY . .
-RUN chmod +x mvnw && ./mvnw clean package -DskipTests
+# O lint (Checkstyle) tem job próprio no CI; a imagem não precisa repeti-lo.
+RUN chmod +x mvnw && ./mvnw clean package -DskipTests -Dcheckstyle.skip=true
 
 FROM eclipse-temurin:17-jre-alpine
 WORKDIR /app

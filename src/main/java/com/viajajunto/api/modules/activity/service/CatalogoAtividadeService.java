@@ -19,9 +19,6 @@ public class CatalogoAtividadeService {
 
     private final CatalogoAtividadeRepository catalogoAtividadeRepository;
 
-    public static final String nome = "abc";
-
-
     @Transactional(readOnly = true)
     public Page<CatalogoAtividadeDTO> searchAtividades(String query, String tipo, Double notaMinima, Pageable pageable) {
         return catalogoAtividadeRepository.searchAtividades(query, tipo, notaMinima, pageable)
