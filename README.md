@@ -170,6 +170,13 @@ O projeto conta com testes unitários isolados com Mockito e testes de contrato 
 O relatório HTML completo será gerado em:
 `target/site/jacoco/index.html`
 
+### Lint (Checkstyle)
+As regras estão em [`config/checkstyle/checkstyle.xml`](config/checkstyle/checkstyle.xml) e todas têm severidade **error**: qualquer violação reprova o build. Elas cobrem imports não usados, chaves obrigatórias, comparações de `String`, `switch` sem `default`, nomes e espaços no fim da linha (formatação como indentação fica de fora). O código de testes também é verificado.
+```bash
+./mvnw checkstyle:check
+```
+O mesmo comando roda no CI, no job **Lint (Checkstyle)**, a cada PR. Se falhar, o relatório fica como artefato do job (`checkstyle-report`).
+
 ---
 
 ## 📖 Documentação da API (OpenAPI e Swagger)
