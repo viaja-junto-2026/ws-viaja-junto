@@ -1,10 +1,11 @@
 package com.viajajunto.api.modules.expense.domain;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
+import java.util.Collections;
 import java.util.List;
 
 public class Expense {
+
     private final String description;
     private final BigDecimal amount;
     private final String currency;
@@ -18,10 +19,17 @@ public class Expense {
         this.currency = currency;
         this.payerId = payerId;
         this.type = type;
-        this.shares = shares;
+        this.shares = shares != null ? List.copyOf(shares) : Collections.emptyList();
     }
 
     public void validateSplitRules() {
+        if (type == null) {
+            throw new IllegalArgumentException("SplitType cannot be null.");
+        }
+        if (shares == null || shares.isEmpty()) {
+            throw new IllegalArgumentException("Shares cannot be empty.");
+        }
+
         switch (type) {
             case EQUAL -> {
                 if (shares.stream().anyMatch(s -> s.getValue() != null)) {
@@ -29,6 +37,9 @@ public class Expense {
                 }
             }
             case PERCENTAGE -> {
+                if (shares.stream().anyMatch(s -> s.getValue() == null)) {
+                    throw new IllegalArgumentException("PERCENTAGE split requires all shares to have values.");
+                }
                 BigDecimal sum = shares.stream()
                         .map(ParticipantShare::getValue)
                         .reduce(BigDecimal.ZERO, BigDecimal::add);
@@ -37,6 +48,9 @@ public class Expense {
                 }
             }
             case FIXED -> {
+                if (shares.stream().anyMatch(s -> s.getValue() == null)) {
+                    throw new IllegalArgumentException("FIXED split requires all shares to have values.");
+                }
                 BigDecimal sum = shares.stream()
                         .map(ParticipantShare::getValue)
                         .reduce(BigDecimal.ZERO, BigDecimal::add);
@@ -47,10 +61,27 @@ public class Expense {
         }
     }
 
-    public String getDescription() { return description; }
-    public BigDecimal getAmount() { return amount; }
-    public String getCurrency() { return currency; }
-    public String getPayerId() { return payerId; }
-    public SplitType getType() { return type; }
-    public List<ParticipantShare> getShares() { return shares; }
+    public String getDescription() {
+        return description;
+    }
+
+    public BigDecimal getAmount() {
+        return amount;
+    }
+
+    public String getCurrency() {
+        return currency;
+    }
+
+    public String getPayerId() {
+        return payerId;
+    }
+
+    public SplitType getType() {
+        return type;
+    }
+
+    public List<ParticipantShare> getShares() {
+        return shares;
+    }
 }
