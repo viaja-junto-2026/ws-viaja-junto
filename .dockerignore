@@ -1,0 +1,17 @@
+# Fora do contexto de build da imagem: nada disto é necessário para compilar e só deixa o build mais lento.
+**/target
+bin
+.git
+.github
+.idea
+.vscode
+.antigravity
+graphify-out
+docs
+config
+*.md
+RULES.md
+.gitignore
+.gitattributes
+docker-compose.yml
+Dockerfile
