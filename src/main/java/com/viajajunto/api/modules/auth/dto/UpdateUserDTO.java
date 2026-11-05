@@ -14,7 +14,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class UpdateUserDTO {
 
-    @Pattern(regexp = ".*\\S.*", message = "O nome não pode ficar em branco.")
+    // null passa (campo não enviado); preenchido, precisa ter ao menos um caractere não branco.
+    // "\\s*+" é possessivo: não volta atrás, então a validação é linear mesmo com muitos espaços.
+    @Pattern(regexp = "\\s*+\\S.*", message = "O nome não pode ficar em branco.")
     @Size(max = 255, message = "O nome deve ter no máximo 255 caracteres.")
     private String nome;
 
