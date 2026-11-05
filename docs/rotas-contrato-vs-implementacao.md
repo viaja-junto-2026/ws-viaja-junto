@@ -2,7 +2,9 @@
 
 Comparação entre o contrato alvo ([`viajajunto-openapi.json`](viajajunto-openapi.json), 43 operações) e o que a API implementa hoje (visível no Swagger UI do perfil `dev`).
 
-Legenda: ✅ implementado como no contrato · ⚠️ existe, mas difere do contrato · ❌ não existe.
+Legenda: ✅ a rota e o verbo existem como no contrato · ⚠️ existe, mas difere do contrato · ❌ não existe.
+
+> **Importante:** esta tabela compara **caminho e verbo**. O **formato dos dados** (nomes dos campos do JSON) ainda diverge do contrato na maioria dos recursos; veja a seção "Formato dos dados" mais abaixo.
 
 **Resumo:** 15 ✅ · 7 ⚠️ · 21 ❌
 
@@ -92,8 +94,20 @@ Legenda: ✅ implementado como no contrato · ⚠️ existe, mas difere do contr
 | `/activities/catalog` (`GET`, `GET /{id}`, `GET /featured`) | catálogo de atividades |
 | `/places/featured`, `/places/visited-countries` | extras do catálogo de destinos |
 | `GET /trips/{id}/destinations/{destinoId}/activities` | atividades de um destino |
-| `GET /places/{placeId}/activities/{atividadeId}/reviews` | avaliações de uma atividade (hoje sem envelope) |
-| `/api/...` (rotas antigas em português) | mantidas por compatibilidade, fora do Swagger |
+| `GET` e `POST /places/{placeId}/activities/{atividadeId}/reviews` | avaliações de uma atividade (a listagem ainda não tem o envelope `{data, meta}`) |
+
+## Formato dos dados
+Os nomes dos campos do JSON usam português em vários recursos, enquanto o contrato usa inglês. Os nomes em Java podem continuar em português; o que precisa mudar é o JSON. O plano está na issue #39.
+
+| Recurso | Contrato | API hoje |
+| :--- | :--- | :--- |
+| Usuário | `name`, `createdAt` | `nome`, `dataCriacao` |
+| Viagem | `title`, `startDate`, `endDate`, `baseCurrency`, `ownerId` | `nome`, `dataInicio`, `dataFim`, (sem moeda base), `criador` |
+| Membro | `userId`, `name`, `email`, `role`, `status` | `id`, `usuario`, `permissao` |
+| Destino | `name`, `arrivalDate`, `departureDate`, `order`, `latitude`, `longitude` | `nome`, `dataChegada`, `dataSaida`, `ordemVisita` (sem coordenadas) |
+| Atividade | `title`, `date`, `startTime`, `endTime`, `estimatedCost`, `currency` | `nome`, `dataHorario`, `duracaoMinutos`, `custoPrevisto` (sem moeda) |
+| Avaliação | `placeId`, `rating`, `comment`, `author` | `destinoCatalogoId`, `nota`, `comentario`, `usuario` |
+| Lugar | `name`, `country`, `averageRating`, `reviewCount` | `nome`, `pais`, `avaliacaoMedia`, `totalAvaliacoes` |
 
 ## Sugestão de issues futuras
 Cada grupo abaixo pode virar uma issue pequena:

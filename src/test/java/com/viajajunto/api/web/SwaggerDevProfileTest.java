@@ -55,7 +55,7 @@ class SwaggerDevProfileTest {
     }
 
     @Test
-    @DisplayName("As rotas antigas em português (/api/...) ficam fora da documentação")
+    @DisplayName("Nenhuma rota legada /api/... aparece na documentação (elas foram removidas)")
     void shouldHideLegacyApiPrefixRoutes() {
         given()
         .when()

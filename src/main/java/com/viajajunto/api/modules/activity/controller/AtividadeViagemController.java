@@ -25,7 +25,7 @@ public class AtividadeViagemController {
     private final AtividadeViagemService atividadeViagemService;
 
     @Operation(summary = "Adicionar atividade a um destino da viagem")
-    @PostMapping({"/trips/{viagemId}/destinations/{destinoId}/activities", "/api/viagens/{viagemId}/destinos/{destinoId}/atividades"})
+    @PostMapping("/trips/{viagemId}/destinations/{destinoId}/activities")
     public ResponseEntity<AtividadeResponseDTO> addAtividade(
             @PathVariable Long viagemId,
             @PathVariable Long destinoId,
@@ -37,7 +37,7 @@ public class AtividadeViagemController {
     }
 
     @Operation(summary = "Listar atividades de um destino da viagem")
-    @GetMapping({"/trips/{viagemId}/destinations/{destinoId}/activities", "/api/viagens/{viagemId}/destinos/{destinoId}/atividades"})
+    @GetMapping("/trips/{viagemId}/destinations/{destinoId}/activities")
     public ResponseEntity<List<AtividadeResponseDTO>> listAtividades(
             @PathVariable Long viagemId,
             @PathVariable Long destinoId,
@@ -62,8 +62,7 @@ public class AtividadeViagemController {
     @Operation(summary = "Remover atividade da viagem")
     @DeleteMapping({
             "/trips/{viagemId}/activities/{atividadeId}",
-            "/trips/{viagemId}/destinations/{destinoId}/atividades/{atividadeId}",
-            "/api/viagens/{viagemId}/destinos/{destinoId}/atividades/{atividadeId}"
+            "/trips/{viagemId}/destinations/{destinoId}/activities/{atividadeId}"
     })
     public ResponseEntity<Void> removeAtividade(
             @PathVariable Long viagemId,

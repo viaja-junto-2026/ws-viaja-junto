@@ -46,7 +46,7 @@ class PaginationAndNamingContractTest {
                 .header("Authorization", "Bearer " + TOKEN)
                 .body(Map.of("nome", nome))
         .when()
-                .post("/api/viagens")
+                .post("/trips")
         .then()
                 .statusCode(201)
                 .extract().path("id");

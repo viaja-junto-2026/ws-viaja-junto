@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping({"/activities/catalog", "/api/atividades/catalogo"})
+@RequestMapping("/activities/catalog")
 @RequiredArgsConstructor
 @Tag(name = "Catálogo de atividades")
 public class CatalogoAtividadeController {
