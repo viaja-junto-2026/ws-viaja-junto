@@ -34,6 +34,10 @@ app:
   cors:
     # Lista separada por vírgula. Vazio = nenhuma origem externa permitida.
     allowed-origins: ${CORS_ALLOWED_ORIGINS:}
+  cache:
+    places:
+      ttl: 24h # validade das buscas do Google Places guardadas em cache
+      maximum-size: 1000
   integrations:
     google:
       # Só por variável de ambiente. Vazio = sem integração (a busca devolve resposta vazia).
