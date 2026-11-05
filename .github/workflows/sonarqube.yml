@@ -31,8 +31,8 @@ jobs:
         with:
           args: >
             -Dsonar.organization=viaja-junto-2026
-            -Dsonar.projectKey=viajajunto-api
-            -Dsonar.projectName=viajajunto-api
+            -Dsonar.projectKey=ws-viaja-junto
+            -Dsonar.projectName=ws-viaja-junto
             -Dsonar.sources=src/main/java
             -Dsonar.tests=src/test/java
             -Dsonar.java.binaries=target/classes
