@@ -67,7 +67,7 @@ public class AtividadeViagemController {
     })
     public ResponseEntity<Void> removeAtividade(
             @PathVariable Long viagemId,
-            @PathVariable Long destinoId,
+            @PathVariable(required = false) Long destinoId,
             @PathVariable Long atividadeId,
             @AuthenticationPrincipal UserPrincipal principal
     ) {
