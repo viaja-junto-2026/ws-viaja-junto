@@ -27,6 +27,10 @@ jobs:
       - name: Run Tests and Generate Coverage (JaCoCo)
         run: mvn clean test jacoco:report
 
+      # O Quality Gate só bloqueia nos PRs (é o que impede o merge). Em push na main não esperamos o resultado:
+      # o projeto no SonarQube Cloud tem a branch principal chamada "master" e, para ele, a "main" é uma branch
+      # secundária, cujo Quality Gate a organização não pode consultar. Ao renomear a branch principal no Sonar
+      # para "main", esta condição pode ser removida (basta deixar o argumento sempre ligado).
       - name: SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@v5
         with:
@@ -38,8 +42,7 @@ jobs:
             -Dsonar.tests=src/test/java
             -Dsonar.java.binaries=target/classes
             -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
-            -Dsonar.qualitygate.wait=true
-            -Dsonar.qualitygate.timeout=300
+            ${{ github.event_name == 'pull_request' && '-Dsonar.qualitygate.wait=true -Dsonar.qualitygate.timeout=300' || '' }}
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
