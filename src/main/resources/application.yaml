@@ -60,5 +60,3 @@ springdoc:
     enabled: false
   swagger-ui:
     enabled: false
-  # As rotas antigas em português (/api/...) existem só por compatibilidade e ficam fora da documentação.
-  paths-to-exclude: /api/**

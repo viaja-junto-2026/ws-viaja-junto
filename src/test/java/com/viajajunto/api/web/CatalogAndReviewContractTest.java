@@ -26,6 +26,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -251,17 +252,56 @@ class CatalogAndReviewContractTest {
     }
 
     @Test
-    @DisplayName("Avaliação sem destino nem atividade responde 400 (regra de negócio)")
-    void shouldRejectReviewWithoutTarget() {
+    @DisplayName("POST /places/{id}/activities/{activityId}/reviews avalia a atividade, sem vincular a nenhum destino")
+    void shouldCreateReviewForActivity() {
         given()
                 .contentType(ContentType.JSON)
                 .header("Authorization", "Bearer " + USER)
+                .body(Map.of("rating", 4, "comment", "Passeio ótimo"))
+        .when()
+                .post("/places/{placeId}/activities/{activityId}/reviews", placeId, activityId)
+        .then()
+                .statusCode(201)
+                .body("nota", equalTo(4))
+                .body("catalogoAtividadeId", equalTo(activityId.intValue()))
+                .body("destinoCatalogoId", nullValue());
+    }
+
+    @Test
+    @DisplayName("A avaliação de um destino ignora um catalogoAtividadeId vindo no corpo: o alvo é o do caminho")
+    void shouldIgnoreActivityIdInBodyWhenReviewingPlace() {
+        given()
+                .contentType(ContentType.JSON)
+                .header("Authorization", "Bearer " + USER)
+                .body(Map.of("rating", 3, "catalogoAtividadeId", activityId))
+        .when()
+                .post("/places/{id}/reviews", placeId)
+        .then()
+                .statusCode(201)
+                .body("destinoCatalogoId", equalTo(placeId.intValue()))
+                .body("catalogoAtividadeId", nullValue());
+    }
+
+    @Test
+    @DisplayName("Avaliar uma atividade sem login responde 401 e com nota inválida responde 422")
+    void shouldRejectInvalidActivityReviews() {
+        given()
+                .contentType(ContentType.JSON)
                 .body(Map.of("rating", 4))
         .when()
-                .post("/api/avaliacoes")
+                .post("/places/{placeId}/activities/{activityId}/reviews", placeId, activityId)
         .then()
-                .statusCode(400)
-                .body("code", equalTo("BUSINESS_RULE_VIOLATION"));
+                .statusCode(401);
+
+        given()
+                .contentType(ContentType.JSON)
+                .header("Authorization", "Bearer " + USER)
+                .body(Map.of("rating", 9))
+        .when()
+                .post("/places/{placeId}/activities/{activityId}/reviews", placeId, activityId)
+        .then()
+                .statusCode(422)
+                .body("code", equalTo("VALIDATION_ERROR"));
     }
 
     @Test

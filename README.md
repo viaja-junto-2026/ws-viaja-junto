@@ -297,6 +297,15 @@ Cadastro, login, social, renovação de sessão e recuperação de senha são do
 
 ---
 
+## 🌐 Convenção de idioma
+
+- **Rotas:** seguem o contrato OpenAPI, em inglês (`/trips`, `/places`, `/users/me`).
+- **Código novo:** deve usar inglês, para ficar alinhado ao contrato.
+- **Código existente:** classes, entidades e colunas do banco continuam em português e **não serão renomeadas em massa** (o diff seria enorme, mexeria no banco e não traria ganho funcional).
+- **Campos do JSON:** em vários recursos ainda estão em português (`nome`, `dataInicio`...), divergindo do contrato. A divergência está registrada em [`docs/rotas-contrato-vs-implementacao.md`](docs/rotas-contrato-vs-implementacao.md) e será tratada na issue #39.
+
+---
+
 ## 📁 Estrutura de Pacotes
 
 O projeto segue arquitetura modular por funcionalidades (Package-by-Feature):

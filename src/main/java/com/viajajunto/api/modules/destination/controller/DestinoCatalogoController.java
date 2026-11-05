@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping({"/places", "/api/destinos/catalogo"})
+@RequestMapping("/places")
 @RequiredArgsConstructor
 @Tag(name = "Destinos do catálogo")
 public class DestinoCatalogoController {

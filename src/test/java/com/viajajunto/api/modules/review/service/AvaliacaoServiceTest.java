@@ -234,4 +234,13 @@ class AvaliacaoServiceTest {
         assertEquals(1, page.getTotalElements());
         assertEquals(4, page.getContent().get(0).getNota());
     }
+
+    @Test
+    @DisplayName("Rejeita a avaliação sem destino e sem atividade (regra de negócio)")
+    void createAvaliacao_ThrowsWhenNeitherDestinoNorAtividade() {
+        CreateAvaliacaoDTO dto = CreateAvaliacaoDTO.builder().nota(4).comentario("Sem alvo").build();
+        when(userRepository.findById(1L)).thenReturn(Optional.of(sampleUser));
+
+        assertThrows(BusinessRuleException.class, () -> avaliacaoService.createAvaliacao(dto, 1L));
+    }
 }

@@ -25,7 +25,7 @@ public class ViagemController {
     private final ViagemService viagemService;
 
     @Operation(summary = "Criar viagem")
-    @PostMapping({"/trips", "/api/viagens"})
+    @PostMapping("/trips")
     public ResponseEntity<ViagemResponseDTO> createViagem(
             @Valid @RequestBody CreateViagemDTO dto,
             @AuthenticationPrincipal UserPrincipal principal
@@ -46,7 +46,7 @@ public class ViagemController {
     }
 
     @Operation(summary = "Detalhar viagem")
-    @GetMapping({"/trips/{id}", "/api/viagens/{id}"})
+    @GetMapping("/trips/{id}")
     public ResponseEntity<ViagemResponseDTO> getViagemById(
             @PathVariable String id,
             @AuthenticationPrincipal UserPrincipal principal
@@ -62,7 +62,7 @@ public class ViagemController {
     }
 
     @Operation(summary = "Atualizar viagem")
-    @PutMapping({"/trips/{id}", "/api/viagens/{id}"})
+    @PutMapping("/trips/{id}")
     public ResponseEntity<ViagemResponseDTO> updateViagem(
             @PathVariable Long id,
             @Valid @RequestBody UpdateViagemDTO dto,
@@ -73,7 +73,7 @@ public class ViagemController {
     }
 
     @Operation(summary = "Excluir viagem")
-    @DeleteMapping({"/trips/{id}", "/api/viagens/{id}"})
+    @DeleteMapping("/trips/{id}")
     public ResponseEntity<Void> deleteViagem(
             @PathVariable Long id,
             @AuthenticationPrincipal UserPrincipal principal

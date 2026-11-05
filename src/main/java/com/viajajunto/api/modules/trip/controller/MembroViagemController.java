@@ -24,7 +24,7 @@ public class MembroViagemController {
     private final MembroViagemService membroViagemService;
 
     @Operation(summary = "Entrar na viagem com código de convite")
-    @PostMapping({"/trips/{viagemId}/members/join", "/api/viagens/{viagemId}/membros/join"})
+    @PostMapping("/trips/{viagemId}/members/join")
     public ResponseEntity<MembroResponseDTO> joinViagem(
             @Valid @RequestBody AddMembroDTO dto,
             @AuthenticationPrincipal UserPrincipal principal
@@ -46,7 +46,7 @@ public class MembroViagemController {
     }
 
     @Operation(summary = "Alterar a permissão de um membro")
-    @PatchMapping({"/trips/{viagemId}/members/{membroId}", "/api/viagens/{viagemId}/membros/{membroId}"})
+    @PatchMapping("/trips/{viagemId}/members/{membroId}")
     public ResponseEntity<MembroResponseDTO> updatePermissao(
             @PathVariable Long viagemId,
             @PathVariable Long membroId,
@@ -58,7 +58,7 @@ public class MembroViagemController {
     }
 
     @Operation(summary = "Remover membro da viagem")
-    @DeleteMapping({"/trips/{viagemId}/members/{membroId}", "/api/viagens/{viagemId}/membros/{membroId}"})
+    @DeleteMapping("/trips/{viagemId}/members/{membroId}")
     public ResponseEntity<Void> removeMembro(
             @PathVariable Long viagemId,
             @PathVariable Long membroId,
