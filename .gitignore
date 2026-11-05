@@ -37,3 +37,6 @@ bin/
 
 ### Tool Analysis & Cache ###
 graphify-out/
+
+### Configuração local (nunca versionar) ###
+.env
