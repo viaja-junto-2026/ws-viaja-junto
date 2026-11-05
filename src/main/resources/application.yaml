@@ -27,10 +27,10 @@ spring:
         format_sql: true
 
 app:
-  jwt:
-    # Obrigatório via variável de ambiente (mínimo 32 caracteres). Sem valor padrão fora do perfil "dev".
-    secret: ${JWT_SECRET}
-    expiration-ms: 86400000 # 24h
+  firebase:
+    # ID do projeto no Firebase Authentication. A API só aceita tokens emitidos para este projeto.
+    # Obrigatório via variável de ambiente, sem valor padrão fora do perfil "dev".
+    project-id: ${FIREBASE_PROJECT_ID}
   cors:
     # Lista separada por vírgula. Vazio = nenhuma origem externa permitida.
     allowed-origins: ${CORS_ALLOWED_ORIGINS:}

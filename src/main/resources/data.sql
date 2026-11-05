@@ -6,15 +6,17 @@
 -- e o AvaliacaoSeedRunner (perfil "dev") os recalcula a partir das avaliações de exemplo.
 
 -- 1. USUÁRIOS (users)
--- Senha de todos os usuários de teste: "123456" (hash BCrypt abaixo)
-INSERT INTO users (id, nome, email, senha, avatar_url, data_criacao) 
-VALUES (1, 'Ana Silva', 'ana.silva@email.com', '$2a$10$dXJ3SW6G7P50lGmMkkmwe.20cQQubK3.85UXy3d0R1N0UvO8L0q4a', 'https://images.unsplash.com/photo-1494790108377-be9c29b29330', CURRENT_TIMESTAMP());
+-- Não há senha: a autenticação é do Firebase. O firebase_uid fixo de cada usuário é o "sub" que os
+-- testes usam para gerar tokens. São usuários só de desenvolvimento: como o uid já está definido, uma
+-- conta Firebase real com o mesmo e-mail não os assume (a API responde 401).
+INSERT INTO users (id, nome, email, firebase_uid, avatar_url, data_criacao)
+VALUES (1, 'Ana Silva', 'ana.silva@email.com', 'dev-firebase-uid-ana', 'https://images.unsplash.com/photo-1494790108377-be9c29b29330', CURRENT_TIMESTAMP());
 
-INSERT INTO users (id, nome, email, senha, avatar_url, data_criacao) 
-VALUES (2, 'Carlos Eduardo', 'carlos.eduardo@email.com', '$2a$10$dXJ3SW6G7P50lGmMkkmwe.20cQQubK3.85UXy3d0R1N0UvO8L0q4a', 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d', CURRENT_TIMESTAMP());
+INSERT INTO users (id, nome, email, firebase_uid, avatar_url, data_criacao)
+VALUES (2, 'Carlos Eduardo', 'carlos.eduardo@email.com', 'dev-firebase-uid-carlos', 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d', CURRENT_TIMESTAMP());
 
-INSERT INTO users (id, nome, email, senha, avatar_url, data_criacao) 
-VALUES (3, 'Beatriz Souza', 'beatriz.souza@email.com', '$2a$10$dXJ3SW6G7P50lGmMkkmwe.20cQQubK3.85UXy3d0R1N0UvO8L0q4a', 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80', CURRENT_TIMESTAMP());
+INSERT INTO users (id, nome, email, firebase_uid, avatar_url, data_criacao)
+VALUES (3, 'Beatriz Souza', 'beatriz.souza@email.com', 'dev-firebase-uid-beatriz', 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80', CURRENT_TIMESTAMP());
 
 
 -- 2. CATÁLOGO DE DESTINOS (destinos_catalogo)

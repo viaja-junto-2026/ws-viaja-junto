@@ -8,7 +8,6 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -102,19 +101,6 @@ class GlobalExceptionHandlerTest {
     }
 
     @Test
-    @DisplayName("handleEmailInUse deve retornar 409 com code EMAIL_IN_USE")
-    void handleEmailInUse_Returns409WithEmailInUseCode() {
-        EmailInUseException ex = new EmailInUseException("E-mail em uso");
-
-        ResponseEntity<ErrorResponseDTO> response = handler.handleBusinessRule(ex);
-
-        assertEquals(HttpStatus.CONFLICT, response.getStatusCode());
-        assertNotNull(response.getBody());
-        assertEquals("EMAIL_IN_USE", response.getBody().getCode());
-        assertEquals("E-mail em uso", response.getBody().getMessage());
-    }
-
-    @Test
     @DisplayName("handleBusinessRule deve retornar status e code configurados na exceção")
     void handleBusinessRule_ReturnsConfiguredStatusAndCode() {
         BusinessRuleException ex = new BusinessRuleException("Regra violada");
@@ -137,18 +123,6 @@ class GlobalExceptionHandlerTest {
         assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
         assertNotNull(response.getBody());
         assertEquals("FORBIDDEN", response.getBody().getCode());
-    }
-
-    @Test
-    @DisplayName("handleBadCredentials deve retornar 401 com code UNAUTHORIZED")
-    void handleBadCredentials_Returns401WithUnauthorizedCode() {
-        BadCredentialsException ex = new BadCredentialsException("Bad creds");
-
-        ResponseEntity<ErrorResponseDTO> response = handler.handleBadCredentials(ex);
-
-        assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
-        assertNotNull(response.getBody());
-        assertEquals("UNAUTHORIZED", response.getBody().getCode());
     }
 
     @Test

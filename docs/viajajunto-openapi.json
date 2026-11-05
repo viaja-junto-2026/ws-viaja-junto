@@ -3,7 +3,7 @@
   "info": {
     "title": "ViajaJunto API",
     "version": "1.0.0",
-    "description": "API do ViajaJunto, plataforma de planejamento colaborativo de viagens em grupo.\n\n**Autenticação:** JWT Bearer (Firebase Authentication). Envie `Authorization: Bearer <accessToken>`. Endpoints públicos estão marcados sem cadeado.\n\n**Paginação:** listas usam `?page=1&limit=20` e retornam `{data, meta}`.\n\n**Erros:** formato padrão `{code, message, details}`.\n\n**Rate limit:** 429 quando excedido."
+    "description": "API do ViajaJunto, plataforma de planejamento colaborativo de viagens em grupo.\n\n**Autenticação:** feita no Firebase Authentication (cadastro, login, login social, renovação de sessão e recuperação de senha são do SDK do Firebase no app; a API não tem essas rotas). Envie o ID token do Firebase em `Authorization: Bearer <idToken>`. O e-mail do usuário precisa estar verificado. No primeiro acesso a API cria o usuário a partir do token (ou o vincula a um usuário existente com o mesmo e-mail). Endpoints públicos estão marcados sem cadeado.\n\n**Paginação:** listas usam `?page=1&limit=20` e retornam `{data, meta}`.\n\n**Erros:** formato padrão `{code, message, details}`.\n\n**Rate limit:** 429 quando excedido."
   },
   "servers": [
     {
@@ -16,9 +16,6 @@
     }
   ],
   "tags": [
-    {
-      "name": "Autenticação"
-    },
     {
       "name": "Usuários"
     },
@@ -56,278 +53,13 @@
     }
   ],
   "paths": {
-    "/auth/register": {
-      "post": {
-        "tags": [
-          "Autenticação"
-        ],
-        "summary": "Cadastrar usuário",
-        "description": "Cria conta com e-mail e senha (Firebase Authentication) e envia e-mail de verificação.",
-        "parameters": [],
-        "security": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/RegisterRequest"
-              },
-              "example": {
-                "name": "Ana Souza",
-                "email": "ana@email.com",
-                "password": "Senha@123"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": "Usuário criado",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "user": {
-                      "$ref": "#/components/schemas/User"
-                    },
-                    "tokens": {
-                      "$ref": "#/components/schemas/AuthTokens"
-                    }
-                  }
-                },
-                "example": {
-                  "user": {
-                    "id": "usr_01",
-                    "name": "Ana Souza",
-                    "email": "ana@email.com",
-                    "avatarUrl": null,
-                    "createdAt": "2026-09-01T12:00:00Z"
-                  },
-                  "tokens": {
-                    "accessToken": "eyJhbGciOi...",
-                    "refreshToken": "def50200...",
-                    "expiresIn": 3600,
-                    "tokenType": "Bearer"
-                  }
-                }
-              }
-            }
-          },
-          "422": {
-            "$ref": "#/components/responses/ValidationError"
-          },
-          "429": {
-            "$ref": "#/components/responses/TooManyRequests"
-          },
-          "409": {
-            "description": "E-mail já cadastrado",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                },
-                "example": {
-                  "code": "EMAIL_IN_USE",
-                  "message": "E-mail já cadastrado"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/auth/login": {
-      "post": {
-        "tags": [
-          "Autenticação"
-        ],
-        "summary": "Login com e-mail e senha",
-        "description": "Autentica e retorna tokens JWT. Use o accessToken no header Authorization: Bearer.",
-        "parameters": [],
-        "security": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/LoginRequest"
-              },
-              "example": {
-                "email": "ana@email.com",
-                "password": "Senha@123"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Autenticado",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AuthTokens"
-                },
-                "example": {
-                  "accessToken": "eyJhbGciOi...",
-                  "refreshToken": "def50200...",
-                  "expiresIn": 3600,
-                  "tokenType": "Bearer"
-                }
-              }
-            }
-          },
-          "422": {
-            "$ref": "#/components/responses/ValidationError"
-          },
-          "429": {
-            "$ref": "#/components/responses/TooManyRequests"
-          },
-          "401": {
-            "$ref": "#/components/responses/Unauthorized"
-          }
-        }
-      }
-    },
-    "/auth/social": {
-      "post": {
-        "tags": [
-          "Autenticação"
-        ],
-        "summary": "Login social",
-        "description": "Autentica via provedor social (Google, Facebook, Apple) usando o idToken do provedor.",
-        "parameters": [],
-        "security": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/SocialLoginRequest"
-              },
-              "example": {
-                "provider": "google",
-                "idToken": "eyJhbGciOi..."
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Autenticado",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AuthTokens"
-                },
-                "example": {
-                  "accessToken": "eyJhbGciOi...",
-                  "refreshToken": "def50200...",
-                  "expiresIn": 3600,
-                  "tokenType": "Bearer"
-                }
-              }
-            }
-          },
-          "422": {
-            "$ref": "#/components/responses/ValidationError"
-          },
-          "429": {
-            "$ref": "#/components/responses/TooManyRequests"
-          }
-        }
-      }
-    },
-    "/auth/refresh": {
-      "post": {
-        "tags": [
-          "Autenticação"
-        ],
-        "summary": "Renovar token",
-        "description": "Gera novo accessToken a partir do refreshToken.",
-        "parameters": [],
-        "security": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/RefreshRequest"
-              },
-              "example": {
-                "refreshToken": "def50200..."
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Token renovado",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AuthTokens"
-                },
-                "example": {
-                  "accessToken": "eyJhbGciOi...",
-                  "refreshToken": "def50200...",
-                  "expiresIn": 3600,
-                  "tokenType": "Bearer"
-                }
-              }
-            }
-          },
-          "422": {
-            "$ref": "#/components/responses/ValidationError"
-          },
-          "429": {
-            "$ref": "#/components/responses/TooManyRequests"
-          }
-        }
-      }
-    },
-    "/auth/password-reset": {
-      "post": {
-        "tags": [
-          "Autenticação"
-        ],
-        "summary": "Recuperar senha",
-        "description": "Envia e-mail de recuperação. Sempre retorna 204 para não revelar se o e-mail existe.",
-        "parameters": [],
-        "security": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/PasswordResetRequest"
-              },
-              "example": {
-                "email": "ana@email.com"
-              }
-            }
-          }
-        },
-        "responses": {
-          "204": {
-            "description": "E-mail enviado (se existir)"
-          },
-          "422": {
-            "$ref": "#/components/responses/ValidationError"
-          },
-          "429": {
-            "$ref": "#/components/responses/TooManyRequests"
-          }
-        }
-      }
-    },
     "/users/me": {
       "get": {
         "tags": [
           "Usuários"
         ],
         "summary": "Perfil do usuário autenticado",
-        "description": "Retorna os dados do usuário logado.",
+        "description": "Retorna os dados do usuário logado. No primeiro acesso, o usuário é criado a partir do token do Firebase (ou vinculado a um usuário existente com o mesmo e-mail verificado).",
         "parameters": [],
         "responses": {
           "200": {
@@ -357,7 +89,7 @@
           "Usuários"
         ],
         "summary": "Atualizar perfil",
-        "description": "Atualização parcial de nome e avatar.",
+        "description": "Atualização parcial de nome e avatar: só os campos enviados são alterados. Nome em branco responde 422.",
         "parameters": [],
         "requestBody": {
           "required": true,
@@ -2886,7 +2618,8 @@
       "bearerAuth": {
         "type": "http",
         "scheme": "bearer",
-        "bearerFormat": "JWT"
+        "bearerFormat": "JWT",
+        "description": "ID token emitido pelo Firebase Authentication para o projeto da API."
       }
     },
     "parameters": {
@@ -3060,103 +2793,6 @@
           "createdAt": {
             "type": "string",
             "format": "date-time"
-          }
-        }
-      },
-      "RegisterRequest": {
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "string"
-          },
-          "email": {
-            "type": "string",
-            "format": "email"
-          },
-          "password": {
-            "type": "string",
-            "minLength": 8
-          }
-        },
-        "required": [
-          "name",
-          "email",
-          "password"
-        ]
-      },
-      "LoginRequest": {
-        "type": "object",
-        "properties": {
-          "email": {
-            "type": "string",
-            "format": "email"
-          },
-          "password": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "email",
-          "password"
-        ]
-      },
-      "SocialLoginRequest": {
-        "type": "object",
-        "properties": {
-          "provider": {
-            "type": "string",
-            "enum": [
-              "google",
-              "facebook",
-              "apple"
-            ]
-          },
-          "idToken": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "provider",
-          "idToken"
-        ]
-      },
-      "RefreshRequest": {
-        "type": "object",
-        "properties": {
-          "refreshToken": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "refreshToken"
-        ]
-      },
-      "PasswordResetRequest": {
-        "type": "object",
-        "properties": {
-          "email": {
-            "type": "string",
-            "format": "email"
-          }
-        },
-        "required": [
-          "email"
-        ]
-      },
-      "AuthTokens": {
-        "type": "object",
-        "properties": {
-          "accessToken": {
-            "type": "string"
-          },
-          "refreshToken": {
-            "type": "string"
-          },
-          "expiresIn": {
-            "type": "integer"
-          },
-          "tokenType": {
-            "type": "string"
           }
         }
       },

@@ -1,15 +1,12 @@
 package com.viajajunto.api.web;
 
-import com.viajajunto.api.core.security.JwtService;
-import com.viajajunto.api.modules.auth.entity.UserEntity;
-import com.viajajunto.api.modules.auth.repository.UserRepository;
 import com.viajajunto.api.modules.review.repository.AvaliacaoRepository;
+import com.viajajunto.api.support.FirebaseTestTokens;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -20,23 +17,17 @@ import java.util.Map;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class PaginationAndNamingContractTest {
 
-    private static final String MOCK_TOKEN = "valid_mock_token";
-    private static final String MOCK_EMAIL = "contract-test@viajajunto.com";
+    // Token Firebase simulado: na primeira requisição a API cria o usuário a partir dele.
+    private static final String TOKEN =
+            FirebaseTestTokens.forUser("contract-test-uid", "contract-test@viajajunto.com");
 
     @LocalServerPort
     private int port;
-
-    @Autowired
-    private UserRepository userRepository;
-
-    @MockitoBean
-    private JwtService jwtService;
 
     // Evita depender do DynamoDB/MiniStack rodando durante o teste.
     @MockitoBean
@@ -46,23 +37,13 @@ class PaginationAndNamingContractTest {
     void setUp() {
         RestAssured.port = port;
 
-        if (userRepository.findByEmail(MOCK_EMAIL).isEmpty()) {
-            userRepository.save(UserEntity.builder()
-                    .nome("Contract Test")
-                    .email(MOCK_EMAIL)
-                    .senha("irrelevante")
-                    .build());
-        }
-
-        when(jwtService.extractUsername(MOCK_TOKEN)).thenReturn(MOCK_EMAIL);
-        when(jwtService.isTokenValid(eq(MOCK_TOKEN), any())).thenReturn(true);
         when(avaliacaoRepository.findAllByDestinoCatalogoId(any())).thenReturn(List.of());
     }
 
     private int createTrip(String nome) {
         return given()
                 .contentType(ContentType.JSON)
-                .header("Authorization", "Bearer " + MOCK_TOKEN)
+                .header("Authorization", "Bearer " + TOKEN)
                 .body(Map.of("nome", nome))
         .when()
                 .post("/api/viagens")
@@ -76,7 +57,7 @@ class PaginationAndNamingContractTest {
     void shouldListTripsWithStandardPagedEnvelope() {
         given()
                 .contentType(ContentType.JSON)
-                .header("Authorization", "Bearer valid_mock_token")
+                .header("Authorization", "Bearer " + TOKEN)
                 .queryParam("page", 1)
                 .queryParam("limit", 10)
         .when()
@@ -97,7 +78,7 @@ class PaginationAndNamingContractTest {
         createTrip("Viagem B");
 
         given()
-                .header("Authorization", "Bearer " + MOCK_TOKEN)
+                .header("Authorization", "Bearer " + TOKEN)
                 .queryParam("page", 2)
                 .queryParam("limit", 1)
         .when()
@@ -115,7 +96,7 @@ class PaginationAndNamingContractTest {
     @DisplayName("Deve usar page=1 e limit=20 como padrão em '/trips'")
     void shouldApplyDefaultPagination() {
         given()
-                .header("Authorization", "Bearer " + MOCK_TOKEN)
+                .header("Authorization", "Bearer " + TOKEN)
         .when()
                 .get("/trips")
         .then()
@@ -130,7 +111,7 @@ class PaginationAndNamingContractTest {
         int tripId = createTrip("Viagem Membros");
 
         given()
-                .header("Authorization", "Bearer " + MOCK_TOKEN)
+                .header("Authorization", "Bearer " + TOKEN)
                 .queryParam("page", 1)
                 .queryParam("limit", 10)
         .when()
@@ -150,7 +131,7 @@ class PaginationAndNamingContractTest {
         int tripId = createTrip("Viagem Atividades");
 
         given()
-                .header("Authorization", "Bearer " + MOCK_TOKEN)
+                .header("Authorization", "Bearer " + TOKEN)
                 .queryParam("page", 1)
                 .queryParam("limit", 10)
         .when()
@@ -193,7 +174,7 @@ class PaginationAndNamingContractTest {
     @DisplayName("Rotas antigas de listagem com prefixo '/api' não devem mais responder 200")
     void shouldNotExposeLegacyListingRoutes() {
         given()
-                .header("Authorization", "Bearer " + MOCK_TOKEN)
+                .header("Authorization", "Bearer " + TOKEN)
         .when()
                 .get("/api/viagens")
         .then()
