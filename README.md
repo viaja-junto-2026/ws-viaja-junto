@@ -6,7 +6,7 @@ API RESTful para planejamento colaborativo de viagens em grupo. A plataforma per
 
 ## 🛠️ Tecnologias Utilizadas
 
-- **Linguagem & Framework:** Java 17, Spring Boot 3.4.3
+- **Linguagem & Framework:** Java 17, Spring Boot 3.5.16
 - **Persistência Relacional:** Spring Data JPA, Hibernate, H2 Database (em memória)
 - **Persistência NoSQL:** AWS SDK v2 (DynamoDB Enhanced Client)
 - **Segurança & Autenticação:** Spring Security como OAuth2 Resource Server, validando tokens do Firebase Authentication (a API não guarda senha nem emite token)
@@ -181,6 +181,16 @@ As regras estão em [`config/checkstyle/checkstyle.xml`](config/checkstyle/check
 ./mvnw checkstyle:check
 ```
 O mesmo comando roda no CI, no job **Lint (Checkstyle)**, a cada PR. Se falhar, o relatório fica como artefato do job (`checkstyle-report`).
+
+---
+
+## 🛡️ Varredura de vulnerabilidades (Trivy)
+
+O job **Build and Scan with Trivy** constrói a imagem Docker e a escaneia a cada PR. Ele **reprova o build** se encontrar vulnerabilidade **HIGH** ou **CRITICAL**.
+
+- **Corrigir de verdade:** atualizar a dependência. Quando o Spring Boot ainda traz uma versão vulnerável, a versão corrigida é fixada por propriedade no `pom.xml` (hoje `tomcat.version` e `jackson-bom.version`).
+- **Exceção justificada:** só quando não existe correção na versão usada e a falha não se aplica ao projeto. Vai no [`.trivyignore`](.trivyignore) com o motivo e uma data de validade (`exp:`); depois dela o Trivy volta a reprovar, o que força a revisão.
+- **Imagem:** roda como usuário não root, tem `HEALTHCHECK` em `/actuator/health` e o `.dockerignore` mantém o contexto de build enxuto.
 
 ---
 

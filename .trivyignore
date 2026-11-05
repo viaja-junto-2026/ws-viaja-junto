@@ -1,0 +1,13 @@
+# Vulnerabilidades aceitas conscientemente no scan do Trivy. Cada linha precisa de justificativa e de validade
+# ("exp:"): depois da data o Trivy volta a reprovar o build, o que força a revisão.
+#
+# Spring Framework 6.2.x (linha usada pelo Spring Boot 3.5): a correção só existe no Spring Framework 7.0.9
+# (Spring Boot 4), que é uma migração de versão maior fora do escopo desta issue. Os dois itens abaixo
+# dependem de recursos que esta API não usa (ela só serve JSON):
+#
+# Spring Framework: path limitation incorreto em XsltView. A API não usa views XSLT.
+CVE-2026-47884 exp:2027-02-28
+#
+# Spring Framework: corrupção do stream de Server-Sent Events ao renderizar fragmentos. A API não usa SSE
+# nem renderização de fragmentos HTML.
+CVE-2026-47890 exp:2027-02-28
