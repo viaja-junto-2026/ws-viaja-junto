@@ -18,13 +18,15 @@ public class DynamoDbConfig {
     @Value("${aws.region:us-east-1}")
     private String region;
 
-    @Value("${aws.dynamodb.endpoint:http://localhost:4566}")
+    // Vazio = DynamoDB real da AWS. O emulador local (localhost:4566) só é configurado no perfil "dev".
+    @Value("${aws.dynamodb.endpoint:}")
     private String endpoint;
 
-    @Value("${aws.dynamodb.access-key-id:fakeAccessKey}")
+    // Credenciais obrigatórias, sem valor padrão: vêm de AWS_ACCESS_KEY_ID e AWS_SECRET_ACCESS_KEY.
+    @Value("${aws.dynamodb.access-key-id}")
     private String accessKeyId;
 
-    @Value("${aws.dynamodb.secret-access-key:fakeSecretKey}")
+    @Value("${aws.dynamodb.secret-access-key}")
     private String secretAccessKey;
 
     @Bean

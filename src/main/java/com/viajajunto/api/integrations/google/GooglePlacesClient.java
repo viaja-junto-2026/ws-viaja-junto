@@ -16,15 +16,16 @@ public class GooglePlacesClient {
 
     private final RestTemplate restTemplate;
 
-    @Value("${app.integrations.google.places-api-key:mock-key}")
+    // Vem de GOOGLE_PLACES_API_KEY. Vazio = sem integração: a busca devolve resposta vazia.
+    @Value("${app.integrations.google.places-api-key:}")
     private String apiKey;
 
     @Value("${app.integrations.google.places-base-url:https://maps.googleapis.com/maps/api/place}")
     private String baseUrl;
 
     public PlacesResponseDTO searchPlaces(String query) {
-        if ("mock-key".equalsIgnoreCase(apiKey) || apiKey.isBlank()) {
-            log.info("Google Places API Key não configurada ou em modo mock. Retornando resposta vazia/mock para: {}", query);
+        if (apiKey.isBlank()) {
+            log.info("Google Places API Key não configurada. Retornando resposta vazia para: {}", query);
             return PlacesResponseDTO.builder()
                     .status("OK")
                     .results(Collections.emptyList())
