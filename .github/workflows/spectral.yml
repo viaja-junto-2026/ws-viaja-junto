@@ -1,8 +1,9 @@
 name: Lint OpenAPI Contract
 
 on:
+  # Em PR roda a verificação; em push só na main (evita rodar duas vezes a cada commit de PR).
   push:
-    branches: [ "**" ]
+    branches: [ "main" ]
   pull_request:
     branches: [ "**" ]
 
@@ -15,6 +16,6 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Run Spectral Lint
-        uses: stoplightio/spectral-action@latest
+        uses: stoplightio/spectral-action@6416fd018ae38e60136775066eb3e98172143141 # v0.8.13
         with:
           file_glob: 'docs/viajajunto-openapi.json'
