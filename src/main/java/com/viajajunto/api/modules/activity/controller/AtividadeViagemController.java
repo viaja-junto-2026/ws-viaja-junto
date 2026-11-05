@@ -1,5 +1,7 @@
 package com.viajajunto.api.modules.activity.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import com.viajajunto.api.core.dto.PagedResponse;
 import com.viajajunto.api.core.security.UserPrincipal;
 import com.viajajunto.api.modules.activity.dto.AtividadeResponseDTO;
@@ -17,10 +19,12 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
+@Tag(name = "Atividades da viagem")
 public class AtividadeViagemController {
 
     private final AtividadeViagemService atividadeViagemService;
 
+    @Operation(summary = "Adicionar atividade a um destino da viagem")
     @PostMapping({"/trips/{viagemId}/destinations/{destinoId}/activities", "/api/viagens/{viagemId}/destinos/{destinoId}/atividades"})
     public ResponseEntity<AtividadeResponseDTO> addAtividade(
             @PathVariable Long viagemId,
@@ -32,6 +36,7 @@ public class AtividadeViagemController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+    @Operation(summary = "Listar atividades de um destino da viagem")
     @GetMapping({"/trips/{viagemId}/destinations/{destinoId}/activities", "/api/viagens/{viagemId}/destinos/{destinoId}/atividades"})
     public ResponseEntity<List<AtividadeResponseDTO>> listAtividades(
             @PathVariable Long viagemId,
@@ -42,6 +47,7 @@ public class AtividadeViagemController {
         return ResponseEntity.ok(atividades);
     }
 
+    @Operation(summary = "Listar atividades da viagem (paginado)")
     @GetMapping("/trips/{tripId}/activities")
     public ResponseEntity<PagedResponse<AtividadeResponseDTO>> listAtividadesByTrip(
             @PathVariable Long tripId,
@@ -53,6 +59,7 @@ public class AtividadeViagemController {
         return ResponseEntity.ok(PagedResponse.of(atividades));
     }
 
+    @Operation(summary = "Remover atividade da viagem")
     @DeleteMapping({"/trips/{viagemId}/activities/{atividadeId}", "/trips/{viagemId}/destinations/{destinoId}/atividades/{atividadeId}", "/api/viagens/{viagemId}/destinos/{destinoId}/atividades/{atividadeId}"})
     public ResponseEntity<Void> removeAtividade(
             @PathVariable Long viagemId,

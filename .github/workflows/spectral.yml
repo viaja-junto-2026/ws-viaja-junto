@@ -17,4 +17,4 @@ jobs:
       - name: Run Spectral Lint
         uses: stoplightio/spectral-action@latest
         with:
-          file_glob: 'docs/openapi.yaml'
+          file_glob: 'docs/viajajunto-openapi.json'

@@ -1,5 +1,7 @@
 package com.viajajunto.api.modules.trip.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import com.viajajunto.api.core.dto.PagedResponse;
 import com.viajajunto.api.core.security.UserPrincipal;
 import com.viajajunto.api.modules.trip.dto.AddMembroDTO;
@@ -16,10 +18,12 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
+@Tag(name = "Membros da viagem")
 public class MembroViagemController {
 
     private final MembroViagemService membroViagemService;
 
+    @Operation(summary = "Entrar na viagem com código de convite")
     @PostMapping({"/trips/{viagemId}/members/join", "/api/viagens/{viagemId}/membros/join"})
     public ResponseEntity<MembroResponseDTO> joinViagem(
             @Valid @RequestBody AddMembroDTO dto,
@@ -29,6 +33,7 @@ public class MembroViagemController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+    @Operation(summary = "Listar membros da viagem (paginado)")
     @GetMapping("/trips/{tripId}/members")
     public ResponseEntity<PagedResponse<MembroResponseDTO>> listMembros(
             @PathVariable Long tripId,
@@ -40,6 +45,7 @@ public class MembroViagemController {
         return ResponseEntity.ok(PagedResponse.of(membros));
     }
 
+    @Operation(summary = "Alterar a permissão de um membro")
     @PatchMapping({"/trips/{viagemId}/members/{membroId}", "/api/viagens/{viagemId}/membros/{membroId}"})
     public ResponseEntity<MembroResponseDTO> updatePermissao(
             @PathVariable Long viagemId,
@@ -51,6 +57,7 @@ public class MembroViagemController {
         return ResponseEntity.ok(response);
     }
 
+    @Operation(summary = "Remover membro da viagem")
     @DeleteMapping({"/trips/{viagemId}/members/{membroId}", "/api/viagens/{viagemId}/membros/{membroId}"})
     public ResponseEntity<Void> removeMembro(
             @PathVariable Long viagemId,

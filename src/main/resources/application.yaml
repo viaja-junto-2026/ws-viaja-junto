@@ -53,3 +53,12 @@ aws:
     access-key-id: ${AWS_ACCESS_KEY_ID}
     secret-access-key: ${AWS_SECRET_ACCESS_KEY}
     table-name: Avaliacoes
+
+# Documentação da API (Swagger UI e /v3/api-docs): só habilitada no perfil "dev" (ver application-dev.yaml).
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false
+  # As rotas antigas em português (/api/...) existem só por compatibilidade e ficam fora da documentação.
+  paths-to-exclude: /api/**

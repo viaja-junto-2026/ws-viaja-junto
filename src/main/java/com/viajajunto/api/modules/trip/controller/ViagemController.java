@@ -1,5 +1,7 @@
 package com.viajajunto.api.modules.trip.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import com.viajajunto.api.core.dto.PagedResponse;
 import com.viajajunto.api.core.exception.ResourceNotFoundException;
 import com.viajajunto.api.core.security.UserPrincipal;
@@ -17,10 +19,12 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
+@Tag(name = "Viagens")
 public class ViagemController {
 
     private final ViagemService viagemService;
 
+    @Operation(summary = "Criar viagem")
     @PostMapping({"/trips", "/api/viagens"})
     public ResponseEntity<ViagemResponseDTO> createViagem(
             @Valid @RequestBody CreateViagemDTO dto,
@@ -30,6 +34,7 @@ public class ViagemController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+    @Operation(summary = "Listar viagens do usuário (paginado)")
     @GetMapping("/trips")
     public ResponseEntity<PagedResponse<ViagemResponseDTO>> listUserTrips(
             @RequestParam(defaultValue = "1") int page,
@@ -40,6 +45,7 @@ public class ViagemController {
         return ResponseEntity.ok(PagedResponse.of(trips));
     }
 
+    @Operation(summary = "Detalhar viagem")
     @GetMapping({"/trips/{id}", "/api/viagens/{id}"})
     public ResponseEntity<ViagemResponseDTO> getViagemById(
             @PathVariable String id,
@@ -55,6 +61,7 @@ public class ViagemController {
         return ResponseEntity.ok(response);
     }
 
+    @Operation(summary = "Atualizar viagem")
     @PutMapping({"/trips/{id}", "/api/viagens/{id}"})
     public ResponseEntity<ViagemResponseDTO> updateViagem(
             @PathVariable Long id,
@@ -65,6 +72,7 @@ public class ViagemController {
         return ResponseEntity.ok(response);
     }
 
+    @Operation(summary = "Excluir viagem")
     @DeleteMapping({"/trips/{id}", "/api/viagens/{id}"})
     public ResponseEntity<Void> deleteViagem(
             @PathVariable Long id,
