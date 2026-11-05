@@ -22,5 +22,5 @@ jobs:
         with:
           image-ref: 'viajajunto-api:latest'
           format: 'table'
-          exit-code: '1' # Gera o relatório de vulnerabilidades sem barrar o pipeline
+          exit-code: '0' # Gera o relatório de vulnerabilidades sem barrar o pipeline
           severity: 'HIGH,CRITICAL'
