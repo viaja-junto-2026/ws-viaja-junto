@@ -53,14 +53,14 @@ Recomendada durante o desenvolvimento para recarregamento rápido e depuração:
    docker compose up -d ministack dynamodb-admin
    ```
 
-2. **Execute a aplicação com o Maven Wrapper:**
+2. **Execute a aplicação com o Maven Wrapper, usando o perfil `dev`** (ele traz o segredo JWT, as origens do CORS, o H2 console e as credenciais do emulador AWS para uso local; sem ele a aplicação não sobe, veja [Variáveis de Ambiente](#-variáveis-de-ambiente)):
    - **Linux / macOS:**
      ```bash
-     ./mvnw spring-boot:run
+     ./mvnw spring-boot:run -Dspring-boot.run.profiles=dev
      ```
    - **Windows (PowerShell ou Prompt de Comando):**
      ```powershell
-     .\mvnw.cmd spring-boot:run
+     .\mvnw.cmd spring-boot:run "-Dspring-boot.run.profiles=dev"
      ```
 
 ---
@@ -71,12 +71,12 @@ Recomendada durante o desenvolvimento para recarregamento rápido e depuração:
 | :--- | :--- | :--- |
 | **API Base** | `http://localhost:8080` | Porta padrão da aplicação |
 | **Status / Health** | `http://localhost:8080/actuator/health` | Health Check via Spring Boot Actuator |
-| **H2 Console** | `http://localhost:8080/h2-console` | **JDBC URL:** `jdbc:h2:mem:viajajuntodb`<br>**User:** `sa` \| **Password:** *(vazio)* |
+| **H2 Console** | `http://localhost:8080/h2-console` | Só no perfil `dev`.<br>**JDBC URL:** `jdbc:h2:mem:viajajuntodb`<br>**User:** `sa` \| **Password:** *(vazio)* |
 | **DynamoDB Admin** | `http://localhost:8002` | Interface web para visualização de tabelas e itens |
 | **MiniStack (AWS Local)** | `http://localhost:4566` | Emulador local com suporte a DynamoDB |
 
 > [!TIP]
-> O banco de dados relacional (H2) é inicializado automaticamente com dados fictícios carregados a partir do arquivo [`src/main/resources/import.sql`](src/main/resources/import.sql) (usuários, destinos turísticos, atividades e viagens).
+> No perfil `dev`, o banco relacional (H2) é inicializado com dados fictícios carregados do arquivo [`src/main/resources/data.sql`](src/main/resources/data.sql) (usuários, destinos turísticos, atividades e viagens). As **avaliações** ficam no DynamoDB: ao subir, o `AvaliacaoSeedRunner` cria avaliações de exemplo (sem duplicar se rodar de novo) e recalcula média e total de cada destino e atividade a partir delas. Sem o MiniStack no ar, a API sobe normalmente, mas sem esses dados de avaliação.
 
 ---
 
@@ -84,11 +84,17 @@ Recomendada durante o desenvolvimento para recarregamento rápido e depuração:
 
 A aplicação suporta múltiplos perfis de configuração:
 
-- **`default` (Padrão):**
-  - Utilizado no desenvolvimento local.
-  - Carrega o banco H2 em memória com recriação de schema (`hibernate.ddl-auto: update`).
-  - Executa a carga inicial do `import.sql`.
-  - Aponta para o DynamoDB local no MiniStack (`http://localhost:4566`).
+- **`default` (Padrão, sem perfil ativo):**
+  - Configuração segura, sem valores de desenvolvimento: exige as variáveis de ambiente da seção [Variáveis de Ambiente](#-variáveis-de-ambiente) e não sobe sem `JWT_SECRET`.
+  - Mantém o H2 console desligado e não permite nenhuma origem externa no CORS.
+  - Usa o banco H2 em memória, recriado a cada execução (`hibernate.ddl-auto: create-drop`), **sem** dados de exemplo (`spring.sql.init.mode: never`).
+
+- **`dev` (Desenvolvimento local):**
+  - Ative com `SPRING_PROFILES_ACTIVE=dev`. **Nunca use em produção.**
+  - Liga o H2 console em `/h2-console` (somente neste perfil).
+  - Carrega o `data.sql` (`spring.sql.init.mode: always`) e semeia as avaliações de exemplo no DynamoDB.
+  - Traz um segredo JWT de desenvolvimento, libera o CORS para `localhost:3000`, `5173` e `4200` e aponta para o DynamoDB local no MiniStack (`http://localhost:4566`) com credenciais de mentira.
+  - É o perfil usado pelo `docker-compose.yml`.
 
 - **`test` (Testes Automatizados):**
   - Ativado automaticamente nas suítes de testes (`@ActiveProfiles("test")`).
@@ -104,7 +110,33 @@ Via argumento de linha de comando:
 
 Ou definindo a variável de ambiente:
 ```bash
-export SPRING_PROFILES_ACTIVE=test
+export SPRING_PROFILES_ACTIVE=dev
+```
+
+---
+
+## 🔐 Variáveis de Ambiente
+
+Nenhum segredo fica no repositório (ele é público): chaves e credenciais entram só por variável de ambiente. Fora do perfil `dev`, as obrigatórias precisam estar definidas, ou a aplicação não sobe.
+
+| Variável | Obrigatória? | Para que serve |
+| :--- | :--- | :--- |
+| `JWT_SECRET` | **Sim**, exceto no perfil `dev` | Segredo que assina os tokens JWT. Mínimo de 32 caracteres. |
+| `AWS_ACCESS_KEY_ID` | **Sim**, exceto no perfil `dev` | Credencial de acesso ao DynamoDB. |
+| `AWS_SECRET_ACCESS_KEY` | **Sim**, exceto no perfil `dev` | Credencial secreta do DynamoDB. |
+| `AWS_REGION` | Não (padrão `us-east-1`) | Região do DynamoDB. |
+| `AWS_DYNAMODB_ENDPOINT` | Não | Endpoint do DynamoDB. Vazio usa o DynamoDB real da AWS; o perfil `dev` aponta para o MiniStack em `http://localhost:4566`. |
+| `CORS_ALLOWED_ORIGINS` | Não | Origens permitidas, separadas por vírgula. Vazio = nenhuma origem externa. O perfil `dev` libera `localhost:3000`, `5173` e `4200`. |
+| `GOOGLE_PLACES_API_KEY` | Não | Chave da API do Google Places. Vazia, a busca de lugares devolve resposta vazia. |
+| `SPRING_PROFILES_ACTIVE` | Não | Perfil ativo (`dev`, `test`). Sem ele, vale o perfil `default`. |
+
+Exemplo para rodar fora do perfil `dev`:
+```bash
+export JWT_SECRET="<segredo-com-pelo-menos-32-caracteres>"
+export AWS_ACCESS_KEY_ID="<sua-chave>"
+export AWS_SECRET_ACCESS_KEY="<seu-segredo>"
+export CORS_ALLOWED_ORIGINS="https://app.exemplo.com"
+./mvnw spring-boot:run
 ```
 
 ---
@@ -122,6 +154,9 @@ O projeto conta com testes unitários isolados com Mockito e testes de contrato 
   ```powershell
   .\mvnw.cmd test
   ```
+
+> [!NOTE]
+> O `AvaliacaoRepositoryTest` usa um DynamoDB de verdade (MiniStack em contêiner, via Testcontainers) e **precisa do Docker no ar**. Sem o Docker, esses testes são ignorados (aparecem como *Skipped*) e o restante roda normalmente.
 
 ### Executar uma classe de teste específica
 ```bash

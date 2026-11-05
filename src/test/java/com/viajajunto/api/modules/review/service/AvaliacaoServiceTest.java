@@ -20,6 +20,7 @@ import com.viajajunto.api.modules.review.dto.AvaliacaoResponseDTO;
 import com.viajajunto.api.modules.review.dto.CreateAvaliacaoDTO;
 import com.viajajunto.api.modules.review.entity.AvaliacaoEntity;
 import com.viajajunto.api.modules.review.repository.AvaliacaoRepository;
+import com.viajajunto.api.modules.review.repository.AvaliacaoRepository.ResumoNotas;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
@@ -90,7 +91,8 @@ class AvaliacaoServiceTest {
         when(userRepository.findById(1L)).thenReturn(Optional.of(sampleUser));
         when(destinoCatalogoRepository.findById(10L)).thenReturn(Optional.of(sampleDestino));
         when(avaliacaoRepository.save(any(AvaliacaoEntity.class))).thenAnswer(i -> i.getArgument(0));
-        when(avaliacaoRepository.calculateAverageRatingForDestino(10L)).thenReturn(5.0);
+        // O destino já tinha 2 avaliações: o total (3) e a média vêm do mesmo resumo, não de "+1".
+        when(avaliacaoRepository.resumirDestino(10L)).thenReturn(new ResumoNotas(3, 4.6667));
 
         AvaliacaoResponseDTO response = avaliacaoService.createAvaliacao(dto, 1L);
 
@@ -101,8 +103,8 @@ class AvaliacaoServiceTest {
         assertEquals(1L, response.getUsuario().getId());
 
         verify(destinoCatalogoRepository).save(sampleDestino);
-        assertEquals(1, sampleDestino.getTotalAvaliacoes());
-        assertEquals(5.0, sampleDestino.getAvaliacaoMedia());
+        assertEquals(3, sampleDestino.getTotalAvaliacoes());
+        assertEquals(4.7, sampleDestino.getAvaliacaoMedia());
     }
 
     @Test
@@ -117,7 +119,7 @@ class AvaliacaoServiceTest {
         when(userRepository.findById(1L)).thenReturn(Optional.of(sampleUser));
         when(catalogoAtividadeRepository.findById(20L)).thenReturn(Optional.of(sampleAtividade));
         when(avaliacaoRepository.save(any(AvaliacaoEntity.class))).thenAnswer(i -> i.getArgument(0));
-        when(avaliacaoRepository.calculateAverageRatingForAtividade(20L)).thenReturn(4.0);
+        when(avaliacaoRepository.resumirAtividade(20L)).thenReturn(new ResumoNotas(1, 4.0));
 
         AvaliacaoResponseDTO response = avaliacaoService.createAvaliacao(dto, 1L);
 

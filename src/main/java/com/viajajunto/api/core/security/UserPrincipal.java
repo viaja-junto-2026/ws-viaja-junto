@@ -2,6 +2,7 @@ package com.viajajunto.api.core.security;
 
 import com.viajajunto.api.modules.auth.entity.UserEntity;
 import lombok.Getter;
+import org.springframework.security.core.CredentialsContainer;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -9,13 +10,18 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.Collections;
 
+/**
+ * Usuário autenticado. O hash da senha só existe para o login: o Spring Security chama
+ * {@link #eraseCredentials()} depois de autenticar, e o {@code JwtAuthFilter} faz o mesmo
+ * antes de colocar o usuário no contexto da requisição.
+ */
 @Getter
-public class UserPrincipal implements UserDetails {
+public class UserPrincipal implements UserDetails, CredentialsContainer {
 
     private final Long id;
     private final String nome;
     private final String email;
-    private final String senha;
+    private String senha;
     private final Collection<? extends GrantedAuthority> authorities;
 
     public UserPrincipal(UserEntity user) {
@@ -34,6 +40,11 @@ public class UserPrincipal implements UserDetails {
     @Override
     public String getPassword() {
         return senha;
+    }
+
+    @Override
+    public void eraseCredentials() {
+        this.senha = null;
     }
 
     @Override

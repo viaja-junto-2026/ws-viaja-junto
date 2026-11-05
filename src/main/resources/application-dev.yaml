@@ -1,0 +1,30 @@
+# Perfil de desenvolvimento local. Ative com: SPRING_PROFILES_ACTIVE=dev
+# NUNCA use este perfil em produção.
+spring:
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+      settings:
+        web-allow-others: true # necessário para acessar de dentro do Docker
+  # Carrega o data.sql (usuários, catálogo e viagens de exemplo) depois do schema.
+  sql:
+    init:
+      mode: always
+  jpa:
+    hibernate:
+      ddl-auto: update
+
+app:
+  jwt:
+    # Segredo exclusivo de desenvolvimento. Em qualquer outro ambiente use JWT_SECRET.
+    secret: ${JWT_SECRET:dev-only-secret-change-me-dev-only-secret-change-me}
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000,http://localhost:5173,http://localhost:4200}
+
+aws:
+  dynamodb:
+    # Emulador local (MiniStack, ver docker-compose.yml) com credenciais de mentira.
+    endpoint: ${AWS_DYNAMODB_ENDPOINT:http://localhost:4566}
+    access-key-id: ${AWS_ACCESS_KEY_ID:fakeAccessKey}
+    secret-access-key: ${AWS_SECRET_ACCESS_KEY:fakeSecretKey}

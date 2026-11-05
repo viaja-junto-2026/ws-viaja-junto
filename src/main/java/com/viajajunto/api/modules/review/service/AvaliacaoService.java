@@ -14,6 +14,7 @@ import com.viajajunto.api.modules.review.dto.AvaliacaoResponseDTO;
 import com.viajajunto.api.modules.review.dto.CreateAvaliacaoDTO;
 import com.viajajunto.api.modules.review.entity.AvaliacaoEntity;
 import com.viajajunto.api.modules.review.repository.AvaliacaoRepository;
+import com.viajajunto.api.modules.review.repository.AvaliacaoRepository.ResumoNotas;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -89,17 +90,18 @@ public class AvaliacaoService {
 
         AvaliacaoEntity saved = avaliacaoRepository.save(avaliacao);
 
+        // Total e média saem da mesma leitura do DynamoDB, para nunca divergirem.
         if (destino != null) {
-            Double media = avaliacaoRepository.calculateAverageRatingForDestino(destino.getId());
-            destino.setAvaliacaoMedia(media != null ? Math.round(media * 10.0) / 10.0 : 0.0);
-            destino.setTotalAvaliacoes(destino.getTotalAvaliacoes() + 1);
+            ResumoNotas resumo = avaliacaoRepository.resumirDestino(destino.getId());
+            destino.setAvaliacaoMedia(resumo.mediaArredondada());
+            destino.setTotalAvaliacoes(resumo.total());
             destinoCatalogoRepository.save(destino);
         }
 
         if (atividade != null) {
-            Double media = avaliacaoRepository.calculateAverageRatingForAtividade(atividade.getId());
-            atividade.setAvaliacaoMedia(media != null ? Math.round(media * 10.0) / 10.0 : 0.0);
-            atividade.setTotalAvaliacoes(atividade.getTotalAvaliacoes() + 1);
+            ResumoNotas resumo = avaliacaoRepository.resumirAtividade(atividade.getId());
+            atividade.setAvaliacaoMedia(resumo.mediaArredondada());
+            atividade.setTotalAvaliacoes(resumo.total());
             catalogoAtividadeRepository.save(atividade);
         }
 
@@ -118,6 +120,11 @@ public class AvaliacaoService {
         return paginate(list, pageable);
     }
 
+    /**
+     * Pagina em memória: o DynamoDB só avança por cursor (exclusiveStartKey), sem "página N", e a
+     * API expõe page/size. Cada listagem lê todas as avaliações do alvo, o que serve ao volume
+     * atual mas deve virar paginação por cursor se um destino passar de milhares de avaliações.
+     */
     private Page<AvaliacaoResponseDTO> paginate(List<AvaliacaoEntity> list, Pageable pageable) {
         List<AvaliacaoResponseDTO> dtos = list.stream()
                 .sorted(Comparator.comparing(AvaliacaoEntity::getDataCriacao, Comparator.nullsLast(Comparator.reverseOrder())))
