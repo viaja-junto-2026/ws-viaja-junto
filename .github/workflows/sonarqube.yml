@@ -27,12 +27,14 @@ jobs:
       - name: Run Tests and Generate Coverage (JaCoCo)
         run: mvn clean test jacoco:report
 
+      # Projeto do SonarQube Cloud: viaja-junto-2026_ws-viaja-junto (público, branch principal "main").
+      # A análise automática do Sonar precisa estar DESLIGADA nesse projeto; senão o scan por CI é recusado.
       - name: SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@v5
         with:
           args: >
             -Dsonar.organization=viaja-junto-2026
-            -Dsonar.projectKey=ws-viaja-junto
+            -Dsonar.projectKey=viaja-junto-2026_ws-viaja-junto
             -Dsonar.projectName=ws-viaja-junto
             -Dsonar.sources=src/main/java
             -Dsonar.tests=src/test/java
